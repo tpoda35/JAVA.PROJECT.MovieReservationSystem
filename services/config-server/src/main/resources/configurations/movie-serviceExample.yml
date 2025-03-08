@@ -1,0 +1,26 @@
+# Rename this to "movie-service.yml"!
+# Fill your own data where you see "your...".
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/yourdb
+    username: yourusername
+    password: yourpassword
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+  #  data:
+  #    mongodb:
+  #      host: localhost
+  #      port: 27017
+  #      database: movie
+  #      authentication-database: admin
+
+server:
+  port: 8090
