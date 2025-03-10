@@ -1,5 +1,6 @@
 package com.moviereservationapi.movie.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.moviereservationapi.movie.Enum.MovieGenre;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -36,6 +37,7 @@ public class Movie {
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @JsonIgnore
     private List<Review> reviews;
 
     @ManyToMany
