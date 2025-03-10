@@ -1,7 +1,6 @@
 package com.moviereservationapi.movie.service.impl;
 
 import com.moviereservationapi.movie.dto.MovieDto;
-import com.moviereservationapi.movie.dto.PageDataDto;
 import com.moviereservationapi.movie.exception.MovieNotFoundException;
 import com.moviereservationapi.movie.model.Movie;
 import com.moviereservationapi.movie.repository.MovieRepository;
