@@ -14,7 +14,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MovieNotFoundException.class)
-    public ResponseEntity<?> handleMovieNotFoundException(
+    public ResponseEntity<CustomExceptionDto> handleMovieNotFoundException(
             MovieNotFoundException ex
     ) {
         return ResponseEntity.status(NOT_FOUND).body(
@@ -27,9 +27,19 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleUncaughtExceptions(
-            Exception ex
-    ) {
+    public ResponseEntity<CustomExceptionDto> handleUncaughtExceptions(Exception ex) {
+        if (ex instanceof org.springframework.cache.interceptor.CacheOperationInvoker.ThrowableWrapper) {
+            ex = (Exception) ((org.springframework.cache.interceptor.CacheOperationInvoker.ThrowableWrapper) ex).getOriginal();
+        }
+
+        if (ex instanceof MovieNotFoundException) {
+            return handleMovieNotFoundException((MovieNotFoundException) ex);
+        } else {
+            return handleException(ex);
+        }
+    }
+
+    private ResponseEntity<CustomExceptionDto> handleException(Exception ex) {
         return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(
                 new CustomExceptionDto(
                         ex.getMessage(),
