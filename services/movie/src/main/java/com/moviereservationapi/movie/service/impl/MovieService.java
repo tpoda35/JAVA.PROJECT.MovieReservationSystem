@@ -28,13 +28,13 @@ public class MovieService implements IMovieService {
     private final MovieRepository movieRepository;
     private final TransactionTemplate transactionTemplate;
 
+    @Override
     @Cacheable(
             cacheNames = "movies",
             key = "'movies_page_' + #pageNumber + '_size_' + #pageSize"
     )
-    @Override
     @Async
-    public CompletableFuture<Page<MovieDto>> getAllMovie(int pageNumber, int pageSize) {
+    public CompletableFuture<Page<MovieDto>> getAllMovie(int pageNumber, int pageSize) throws MovieNotFoundException {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<Movie> movies = movieRepository.findAll(pageable);
 
