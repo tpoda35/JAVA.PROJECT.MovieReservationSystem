@@ -8,6 +8,8 @@
         <option value="$PROJECT_DIR$/services/discovery-service/pom.xml" />
         <option value="$PROJECT_DIR$/services/discovery/pom.xml" />
         <option value="$PROJECT_DIR$/services/movie/pom.xml" />
+        <option value="$PROJECT_DIR$/services/gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/services/user/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
