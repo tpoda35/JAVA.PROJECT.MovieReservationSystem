@@ -37,7 +37,6 @@ public class Movie {
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
-    @JsonIgnore
     private List<Review> reviews;
 
     @ManyToMany
@@ -57,6 +56,7 @@ public class Movie {
             joinColumns = @JoinColumn(name = "movie_id")
     )
     @Column(name = "user_id")
+    @ToString.Exclude
     private List<Long> userIds;
 
     @ElementCollection
@@ -65,5 +65,6 @@ public class Movie {
             joinColumns = @JoinColumn(name = "movie_id")
     )
     @Column(name = "showtime_id")
+    @ToString.Exclude
     private List<Long> showtimeIds;
 }
