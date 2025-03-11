@@ -9,6 +9,10 @@ import java.util.concurrent.CompletableFuture;
 public interface IMovieService {
     CompletableFuture<Page<MovieDto>> getAllMovie(int pageNumber, int pageSize);
     CompletableFuture<MovieDto> getMovie(Long movieId);
+    // Role required.
     MovieDto addMovie(MovieManageDto movieManageDto);
+    // Role required.
     MovieDto editMovie(Long movieId, MovieManageDto movieManageDto);
+    // Role required.
+    void deleteMovie(Long movieId);
 }
