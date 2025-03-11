@@ -141,4 +141,27 @@ public class MovieService implements IMovieService {
 
         return MovieMapper.fromMovieToDto(savedMovie);
     }
+
+    @Override
+    @Caching(
+            evict = {
+                    @CacheEvict(
+                            value = "movies",
+                            allEntries = true
+                    ),
+                    @CacheEvict(
+                            value = "movie",
+                            key = "'movie_' + #movieId"
+                    )
+            }
+    )
+    public void deleteMovie(Long movieId) {
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> {
+                    log.info("api/movies/deleteMovie/movieId :: Movie not found with the id of {}.", movieId);
+                    return new MovieNotFoundException("Movie not found.");
+                });
+
+        movieRepository.delete(movie);
+    }
 }
