@@ -1,0 +1,20 @@
+# Rename this to "user-service.yml"!
+# Fill your own data where you see "your...".
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/yourdb
+    username: yourusername
+    password: yourpassword
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+
+server:
+  port: 8091
