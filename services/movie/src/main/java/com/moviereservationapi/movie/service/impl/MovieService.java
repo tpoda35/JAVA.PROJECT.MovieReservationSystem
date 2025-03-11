@@ -1,10 +1,13 @@
 package com.moviereservationapi.movie.service.impl;
 
+import com.moviereservationapi.movie.dto.MovieCreateDto;
 import com.moviereservationapi.movie.dto.MovieDto;
 import com.moviereservationapi.movie.exception.MovieNotFoundException;
+import com.moviereservationapi.movie.mapper.MovieMapper;
 import com.moviereservationapi.movie.model.Movie;
 import com.moviereservationapi.movie.repository.MovieRepository;
 import com.moviereservationapi.movie.service.IMovieService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -49,12 +52,7 @@ public class MovieService implements IMovieService {
         List<MovieDto> movieDtos = transactionTemplate.execute(status ->
                 movies.getContent().stream()
                         .map(
-                                movie -> MovieDto.builder()
-                                        .title(movie.getTitle())
-                                        .length(movie.getLength())
-                                        .release(movie.getRelease())
-                                        .movieGenre(movie.getMovieGenre())
-                                        .build()
+                                MovieMapper::fromMovieToDto
                         )
                         .collect(Collectors.toList())
         );
@@ -87,12 +85,16 @@ public class MovieService implements IMovieService {
                 movie.getTitle(), movie.getLength(), movie.getRelease());
 
         return CompletableFuture.completedFuture(
-                MovieDto.builder()
-                        .title(movie.getTitle())
-                        .length(movie.getLength())
-                        .release(movie.getRelease())
-                        .movieGenre(movie.getMovieGenre())
-                        .build()
+                MovieMapper.fromMovieToDto(movie)
         );
+    }
+
+    @Override
+    public MovieDto addMovie(@Valid MovieCreateDto movieCreateDto) {
+        Movie movie = MovieMapper.fromCreateDtoToMovie(movieCreateDto);
+
+        Movie savedMovie = movieRepository.save(movie);
+
+        return MovieMapper.fromMovieToDto(savedMovie);
     }
 }
