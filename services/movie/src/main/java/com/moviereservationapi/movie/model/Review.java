@@ -31,7 +31,6 @@ public class Review {
     private Movie movie;
 
     // From another service.
-
     private Long userId;
 
     @PrePersist
