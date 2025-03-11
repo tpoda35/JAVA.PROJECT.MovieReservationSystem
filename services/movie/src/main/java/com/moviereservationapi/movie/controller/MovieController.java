@@ -1,10 +1,10 @@
 package com.moviereservationapi.movie.controller;
 
-import com.moviereservationapi.movie.dto.MovieManageDto;
 import com.moviereservationapi.movie.dto.MovieDto;
+import com.moviereservationapi.movie.dto.MovieManageDto;
+import com.moviereservationapi.movie.dto.ReviewDto;
 import com.moviereservationapi.movie.service.IMovieService;
 import jakarta.validation.Valid;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -24,8 +25,8 @@ public class MovieController {
 
     @GetMapping
     public CompletableFuture<Page<MovieDto>> getAllMovie(
-            @RequestParam(defaultValue = "0") @NonNull Integer pageNum,
-            @RequestParam(defaultValue = "10") @NonNull Integer pageSize
+            @RequestParam(defaultValue = "0") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize
     ){
         log.info("api/movies :: Called endpoint. (pageNum:{}, pageSize:{})", pageNum, pageSize);
 
@@ -64,6 +65,21 @@ public class MovieController {
         );
 
         return movieService.editMovie(movieId, movieManageDto);
+    }
+
+    @DeleteMapping("/deleteMovie/{movieId}")
+    public void deleteMovie(
+            @PathVariable("movieId") Long movieId
+    ) {
+        log.info("api/movies/deleteMovie/movieId :: Called endpoint. (movieId:{})", movieId);
+        movieService.deleteMovie(movieId);
+    }
+
+    @GetMapping("/{movieId}/reviews")
+    public CompletableFuture<List<ReviewDto>> getMovieReviews(
+            @PathVariable("movieId") Long movieId
+    ) {
+        return null;
     }
 
 }
