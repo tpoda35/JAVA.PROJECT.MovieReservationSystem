@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class MovieDto implements Serializable {
 
+    private Long id;
+
     @NotNull(message = "Movie title cannot be null.")
     @Length(min = 1, max = 100, message = "Movie name must be between 1 and 100 characters.")
     private String title;
@@ -31,5 +33,4 @@ public class MovieDto implements Serializable {
 
     @Enumerated(EnumType.STRING)
     private MovieGenre movieGenre;
-
 }
