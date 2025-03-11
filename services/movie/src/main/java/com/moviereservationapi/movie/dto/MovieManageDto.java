@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MovieCreateDto {
+public class MovieManageDto {
 
     @NotNull(message = "Movie title cannot be null.")
     @Length(min = 1, max = 100, message = "Movie name must be between 1 and 100 characters.")
