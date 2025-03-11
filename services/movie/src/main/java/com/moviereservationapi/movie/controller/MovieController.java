@@ -1,13 +1,17 @@
 package com.moviereservationapi.movie.controller;
 
+import com.moviereservationapi.movie.dto.MovieCreateDto;
 import com.moviereservationapi.movie.dto.MovieDto;
-import com.moviereservationapi.movie.service.impl.MovieService;
+import com.moviereservationapi.movie.service.IMovieService;
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -16,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class MovieController {
 
-    private final MovieService movieService;
+    private final IMovieService movieService;
 
     @GetMapping
     public CompletableFuture<Page<MovieDto>> getAllMovie(
@@ -35,6 +39,19 @@ public class MovieController {
         log.info("api/movies/movieId :: Called endpoint. (movieId:{})", movieId);
 
         return movieService.getMovie(movieId);
+    }
+
+    // Role required endpoints.
+    @PostMapping("/addMovie")
+    public ResponseEntity<MovieDto> addMovie(
+            @RequestBody @Valid MovieCreateDto movieCreateDto
+    ) {
+        log.info("api/movies/addMovie :: Called endpoint. (movieDto:{})", movieCreateDto);
+
+        MovieDto savedMovie = movieService.addMovie(movieCreateDto);
+        URI location = URI.create("/movies/" + savedMovie.getId());
+
+        return ResponseEntity.created(location).body(savedMovie);
     }
 
 }
