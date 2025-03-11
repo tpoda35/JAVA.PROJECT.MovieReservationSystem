@@ -1,6 +1,6 @@
 package com.moviereservationapi.movie.mapper;
 
-import com.moviereservationapi.movie.dto.MovieCreateDto;
+import com.moviereservationapi.movie.dto.MovieManageDto;
 import com.moviereservationapi.movie.dto.MovieDto;
 import com.moviereservationapi.movie.model.Movie;
 
@@ -26,7 +26,7 @@ public class MovieMapper {
                 .build();
     }
 
-    public static Movie fromCreateDtoToMovie(MovieCreateDto movieDto) {
+    public static Movie fromManageDtoToMovie(MovieManageDto movieDto) {
         return Movie.builder()
                 .title(movieDto.getTitle())
                 .length(movieDto.getLength())
