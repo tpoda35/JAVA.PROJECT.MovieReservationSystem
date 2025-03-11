@@ -49,6 +49,21 @@ public class Movie {
     @ToString.Exclude
     private List<Actor> actors;
 
-    //Users
-    //Showtimes
+    // From another microservices.
+
+    @ElementCollection
+    @CollectionTable(
+            name = "movie_users",
+            joinColumns = @JoinColumn(name = "movie_id")
+    )
+    @Column(name = "user_id")
+    private List<Long> userIds;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "movie_shotimes",
+            joinColumns = @JoinColumn(name = "movie_id")
+    )
+    @Column(name = "showtime_id")
+    private List<Long> showtimeIds;
 }
