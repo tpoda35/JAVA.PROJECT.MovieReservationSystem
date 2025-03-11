@@ -1,17 +1,37 @@
 package com.moviereservationapi.movie.mapper;
 
+import com.moviereservationapi.movie.dto.MovieCreateDto;
 import com.moviereservationapi.movie.dto.MovieDto;
 import com.moviereservationapi.movie.model.Movie;
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
-import java.util.List;
+public class MovieMapper {
 
-@Mapper
-public interface MovieMapper {
+    public static Movie fromDtoToMovie(MovieDto movieDto) {
+        return Movie.builder()
+                .id(movieDto.getId())
+                .title(movieDto.getTitle())
+                .length(movieDto.getLength())
+                .release(movieDto.getRelease())
+                .movieGenre(movieDto.getMovieGenre())
+                .build();
+    }
 
-    MovieMapper INSTANCE = Mappers.getMapper(MovieMapper.class);
+    public static MovieDto fromMovieToDto(Movie movie) {
+        return MovieDto.builder()
+                .id(movie.getId())
+                .title(movie.getTitle())
+                .length(movie.getLength())
+                .release(movie.getRelease())
+                .movieGenre(movie.getMovieGenre())
+                .build();
+    }
 
-    List<MovieDto> toDto(List<Movie> movies);
-
+    public static Movie fromCreateDtoToMovie(MovieCreateDto movieDto) {
+        return Movie.builder()
+                .title(movieDto.getTitle())
+                .length(movieDto.getLength())
+                .release(movieDto.getRelease())
+                .movieGenre(movieDto.getMovieGenre())
+                .build();
+    }
 }
