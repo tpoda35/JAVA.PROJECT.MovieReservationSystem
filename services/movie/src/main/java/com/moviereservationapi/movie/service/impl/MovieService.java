@@ -30,7 +30,7 @@ public class MovieService implements IMovieService {
 
     @Override
     @Cacheable(
-            cacheNames = "movies",
+            value = "movies",
             key = "'movies_page_' + #pageNumber + '_size_' + #pageSize"
     )
     @Async
@@ -40,8 +40,11 @@ public class MovieService implements IMovieService {
 
         if (movies.isEmpty()) {
             log.info("api/movies :: No movies found.");
-            throw new MovieNotFoundException("There's no movie found.");
+            throw new MovieNotFoundException("No movies found.");
         }
+
+        log.info("api/movies :: {} movies found.", movies.getTotalElements());
+        log.info("api/movies :: Pagination settings: pageNumber: {}, pageSize: {}.", pageNumber, pageSize);
 
         List<MovieDto> movieDtos = transactionTemplate.execute(status ->
                 movies.getContent().stream()
@@ -63,6 +66,33 @@ public class MovieService implements IMovieService {
 
         return CompletableFuture.completedFuture(
                 new PageImpl<>(movieDtos, pageable, movies.getTotalElements())
+        );
+    }
+
+    @Override
+    @Cacheable(
+            value = "movie",
+            key = "'movie_' + #movieId"
+    )
+    @Async
+    public CompletableFuture<MovieDto> getMovie(Long movieId) {
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> {
+                    log.info("api/movies/movieId :: Movie not found with the id of {}.", movieId);
+                    return new MovieNotFoundException("Movie not found.");
+                });
+
+        log.info("api/movies/movieId :: Movie found with the id of {}", movieId);
+        log.info("api/movies/movieId :: Movie data: title: {}, length: {}, release: {}.",
+                movie.getTitle(), movie.getLength(), movie.getRelease());
+
+        return CompletableFuture.completedFuture(
+                MovieDto.builder()
+                        .title(movie.getTitle())
+                        .length(movie.getLength())
+                        .release(movie.getRelease())
+                        .movieGenre(movie.getMovieGenre())
+                        .build()
         );
     }
 }

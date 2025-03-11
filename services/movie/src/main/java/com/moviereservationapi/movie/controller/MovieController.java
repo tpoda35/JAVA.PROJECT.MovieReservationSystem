@@ -6,10 +6,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -28,11 +25,16 @@ public class MovieController {
     ){
         log.info("api/movies :: Called endpoint. (pageNum:{}, pageSize:{})", pageNum, pageSize);
 
-        return movieService.getAllMovie(pageNum, pageSize)
-                .thenApply(results -> {
-                    log.info("api/movies :: Found {} movie.", results.getContent().size());
-                    return results;
-                });
+        return movieService.getAllMovie(pageNum, pageSize);
+    }
+
+    @GetMapping("/{movieId}")
+    public CompletableFuture<MovieDto> getMovie(
+            @PathVariable("movieId") Long movieId
+    ) {
+        log.info("api/movies/movieId :: Called endpoint. (movieId:{})", movieId);
+
+        return movieService.getMovie(movieId);
     }
 
 }
