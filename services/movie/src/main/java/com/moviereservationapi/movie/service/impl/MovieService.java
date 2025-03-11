@@ -1,7 +1,7 @@
 package com.moviereservationapi.movie.service.impl;
 
-import com.moviereservationapi.movie.dto.MovieCreateDto;
 import com.moviereservationapi.movie.dto.MovieDto;
+import com.moviereservationapi.movie.dto.MovieManageDto;
 import com.moviereservationapi.movie.exception.MovieNotFoundException;
 import com.moviereservationapi.movie.mapper.MovieMapper;
 import com.moviereservationapi.movie.model.Movie;
@@ -37,7 +37,7 @@ public class MovieService implements IMovieService {
             key = "'movies_page_' + #pageNumber + '_size_' + #pageSize"
     )
     @Async
-    public CompletableFuture<Page<MovieDto>> getAllMovie(int pageNumber, int pageSize) throws MovieNotFoundException {
+    public CompletableFuture<Page<MovieDto>> getAllMovie(int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<Movie> movies = movieRepository.findAll(pageable);
 
@@ -90,10 +90,32 @@ public class MovieService implements IMovieService {
     }
 
     @Override
-    public MovieDto addMovie(@Valid MovieCreateDto movieCreateDto) {
-        Movie movie = MovieMapper.fromCreateDtoToMovie(movieCreateDto);
+    public MovieDto addMovie(@Valid MovieManageDto movieManageDto) {
+        Movie movie = MovieMapper.fromManageDtoToMovie(movieManageDto);
+        Movie savedMovie = movieRepository.save(movie);
+
+        log.info("api/movies/addMovie :: Saved Movie.");
+        log.info("api/movies/addMovie :: Movie data: {}", movie);
+
+        return MovieMapper.fromMovieToDto(savedMovie);
+    }
+
+    @Override
+    public MovieDto editMovie(Long movieId, @Valid MovieManageDto movieManageDto) {
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> {
+                    log.info("api/movies/editMovie/movieId :: Movie not found with the id of {}.", movieId);
+                    return new MovieNotFoundException("Movie not found.");
+                });
+
+        movie.setTitle(movieManageDto.getTitle());
+        movie.setLength(movieManageDto.getLength());
+        movie.setRelease(movieManageDto.getRelease());
+        movie.setMovieGenre(movieManageDto.getMovieGenre());
 
         Movie savedMovie = movieRepository.save(movie);
+        log.info("api/movies/editMovie/movieId :: Movie saved.");
+        log.info("api/movies/editMovie/movieId :: Movie data: {}", movie);
 
         return MovieMapper.fromMovieToDto(savedMovie);
     }

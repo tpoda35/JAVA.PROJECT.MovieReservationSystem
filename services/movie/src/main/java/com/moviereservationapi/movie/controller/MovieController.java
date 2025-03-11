@@ -1,6 +1,6 @@
 package com.moviereservationapi.movie.controller;
 
-import com.moviereservationapi.movie.dto.MovieCreateDto;
+import com.moviereservationapi.movie.dto.MovieManageDto;
 import com.moviereservationapi.movie.dto.MovieDto;
 import com.moviereservationapi.movie.service.IMovieService;
 import jakarta.validation.Valid;
@@ -44,14 +44,26 @@ public class MovieController {
     // Role required endpoints.
     @PostMapping("/addMovie")
     public ResponseEntity<MovieDto> addMovie(
-            @RequestBody @Valid MovieCreateDto movieCreateDto
+            @RequestBody @Valid MovieManageDto movieManageDto
     ) {
-        log.info("api/movies/addMovie :: Called endpoint. (movieDto:{})", movieCreateDto);
+        log.info("api/movies/addMovie :: Called endpoint. (movieManageDto:{})", movieManageDto);
 
-        MovieDto savedMovie = movieService.addMovie(movieCreateDto);
+        MovieDto savedMovie = movieService.addMovie(movieManageDto);
         URI location = URI.create("/movies/" + savedMovie.getId());
 
         return ResponseEntity.created(location).body(savedMovie);
+    }
+
+    @PutMapping("/editMovie/{movieId}")
+    public MovieDto editMovie(
+            @PathVariable("movieId") Long movieId,
+            @RequestBody @Valid MovieManageDto movieManageDto
+    ) {
+        log.info("api/movies/editMovie/movieId :: Called endpoint. (movieManageDto:{}, movieId:{})",
+                movieManageDto, movieId
+        );
+
+        return movieService.editMovie(movieId, movieManageDto);
     }
 
 }
