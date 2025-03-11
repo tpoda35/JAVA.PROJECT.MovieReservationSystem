@@ -30,7 +30,9 @@ public class Review {
     @JoinColumn(name = "movie_id")
     private Movie movie;
 
-    //User
+    // From another service.
+
+    private Long userId;
 
     @PrePersist
     protected void onCreate() {
