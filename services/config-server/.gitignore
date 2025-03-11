@@ -35,3 +35,4 @@ build/
 src/main/resources/configurations/application.yml
 src/main/resources/configurations/discovery-service.yml
 src/main/resources/configurations/movie-service.yml
+src/main/resources/configurations/user-service.yml
