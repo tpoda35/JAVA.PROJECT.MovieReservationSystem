@@ -10,7 +10,9 @@ import com.moviereservationapi.movie.service.IMovieService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -90,6 +92,14 @@ public class MovieService implements IMovieService {
     }
 
     @Override
+    @Caching(
+            evict = {
+                    @CacheEvict(
+                            value = "movies",
+                            allEntries = true
+                    )
+            }
+    )
     public MovieDto addMovie(@Valid MovieManageDto movieManageDto) {
         Movie movie = MovieMapper.fromManageDtoToMovie(movieManageDto);
         Movie savedMovie = movieRepository.save(movie);
@@ -101,6 +111,18 @@ public class MovieService implements IMovieService {
     }
 
     @Override
+    @Caching(
+            evict = {
+                    @CacheEvict(
+                            value = "movies",
+                            allEntries = true
+                    ),
+                    @CacheEvict(
+                            value = "movie",
+                            key = "'movie_' + #movieId"
+                    )
+            }
+    )
     public MovieDto editMovie(Long movieId, @Valid MovieManageDto movieManageDto) {
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> {
