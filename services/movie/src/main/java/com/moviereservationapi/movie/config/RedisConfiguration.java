@@ -8,6 +8,8 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class RedisConfiguration {
@@ -18,8 +20,14 @@ public class RedisConfiguration {
                 .disableCachingNullValues()
                 .entryTtl(Duration.ofMinutes(20));
 
+        Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
+        cacheConfigurations.put("movies", cacheConfiguration.entryTtl(Duration.ofMinutes(30)));
+        cacheConfigurations.put("movie", cacheConfiguration.entryTtl(Duration.ofMinutes(30)));
+
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(cacheConfiguration)
+                .withInitialCacheConfigurations(cacheConfigurations)
+                .transactionAware()
                 .build();
     }
 
