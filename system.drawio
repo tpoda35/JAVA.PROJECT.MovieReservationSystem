@@ -300,7 +300,7 @@
         <mxCell id="sUJshtcy-ZBB7ZE9HucJ-44" value="List&amp;lt;Review&amp;gt; reviews" style="text;strokeColor=#6F0000;fillColor=#a20025;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#ffffff;" parent="OH8wwOLy9I2YWy9BTSWH-24" vertex="1">
           <mxGeometry y="120" width="140" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="sUJshtcy-ZBB7ZE9HucJ-55" value="List&amp;lt;Notification&amp;gt;" style="text;strokeColor=#6F0000;fillColor=#a20025;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#ffffff;" parent="OH8wwOLy9I2YWy9BTSWH-24" vertex="1">
+        <mxCell id="sUJshtcy-ZBB7ZE9HucJ-55" value="List&amp;lt;Notification&amp;gt; notifications" style="text;strokeColor=#6F0000;fillColor=#a20025;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#ffffff;" parent="OH8wwOLy9I2YWy9BTSWH-24" vertex="1">
           <mxGeometry y="150" width="140" height="30" as="geometry" />
         </mxCell>
         <mxCell id="sUJshtcy-ZBB7ZE9HucJ-67" value="List&amp;lt;Payment&amp;gt; payments" style="text;strokeColor=#6F0000;fillColor=#a20025;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#ffffff;" parent="OH8wwOLy9I2YWy9BTSWH-24" vertex="1">
@@ -612,6 +612,27 @@
         </mxCell>
         <mxCell id="gdouTfoXXiuZc2-UNnxc-96" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="WIyWlLk6GJQsqaUBKTNV-1" source="gdouTfoXXiuZc2-UNnxc-81" target="gdouTfoXXiuZc2-UNnxc-95" edge="1">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_lHhSZW2yL5lhsk21Tac-0" value="" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="840" width="440" height="440" as="geometry" />
+        </mxCell>
+        <mxCell id="_lHhSZW2yL5lhsk21Tac-1" value="UserController" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="840" width="190" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="_lHhSZW2yL5lhsk21Tac-5" value="GET - api/users/getUser/{userid}" style="text;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_lHhSZW2yL5lhsk21Tac-1">
+          <mxGeometry y="30" width="190" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_lHhSZW2yL5lhsk21Tac-6" value="GET - api/users/getUsers (userIdList)" style="text;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_lHhSZW2yL5lhsk21Tac-1">
+          <mxGeometry y="60" width="190" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_lHhSZW2yL5lhsk21Tac-7" value="GET - api/users/{userid}/movies" style="text;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_lHhSZW2yL5lhsk21Tac-1">
+          <mxGeometry y="90" width="190" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_lHhSZW2yL5lhsk21Tac-8" value="GET - api/users/{userid}/reviews" style="text;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_lHhSZW2yL5lhsk21Tac-1">
+          <mxGeometry y="120" width="190" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_lHhSZW2yL5lhsk21Tac-9" value="GET - api/users/{userid}/payments" style="text;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_lHhSZW2yL5lhsk21Tac-1">
+          <mxGeometry y="150" width="190" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
