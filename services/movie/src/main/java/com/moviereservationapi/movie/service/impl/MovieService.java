@@ -10,20 +10,18 @@ import com.moviereservationapi.movie.service.IMovieService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.Cache.ValueWrapper;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -31,64 +29,85 @@ import java.util.stream.Collectors;
 public class MovieService implements IMovieService {
 
     private final MovieRepository movieRepository;
-    private final TransactionTemplate transactionTemplate;
+    private final CacheManager cacheManager;
+    private final ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
 
     @Override
-    @Cacheable(
-            value = "movies",
-            key = "'movies_page_' + #pageNumber + '_size_' + #pageSize"
-    )
     @Async
     public CompletableFuture<Page<MovieDto>> getAllMovie(int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        Page<Movie> movies = movieRepository.findAll(pageable);
+        String cacheKey = String.format("movies_page_%d_size_%d", pageNumber, pageSize);
+        Cache cache = cacheManager.getCache("movies");
 
-        if (movies.isEmpty()) {
-            log.info("api/movies :: No movies found.");
-            throw new MovieNotFoundException("No movies found.");
+        ValueWrapper cachedResult = null;
+        if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
+            return CompletableFuture.completedFuture((Page<MovieDto>) cachedResult.get());
         }
 
-        log.info("api/movies :: {} movies found.", movies.getTotalElements());
-        log.info("api/movies :: Pagination settings: pageNumber: {}, pageSize: {}.", pageNumber, pageSize);
+        Object lock = locks.computeIfAbsent(cacheKey, k -> new Object());
+        synchronized (lock) {
+            try {
+                if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
+                    return CompletableFuture.completedFuture((Page<MovieDto>) cachedResult.get());
+                }
 
-        List<MovieDto> movieDtos = transactionTemplate.execute(status ->
-                movies.getContent().stream()
-                        .map(
-                                MovieMapper::fromMovieToDto
-                        )
-                        .collect(Collectors.toList())
-        );
+                Page<Movie> movies = movieRepository.findAll(PageRequest.of(pageNumber, pageSize));
+                if (movies.isEmpty()) {
+                    log.info("api/movies :: No movies found.");
+                    throw new MovieNotFoundException("No movies found.");
+                }
 
-        if (movieDtos == null) {
-            log.info("api/movies :: movieDto list is null.");
-            throw new MovieNotFoundException("There's no movie found.");
+                log.info("api/movies :: {} movies found. Page {}, Size {}", movies.getTotalElements(), pageNumber, pageSize);
+                Page<MovieDto> results = movies.map(MovieMapper::fromMovieToDto);
+                if (cache != null) {
+                    cache.put(cacheKey, results);
+                }
+                return CompletableFuture.completedFuture(results);
+            } finally {
+                locks.remove(cacheKey, lock);
+            }
         }
-
-        return CompletableFuture.completedFuture(
-                new PageImpl<>(movieDtos, pageable, movies.getTotalElements())
-        );
     }
 
     @Override
-    @Cacheable(
-            value = "movie",
-            key = "'movie_' + #movieId"
-    )
     @Async
     public CompletableFuture<MovieDto> getMovie(Long movieId) {
-        Movie movie = movieRepository.findById(movieId)
-                .orElseThrow(() -> {
-                    log.info("api/movies/movieId :: Movie not found with the id of {}.", movieId);
-                    return new MovieNotFoundException("Movie not found.");
-                });
+        String cacheKey = String.format("movie_%d", movieId);
+        Cache cache = cacheManager.getCache("movie");
 
-        log.info("api/movies/movieId :: Movie found with the id of {}", movieId);
-        log.info("api/movies/movieId :: Movie data: title: {}, length: {}, release: {}.",
-                movie.getTitle(), movie.getLength(), movie.getRelease());
 
-        return CompletableFuture.completedFuture(
-                MovieMapper.fromMovieToDto(movie)
-        );
+        ValueWrapper cachedResult = null;
+        if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
+            return CompletableFuture.completedFuture((MovieDto) cachedResult.get());
+        }
+
+        Object lock = locks.computeIfAbsent(cacheKey, k -> new Object());
+        synchronized (lock) {
+            try {
+                if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
+                    return CompletableFuture.completedFuture((MovieDto) cachedResult.get());
+                }
+
+                Movie movie = movieRepository.findById(movieId)
+                        .orElseThrow(() -> {
+                            log.info("api/movies/movieId :: Movie not found with the id of {}.", movieId);
+                            return new MovieNotFoundException("Movie not found.");
+                        });
+
+                log.info("api/movies/movieId :: Movie found with the id of {}", movieId);
+                log.info("api/movies/movieId :: Movie data: title: {}, length: {}, release: {}.",
+                        movie.getTitle(), movie.getLength(), movie.getRelease());
+
+                MovieDto result = MovieMapper.fromMovieToDto(movie);
+                if (cache != null) {
+                    cache.put(cacheKey, result);
+                }
+
+                return CompletableFuture.completedFuture(result);
+            }
+            finally {
+                locks.remove(cacheKey, lock);
+            }
+        }
     }
 
     @Override
