@@ -61,7 +61,7 @@ public class Movie {
 
     @ElementCollection
     @CollectionTable(
-            name = "movie_shotimes",
+            name = "movie_showtimes",
             joinColumns = @JoinColumn(name = "movie_id")
     )
     @Column(name = "showtime_id")
