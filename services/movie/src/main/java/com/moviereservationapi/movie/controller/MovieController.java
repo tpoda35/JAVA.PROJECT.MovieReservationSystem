@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -76,8 +75,10 @@ public class MovieController {
     }
 
     @GetMapping("/{movieId}/reviews")
-    public CompletableFuture<List<ReviewDto>> getMovieReviews(
-            @PathVariable("movieId") Long movieId
+    public CompletableFuture<Page<ReviewDto>> getMovieReviews(
+            @PathVariable("movieId") Long movieId,
+            @RequestParam(defaultValue = "0") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize
     ) {
         return null;
     }
