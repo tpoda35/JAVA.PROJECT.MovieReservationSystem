@@ -18,19 +18,10 @@ public class UserController {
     private final IUserService userService;
 
     @GetMapping("/getUser/{userid}")
-    public AppUser getUser(
+    public CompletableFuture<AppUser> getUser(
             @PathVariable("userid") Long userId
     ) {
         log.info("api/users/getUser/userId :: Endpoint called. (userId:{})", userId);
         return userService.getUser(userId);
-    }
-
-    // Lazy exception
-    @GetMapping("/getUsers")
-    public CompletableFuture<List<AppUser>> getUsers(
-            @RequestParam List<Long> userIds
-            ) {
-        log.info("api/users/getUsers:: Endpoint called. (userId:{})", userIds);
-        return userService.getUsers(userIds);
     }
 }
