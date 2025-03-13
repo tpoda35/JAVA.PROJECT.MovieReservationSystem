@@ -1,7 +1,8 @@
 package com.moviereservationapi.movie.service;
 
-import com.moviereservationapi.movie.dto.MovieManageDto;
 import com.moviereservationapi.movie.dto.MovieDto;
+import com.moviereservationapi.movie.dto.MovieManageDto;
+import com.moviereservationapi.movie.dto.ReviewDto;
 import org.springframework.data.domain.Page;
 
 import java.util.concurrent.CompletableFuture;
@@ -15,4 +16,6 @@ public interface IMovieService {
     MovieDto editMovie(Long movieId, MovieManageDto movieManageDto);
     // Role required.
     void deleteMovie(Long movieId);
+
+    CompletableFuture<Page<ReviewDto>> getMovieReviews(Long movieId, int pageNum, int pageSize);
 }
