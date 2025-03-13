@@ -6,11 +6,15 @@ import org.moviereservationapi.user.exception.UserNotFoundException;
 import org.moviereservationapi.user.model.AppUser;
 import org.moviereservationapi.user.repository.UserRepository;
 import org.moviereservationapi.user.service.IUserService;
+import org.springframework.cache.Cache;
+import org.springframework.cache.Cache.ValueWrapper;
+import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
@@ -18,31 +22,40 @@ import java.util.concurrent.CompletableFuture;
 public class UserService implements IUserService {
 
     private final UserRepository userRepository;
-
-    @Override
-    public AppUser getUser(Long userId) {
-        AppUser user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.info("api/users/getUser/userId :: User not found with the id of {}.", userId);
-                    return new UserNotFoundException("User not found.");
-                });
-
-        log.info("api/users/getUser/userId :: User found.");
-        log.info("api/users/getUser/userId :: User data: {}", user);
-        return user;
-    }
+    private final CacheManager cacheManager;
+    private final TransactionTemplate transactionTemplate;
+    private final ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
 
     @Override
     @Async
-    public CompletableFuture<List<AppUser>> getUsers(List<Long> userIds) {
-        List<AppUser> users = userRepository.findAllById(userIds);
-        if (users.isEmpty()) {
-            log.info("api/users/getUsers :: Users not found with the id list of {}.", userIds);
-            throw new UserNotFoundException("Users not found.");
+    public CompletableFuture<AppUser> getUser(Long userId) {
+        String cacheKey = String.format("user_%d", userId);
+        Cache cache = cacheManager.getCache("user");
+
+        ValueWrapper cachedResult = null;
+        if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
+            return CompletableFuture.completedFuture((AppUser) cachedResult.get());
         }
 
-        log.info("api/users/getUsers :: {} user found.", users.size());
-        return CompletableFuture.completedFuture(users);
-    }
+        Object lock = locks.computeIfAbsent(cacheKey,k -> new Object());
+        synchronized (lock) {
+            if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
+                return CompletableFuture.completedFuture((AppUser) cachedResult.get());
+            }
 
+            AppUser user = transactionTemplate.execute(status -> userRepository.findById(userId)
+                    .orElseThrow(() -> {
+                        log.info("api/users/getUser/userId :: User not found with the id of {}.", userId);
+                        return new UserNotFoundException("User not found.");
+                    }));
+
+            log.info("api/users/getUser/userId :: User found. Data: {}", user);
+
+            if (cache != null) {
+                cache.put(cacheKey, user);
+            }
+
+            return CompletableFuture.completedFuture(user);
+        }
+    }
 }
