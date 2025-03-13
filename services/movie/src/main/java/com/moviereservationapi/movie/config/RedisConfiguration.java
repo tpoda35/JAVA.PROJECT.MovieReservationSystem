@@ -23,6 +23,7 @@ public class RedisConfiguration {
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
         cacheConfigurations.put("movies", cacheConfiguration.entryTtl(Duration.ofMinutes(30)));
         cacheConfigurations.put("movie", cacheConfiguration.entryTtl(Duration.ofMinutes(30)));
+        cacheConfigurations.put("movie_reviews", cacheConfiguration.entryTtl(Duration.ofMinutes(30)));
 
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(cacheConfiguration)
