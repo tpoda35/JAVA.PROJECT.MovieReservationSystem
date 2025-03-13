@@ -2,6 +2,7 @@ package com.moviereservationapi.movie.service.impl;
 
 import com.moviereservationapi.movie.dto.MovieDto;
 import com.moviereservationapi.movie.dto.MovieManageDto;
+import com.moviereservationapi.movie.dto.ReviewDto;
 import com.moviereservationapi.movie.exception.MovieNotFoundException;
 import com.moviereservationapi.movie.mapper.MovieMapper;
 import com.moviereservationapi.movie.model.Movie;
@@ -73,7 +74,6 @@ public class MovieService implements IMovieService {
     public CompletableFuture<MovieDto> getMovie(Long movieId) {
         String cacheKey = String.format("movie_%d", movieId);
         Cache cache = cacheManager.getCache("movie");
-
 
         ValueWrapper cachedResult = null;
         if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
@@ -182,5 +182,28 @@ public class MovieService implements IMovieService {
                 });
 
         movieRepository.delete(movie);
+    }
+
+    @Override
+    @Async
+    public CompletableFuture<Page<ReviewDto>> getMovieReviews(
+            Long movieId, int pageNum, int pageSize
+    ) {
+        String cacheKey = String.format("movie_reviews_%d", movieId);
+        Cache cache = cacheManager.getCache("movie_reviews");
+
+        ValueWrapper cachedResult = null;
+        if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
+            return CompletableFuture.completedFuture(
+                    (Page<ReviewDto>) cachedResult.get()
+            );
+        }
+
+        Object lock = locks.computeIfAbsent(cacheKey, k -> new Object());
+        synchronized (lock) {
+
+
+            return null;
+        }
     }
 }
