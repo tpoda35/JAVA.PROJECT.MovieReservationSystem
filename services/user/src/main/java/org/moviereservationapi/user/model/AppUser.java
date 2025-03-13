@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
@@ -13,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-public class AppUser {
+public class AppUser implements Serializable {
 
     @Id
     @GeneratedValue
