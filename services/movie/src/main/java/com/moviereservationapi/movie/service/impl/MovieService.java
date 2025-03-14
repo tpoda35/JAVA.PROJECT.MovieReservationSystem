@@ -4,8 +4,12 @@ import com.moviereservationapi.movie.dto.MovieDto;
 import com.moviereservationapi.movie.dto.MovieManageDto;
 import com.moviereservationapi.movie.dto.ReviewDto;
 import com.moviereservationapi.movie.exception.MovieNotFoundException;
+import com.moviereservationapi.movie.exception.ReviewNotFoundException;
+import com.moviereservationapi.movie.feign.UserClient;
+import com.moviereservationapi.movie.feignResponse.AppUserDto;
 import com.moviereservationapi.movie.mapper.MovieMapper;
 import com.moviereservationapi.movie.model.Movie;
+import com.moviereservationapi.movie.model.Review;
 import com.moviereservationapi.movie.repository.MovieRepository;
 import com.moviereservationapi.movie.service.IMovieService;
 import jakarta.validation.Valid;
@@ -17,12 +21,16 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +39,9 @@ public class MovieService implements IMovieService {
 
     private final MovieRepository movieRepository;
     private final CacheManager cacheManager;
+    private final TransactionTemplate transactionTemplate;
+    private final UserClient userClient;
+
     private final ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
 
     @Override
@@ -189,21 +200,80 @@ public class MovieService implements IMovieService {
     public CompletableFuture<Page<ReviewDto>> getMovieReviews(
             Long movieId, int pageNum, int pageSize
     ) {
-        String cacheKey = String.format("movie_reviews_%d", movieId);
-        Cache cache = cacheManager.getCache("movie_reviews");
+        String movieReviewCacheKey = String.format("movie_reviews_page_%d_size_%d_id_%d", pageNum, pageSize, movieId);
+        Cache movieReviewsCache = cacheManager.getCache("movie_reviews");
+        Cache userCache = cacheManager.getCache("users");
 
-        ValueWrapper cachedResult = null;
-        if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
+        ValueWrapper wrapper = null;
+        if (movieReviewsCache != null && (wrapper = movieReviewsCache.get(movieReviewCacheKey)) != null) {
             return CompletableFuture.completedFuture(
-                    (Page<ReviewDto>) cachedResult.get()
+                    (Page<ReviewDto>) wrapper.get()
             );
         }
 
-        Object lock = locks.computeIfAbsent(cacheKey, k -> new Object());
+        Object lock = locks.computeIfAbsent(movieReviewCacheKey, k -> new Object());
         synchronized (lock) {
+            if (movieReviewsCache != null && (wrapper = movieReviewsCache.get(movieReviewCacheKey)) != null) {
+                return CompletableFuture.completedFuture(
+                        (Page<ReviewDto>) wrapper.get()
+                );
+            }
 
+            List<AppUserDto> appUserDtos = null;
+            Movie movie = movieRepository.findByIdWithUserIdsAndReviews(movieId)
+                            .orElseThrow(() -> new MovieNotFoundException("Movie not found."));
+            Page<Review> reviews = movieRepository.findReviewsByMovieId(movieId, PageRequest.of(pageNum, pageSize));
 
-            return null;
+            if (reviews.isEmpty()) {
+                throw new ReviewNotFoundException("There are no reviews found for this movie.");
+            }
+
+            if (userCache != null) {
+                String userCacheKey = String.format("users_%s", movie.getUserIds().stream()
+                        .sorted()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining("_")));
+                if ((wrapper = userCache.get(userCacheKey)) != null) {
+                    appUserDtos = (List<AppUserDto>) wrapper.get();
+                    return CompletableFuture.completedFuture(createReviewDtos(
+                            appUserDtos, pageNum, pageSize, movieId, reviews
+                    ));
+                }
+            }
+
+            return userClient.getUsers(movie.getUserIds())
+                    .thenApply(dtos -> {
+                        Page<ReviewDto> reviewDtos = createReviewDtos(dtos, pageNum, pageSize, movieId, reviews);
+                        if (movieReviewsCache != null) {
+                            movieReviewsCache.put(movieReviewCacheKey, reviewDtos);
+                        }
+                        return reviewDtos;
+                    });
         }
+    }
+
+    private Page<ReviewDto> createReviewDtos(
+            List<AppUserDto> appUserDtos, int pageNum, int pageSize, Long movieId, Page<Review> reviews
+    ){
+        List<ReviewDto> reviewDtos = reviews.getContent().stream()
+                .map(review -> {
+                    String email = findEmailByUserId(appUserDtos, review.getUserId());
+                    return new ReviewDto(
+                            email,
+                            review.getContent(),
+                            review.getCreatedAt()
+                    );
+                })
+                .toList();
+
+        return new PageImpl<>(reviewDtos, PageRequest.of(pageNum, pageSize), reviews.getTotalElements());
+    }
+
+    private String findEmailByUserId(List<AppUserDto> appUserDtos, Long userId) {
+        return appUserDtos.stream()
+                .filter(user -> user.getId().equals(userId))
+                .map(AppUserDto::getEmail)
+                .findFirst()
+                .orElse(null);
     }
 }
