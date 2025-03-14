@@ -1,9 +1,10 @@
 package org.moviereservationapi.user.service;
 
-import org.moviereservationapi.user.model.AppUser;
+import org.moviereservationapi.user.dto.AppUserDto;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface IUserService {
-    CompletableFuture<AppUser> getUser(Long userId);
+    CompletableFuture<List<AppUserDto>> getUsers(List<Long> userIds);
 }
