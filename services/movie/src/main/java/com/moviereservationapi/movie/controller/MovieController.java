@@ -80,7 +80,7 @@ public class MovieController {
             @RequestParam(defaultValue = "0") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize
     ) {
-        return null;
+        return movieService.getMovieReviews(movieId, pageNum, pageSize);
     }
 
 }
