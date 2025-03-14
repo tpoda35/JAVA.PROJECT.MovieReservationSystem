@@ -1,6 +1,5 @@
 package com.moviereservationapi.movie.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.moviereservationapi.movie.Enum.MovieGenre;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
