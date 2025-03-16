@@ -3,7 +3,6 @@ package com.moviereservationapi.movie.service.impl;
 import com.moviereservationapi.movie.dto.MovieDto;
 import com.moviereservationapi.movie.dto.MovieManageDto;
 import com.moviereservationapi.movie.exception.MovieNotFoundException;
-import com.moviereservationapi.movie.feign.UserClient;
 import com.moviereservationapi.movie.mapper.MovieMapper;
 import com.moviereservationapi.movie.model.Movie;
 import com.moviereservationapi.movie.repository.MovieRepository;
@@ -20,7 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,8 +30,6 @@ public class MovieService implements IMovieService {
 
     private final MovieRepository movieRepository;
     private final CacheManager cacheManager;
-    private final TransactionTemplate transactionTemplate;
-    private final UserClient userClient;
 
     private final ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
 
@@ -43,7 +39,7 @@ public class MovieService implements IMovieService {
         String cacheKey = String.format("movies_page_%d_size_%d", pageNumber, pageSize);
         Cache cache = cacheManager.getCache("movies");
 
-        ValueWrapper cachedResult = null;
+        ValueWrapper cachedResult;
         if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
             return CompletableFuture.completedFuture((Page<MovieDto>) cachedResult.get());
         }
@@ -79,7 +75,7 @@ public class MovieService implements IMovieService {
         String cacheKey = String.format("movie_%d", movieId);
         Cache cache = cacheManager.getCache("movie");
 
-        ValueWrapper cachedResult = null;
+        ValueWrapper cachedResult;
         if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
             return CompletableFuture.completedFuture((MovieDto) cachedResult.get());
         }
@@ -188,5 +184,5 @@ public class MovieService implements IMovieService {
         movieRepository.delete(movie);
     }
 
-
+    // Showtimes endpoint
 }
