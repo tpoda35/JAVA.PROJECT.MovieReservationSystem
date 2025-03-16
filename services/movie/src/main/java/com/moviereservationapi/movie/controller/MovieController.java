@@ -40,7 +40,7 @@ public class MovieController {
         return movieService.getMovie(movieId);
     }
 
-    // Role required endpoints.
+    // Role required endpoint
     @PostMapping("/addMovie")
     public ResponseEntity<MovieDto> addMovie(
             @RequestBody @Valid MovieManageDto movieManageDto
@@ -53,6 +53,7 @@ public class MovieController {
         return ResponseEntity.created(location).body(savedMovie);
     }
 
+    // Role required endpoint
     @PutMapping("/editMovie/{movieId}")
     public MovieDto editMovie(
             @PathVariable("movieId") Long movieId,
@@ -65,6 +66,7 @@ public class MovieController {
         return movieService.editMovie(movieId, movieManageDto);
     }
 
+    // Role required endpoint
     @DeleteMapping("/deleteMovie/{movieId}")
     public void deleteMovie(
             @PathVariable("movieId") Long movieId
