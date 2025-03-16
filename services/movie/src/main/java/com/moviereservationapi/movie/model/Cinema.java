@@ -2,10 +2,7 @@ package com.moviereservationapi.movie.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +26,10 @@ public class Cinema {
     private String address;
 
     @ManyToMany(mappedBy = "cinemas")
+    @ToString.Exclude
     private List<Movie> movies = new ArrayList<>();
 
     @Version
+    @ToString.Exclude
     private Integer version;
 }

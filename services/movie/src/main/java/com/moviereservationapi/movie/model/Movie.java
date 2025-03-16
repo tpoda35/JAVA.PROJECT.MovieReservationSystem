@@ -3,10 +3,7 @@ package com.moviereservationapi.movie.model;
 import com.moviereservationapi.movie.Enum.MovieGenre;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDateTime;
@@ -45,8 +42,10 @@ public class Movie {
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "cinema_id")
     )
+    @ToString.Exclude
     private List<Cinema> cinemas = new ArrayList<>();
 
     @Version
+    @ToString.Exclude
     private Integer version;
 }
