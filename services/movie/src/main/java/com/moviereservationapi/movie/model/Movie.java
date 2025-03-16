@@ -3,10 +3,14 @@ package com.moviereservationapi.movie.model;
 import com.moviereservationapi.movie.Enum.MovieGenre;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -34,27 +38,12 @@ public class Movie {
     @Enumerated(EnumType.STRING)
     private MovieGenre movieGenre;
 
-    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
-    private List<Review> reviews;
-
+    // Cinema, showtime connection
     @ManyToMany
     @JoinTable(
-            name = "movie_actor",
+            name = "movie_cinema",
             joinColumns = @JoinColumn(name = "movie_id"),
-            inverseJoinColumns = @JoinColumn(name = "actor_id")
+            inverseJoinColumns = @JoinColumn(name = "cinema_id")
     )
-    @ToString.Exclude
-    private List<Actor> actors;
-
-    // From another microservices.
-
-    @ElementCollection
-    @CollectionTable(
-            name = "movie_showtimes",
-            joinColumns = @JoinColumn(name = "movie_id")
-    )
-    @Column(name = "showtime_id")
-    @ToString.Exclude
-    private List<Long> showtimeIds;
+    private List<Cinema> cinemas = new ArrayList<>();
 }
