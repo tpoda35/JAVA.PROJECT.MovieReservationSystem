@@ -1,16 +1,21 @@
 package com.moviereservationapi.movie.service.impl;
 
 import com.moviereservationapi.movie.dto.CinemaDto;
+import com.moviereservationapi.movie.dto.CinemaManageDto;
 import com.moviereservationapi.movie.exception.CinemaNotFoundException;
 import com.moviereservationapi.movie.mapper.CinemaMapper;
+import com.moviereservationapi.movie.mapper.MovieMapper;
 import com.moviereservationapi.movie.model.Cinema;
+import com.moviereservationapi.movie.model.Movie;
 import com.moviereservationapi.movie.repository.CinemaRepository;
 import com.moviereservationapi.movie.service.ICinemaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
@@ -122,5 +127,12 @@ public class CinemaService implements ICinemaService {
             }
         }
     }
+
+    @Override
+    public CinemaDto addCinema(Long cinemaId, @Valid CinemaManageDto cinemaManageDto) {
+
+        return null;
+    }
+
 
 }
