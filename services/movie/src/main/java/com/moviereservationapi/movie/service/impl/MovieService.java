@@ -2,14 +2,10 @@ package com.moviereservationapi.movie.service.impl;
 
 import com.moviereservationapi.movie.dto.MovieDto;
 import com.moviereservationapi.movie.dto.MovieManageDto;
-import com.moviereservationapi.movie.dto.ReviewDto;
 import com.moviereservationapi.movie.exception.MovieNotFoundException;
-import com.moviereservationapi.movie.exception.ReviewNotFoundException;
 import com.moviereservationapi.movie.feign.UserClient;
-import com.moviereservationapi.movie.feignResponse.AppUserDto;
 import com.moviereservationapi.movie.mapper.MovieMapper;
 import com.moviereservationapi.movie.model.Movie;
-import com.moviereservationapi.movie.model.Review;
 import com.moviereservationapi.movie.repository.MovieRepository;
 import com.moviereservationapi.movie.service.IMovieService;
 import jakarta.validation.Valid;
@@ -21,16 +17,13 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

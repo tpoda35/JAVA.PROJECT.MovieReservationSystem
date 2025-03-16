@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @FeignClient(name = "USER-SERVICE", path = "api/users")
 public interface UserClient {

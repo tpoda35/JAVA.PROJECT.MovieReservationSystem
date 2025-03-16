@@ -2,7 +2,6 @@ package com.moviereservationapi.movie.controller;
 
 import com.moviereservationapi.movie.dto.MovieDto;
 import com.moviereservationapi.movie.dto.MovieManageDto;
-import com.moviereservationapi.movie.dto.ReviewDto;
 import com.moviereservationapi.movie.service.IMovieService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

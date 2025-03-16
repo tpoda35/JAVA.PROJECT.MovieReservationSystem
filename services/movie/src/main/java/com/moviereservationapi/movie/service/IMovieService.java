@@ -2,7 +2,6 @@ package com.moviereservationapi.movie.service;
 
 import com.moviereservationapi.movie.dto.MovieDto;
 import com.moviereservationapi.movie.dto.MovieManageDto;
-import com.moviereservationapi.movie.dto.ReviewDto;
 import org.springframework.data.domain.Page;
 
 import java.util.concurrent.CompletableFuture;
