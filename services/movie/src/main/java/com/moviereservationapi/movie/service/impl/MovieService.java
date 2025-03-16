@@ -35,8 +35,8 @@ public class MovieService implements IMovieService {
 
     @Override
     @Async
-    public CompletableFuture<Page<MovieDto>> getAllMovie(int pageNumber, int pageSize) {
-        String cacheKey = String.format("movies_page_%d_size_%d", pageNumber, pageSize);
+    public CompletableFuture<Page<MovieDto>> getAllMovie(int pageNum, int pageSize) {
+        String cacheKey = String.format("movies_page_%d_size_%d", pageNum, pageSize);
         Cache cache = cacheManager.getCache("movies");
 
         ValueWrapper cachedResult;
@@ -51,13 +51,13 @@ public class MovieService implements IMovieService {
                     return CompletableFuture.completedFuture((Page<MovieDto>) cachedResult.get());
                 }
 
-                Page<Movie> movies = movieRepository.findAll(PageRequest.of(pageNumber, pageSize));
+                Page<Movie> movies = movieRepository.findAll(PageRequest.of(pageNum, pageSize));
                 if (movies.isEmpty()) {
                     log.info("api/movies :: No movies found.");
                     throw new MovieNotFoundException("No movies found.");
                 }
 
-                log.info("api/movies :: {} movies found. Page {}, Size {}", movies.getTotalElements(), pageNumber, pageSize);
+                log.info("api/movies :: {} movies found. Page {}, Size {}", movies.getTotalElements(), pageNum, pageSize);
                 Page<MovieDto> results = movies.map(MovieMapper::fromMovieToDto);
                 if (cache != null) {
                     cache.put(cacheKey, results);
