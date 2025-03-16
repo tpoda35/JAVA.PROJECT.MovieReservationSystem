@@ -40,28 +40,35 @@ public class MovieService implements IMovieService {
         Cache cache = cacheManager.getCache("movies");
 
         ValueWrapper cachedResult;
+        log.info("api/movies :: Checking cache (1) for key '{}'.", cacheKey);
         if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
+            log.info("api/movies :: Cache HIT for key '{}'. Returning cache.", cacheKey);
             return CompletableFuture.completedFuture((Page<MovieDto>) cachedResult.get());
         }
+        log.info("api/movies :: Cache MISS for key '{}'.", cacheKey);
 
         Object lock = locks.computeIfAbsent(cacheKey, k -> new Object());
         synchronized (lock) {
             try {
+                log.info("api/movies :: Checking cache (2) for key '{}'.", cacheKey);
                 if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
+                    log.info("api/movies :: Cache HIT for key '{}'. Returning cache.", cacheKey);
                     return CompletableFuture.completedFuture((Page<MovieDto>) cachedResult.get());
                 }
+                log.info("api/movies :: Cache MISS for key '{}'. Fetching from DB...", cacheKey);
 
                 Page<Movie> movies = movieRepository.findAll(PageRequest.of(pageNum, pageSize));
                 if (movies.isEmpty()) {
                     log.info("api/movies :: No movies found.");
-                    throw new MovieNotFoundException("No movies found.");
+                    throw new MovieNotFoundException("There's no movie found.");
                 }
 
-                log.info("api/movies :: {} movies found. Page {}, Size {}", movies.getTotalElements(), pageNum, pageSize);
+                log.info("api/movies :: Found {} movies. Caching data for key '{}'.", movies.getTotalElements(), cacheKey);
                 Page<MovieDto> results = movies.map(MovieMapper::fromMovieToDto);
                 if (cache != null) {
                     cache.put(cacheKey, results);
                 }
+
                 return CompletableFuture.completedFuture(results);
             } finally {
                 locks.remove(cacheKey, lock);
@@ -76,16 +83,22 @@ public class MovieService implements IMovieService {
         Cache cache = cacheManager.getCache("movie");
 
         ValueWrapper cachedResult;
+        log.info("api/movies/movieId :: Checking cache (1) for key '{}'.", cacheKey);
         if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
+            log.info("api/movies/movieId :: Cache HIT for key '{}'. Returning cache.", cacheKey);
             return CompletableFuture.completedFuture((MovieDto) cachedResult.get());
         }
+        log.info("api/movies/movieId :: Cache MISS for key '{}'.", cacheKey);
 
         Object lock = locks.computeIfAbsent(cacheKey, k -> new Object());
         synchronized (lock) {
             try {
+                log.info("api/movies/movieId :: Checking cache (2) for key '{}'.", cacheKey);
                 if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
+                    log.info("api/movies/movieId :: Cache HIT for key '{}'. Returning cache.", cacheKey);
                     return CompletableFuture.completedFuture((MovieDto) cachedResult.get());
                 }
+                log.info("api/movies/movieId :: Cache MISS for key '{}'. Fetching from DB...", cacheKey);
 
                 Movie movie = movieRepository.findById(movieId)
                         .orElseThrow(() -> {
@@ -93,10 +106,7 @@ public class MovieService implements IMovieService {
                             return new MovieNotFoundException("Movie not found.");
                         });
 
-                log.info("api/movies/movieId :: Movie found with the id of {}", movieId);
-                log.info("api/movies/movieId :: Movie data: title: {}, length: {}, release: {}.",
-                        movie.getTitle(), movie.getLength(), movie.getRelease());
-
+                log.info("api/movies/movieId :: Movie found with the id of {}. Caching data for key '{}'", movieId, cacheKey);
                 MovieDto result = MovieMapper.fromMovieToDto(movie);
                 if (cache != null) {
                     cache.put(cacheKey, result);
@@ -111,20 +121,17 @@ public class MovieService implements IMovieService {
     }
 
     @Override
-    @Caching(
-            evict = {
-                    @CacheEvict(
-                            value = "movies",
-                            allEntries = true
-                    )
-            }
+    @CacheEvict(
+            value = "movies",
+            allEntries = true
     )
     public MovieDto addMovie(@Valid MovieManageDto movieManageDto) {
+        log.info("api/movies/addMovie :: Evicting 'movies' cache. Saving new movie: {}", movieManageDto);
+
         Movie movie = MovieMapper.fromManageDtoToMovie(movieManageDto);
         Movie savedMovie = movieRepository.save(movie);
 
-        log.info("api/movies/addMovie :: Saved Movie.");
-        log.info("api/movies/addMovie :: Movie data: {}", movie);
+        log.info("api/movies/addMovie :: Saved Movie: {}.", movie);
 
         return MovieMapper.fromMovieToDto(savedMovie);
     }
@@ -143,11 +150,15 @@ public class MovieService implements IMovieService {
             }
     )
     public MovieDto editMovie(Long movieId, @Valid MovieManageDto movieManageDto) {
+        log.info("api/movies/editMovie/movieId :: Evicting cache 'movies' and 'movie' with the key of 'movie_{}'", movieId);
+        log.info("api/movies/editMovie/movieId :: Editing movie with the id of {} and data of {}", movieId, movieManageDto);
+
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> {
                     log.info("api/movies/editMovie/movieId :: Movie not found with the id of {}.", movieId);
                     return new MovieNotFoundException("Movie not found.");
                 });
+        log.info("api/movies/editMovie/movieId :: Movie found with the id of {}.", movieId);
 
         movie.setTitle(movieManageDto.getTitle());
         movie.setLength(movieManageDto.getLength());
@@ -155,8 +166,7 @@ public class MovieService implements IMovieService {
         movie.setMovieGenre(movieManageDto.getMovieGenre());
 
         Movie savedMovie = movieRepository.save(movie);
-        log.info("api/movies/editMovie/movieId :: Movie saved.");
-        log.info("api/movies/editMovie/movieId :: Movie data: {}", movie);
+        log.info("api/movies/editMovie/movieId :: Saved movie: {}", movie);
 
         return MovieMapper.fromMovieToDto(savedMovie);
     }
@@ -175,11 +185,15 @@ public class MovieService implements IMovieService {
             }
     )
     public void deleteMovie(Long movieId) {
+        log.info("api/movies/deleteMovie/movieId :: Evicting cache 'movies' and 'movie' with the key of 'movie_{}'", movieId);
+        log.info("api/movies/editMovie/movieId :: Deleting movie with the id of {}.", movieId);
+
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> {
                     log.info("api/movies/deleteMovie/movieId :: Movie not found with the id of {}.", movieId);
                     return new MovieNotFoundException("Movie not found.");
                 });
+        log.info("api/movies/editMovie/movieId :: Movie found with the id of {} and data of {}.", movieId, movie);
 
         movieRepository.delete(movie);
     }
