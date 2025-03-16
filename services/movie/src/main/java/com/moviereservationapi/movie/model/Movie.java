@@ -46,4 +46,7 @@ public class Movie {
             inverseJoinColumns = @JoinColumn(name = "cinema_id")
     )
     private List<Cinema> cinemas = new ArrayList<>();
+
+    @Version
+    private Integer version;
 }

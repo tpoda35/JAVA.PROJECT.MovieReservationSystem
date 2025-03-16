@@ -30,4 +30,7 @@ public class Cinema {
 
     @ManyToMany(mappedBy = "cinemas")
     private List<Movie> movies = new ArrayList<>();
+
+    @Version
+    private Integer version;
 }
