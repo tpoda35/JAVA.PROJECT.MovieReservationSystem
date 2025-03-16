@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: cinema-service
+  config:
+    import: optional:configserver:http://localhost:8888
+  profiles:
+    include: redis
