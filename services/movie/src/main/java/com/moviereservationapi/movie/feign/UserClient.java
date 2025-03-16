@@ -8,11 +8,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-@FeignClient("USER-SERVICE")
+@FeignClient(name = "USER-SERVICE", path = "api/users")
 public interface UserClient {
 
-    // problem
     @GetMapping("/getUsers")
-    CompletableFuture<List<AppUserDto>> getUsers(@RequestParam List<Long> userIds);
+    List<AppUserDto> getUsers(@RequestParam List<Long> userIds);
 
 }

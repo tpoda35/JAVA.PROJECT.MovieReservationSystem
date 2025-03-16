@@ -16,6 +16,4 @@ public interface IMovieService {
     MovieDto editMovie(Long movieId, MovieManageDto movieManageDto);
     // Role required.
     void deleteMovie(Long movieId);
-
-    CompletableFuture<Page<ReviewDto>> getMovieReviews(Long movieId, int pageNum, int pageSize);
 }

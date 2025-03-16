@@ -21,7 +21,7 @@ public class UserController {
     private final IUserService userService;
 
     @GetMapping("/getUsers")
-    public CompletableFuture<List<AppUserDto>> getUsers(
+    public List<AppUserDto> getUsers(
             @RequestParam List<Long> userIds
     ) {
         log.info("api/users/getUser/userId :: Endpoint called. (userIds:{})", userIds);

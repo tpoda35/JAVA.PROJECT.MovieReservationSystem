@@ -51,15 +51,6 @@ public class Movie {
 
     @ElementCollection
     @CollectionTable(
-            name = "movie_users",
-            joinColumns = @JoinColumn(name = "movie_id")
-    )
-    @Column(name = "user_id")
-    @ToString.Exclude
-    private List<Long> userIds;
-
-    @ElementCollection
-    @CollectionTable(
             name = "movie_showtimes",
             joinColumns = @JoinColumn(name = "movie_id")
     )

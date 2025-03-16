@@ -24,7 +24,6 @@ public class RedisConfiguration {
         cacheConfigurations.put("movies", cacheConfiguration.entryTtl(Duration.ofMinutes(30)));
         cacheConfigurations.put("movie", cacheConfiguration.entryTtl(Duration.ofMinutes(30)));
         cacheConfigurations.put("movie_reviews", cacheConfiguration.entryTtl(Duration.ofMinutes(30)));
-        cacheConfigurations.put("users", cacheConfiguration.entryTtl(Duration.ofHours(24)));
 
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(cacheConfiguration)

@@ -74,13 +74,4 @@ public class MovieController {
         movieService.deleteMovie(movieId);
     }
 
-    @GetMapping("/{movieId}/reviews")
-    public CompletableFuture<Page<ReviewDto>> getMovieReviews(
-            @PathVariable("movieId") Long movieId,
-            @RequestParam(defaultValue = "0") Integer pageNum,
-            @RequestParam(defaultValue = "10") Integer pageSize
-    ) {
-        return movieService.getMovieReviews(movieId, pageNum, pageSize);
-    }
-
 }
