@@ -5,10 +5,7 @@ import com.moviereservationapi.movie.service.ICinemaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -25,7 +22,18 @@ public class CinemaController {
             @RequestParam(defaultValue = "0") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize
     ) {
+        log.info("api/cinemas :: Called endpoint. (pageNum:{}, pageSize:{})", pageNum, pageSize);
+
         return cinemaService.getAllCinema(pageNum,pageSize);
+    }
+
+    @GetMapping("/{cinemaId}")
+    public CompletableFuture<CinemaDto> getCinema(
+            @PathVariable("cinemaId") Long cinemaId
+    ) {
+        log.info("api/cinemas/cinemaId :: Called endpoint. (cinemaId:{})", cinemaId);
+
+        return cinemaService.getCinema(cinemaId);
     }
 
 }
