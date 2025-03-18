@@ -1,10 +1,9 @@
 package com.moviereservationapi.cinema.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -26,6 +25,16 @@ public class Seat {
     @JoinColumn(
             name = "room_id",
             nullable = false)
+    @ToString.Exclude
     private Room room;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "reservationSeat_seat",
+            joinColumns = @JoinColumn(name = "seat_id")
+    )
+    @Column(name = "reservationSeat_id")
+    @ToString.Exclude
+    private List<Long> reservationSeatids;
 
 }
