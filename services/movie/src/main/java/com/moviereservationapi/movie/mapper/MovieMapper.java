@@ -10,8 +10,8 @@ public class MovieMapper {
         return Movie.builder()
                 .id(movieDto.getId())
                 .title(movieDto.getTitle())
-                .length(movieDto.getLength())
-                .release(movieDto.getRelease())
+                .duration(movieDto.getLength())
+                .releaseDate(movieDto.getRelease())
                 .movieGenre(movieDto.getMovieGenre())
                 .build();
     }
@@ -20,8 +20,8 @@ public class MovieMapper {
         return MovieDto.builder()
                 .id(movie.getId())
                 .title(movie.getTitle())
-                .length(movie.getLength())
-                .release(movie.getRelease())
+                .length(movie.getDuration())
+                .release(movie.getReleaseDate())
                 .movieGenre(movie.getMovieGenre())
                 .build();
     }
@@ -29,8 +29,8 @@ public class MovieMapper {
     public static Movie fromManageDtoToMovie(MovieManageDto movieDto) {
         return Movie.builder()
                 .title(movieDto.getTitle())
-                .length(movieDto.getLength())
-                .release(movieDto.getRelease())
+                .duration(movieDto.getLength())
+                .releaseDate(movieDto.getRelease())
                 .movieGenre(movieDto.getMovieGenre())
                 .build();
     }
