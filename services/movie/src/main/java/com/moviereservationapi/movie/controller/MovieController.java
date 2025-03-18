@@ -41,7 +41,7 @@ public class MovieController {
     }
 
     // Role required endpoint
-    @PostMapping("/addMovie")
+    @PostMapping
     public ResponseEntity<MovieDto> addMovie(
             @RequestBody @Valid MovieManageDto movieManageDto
     ) {
@@ -54,7 +54,7 @@ public class MovieController {
     }
 
     // Role required endpoint
-    @PutMapping("/editMovie/{movieId}")
+    @PutMapping("/{movieId}")
     public MovieDto editMovie(
             @PathVariable("movieId") Long movieId,
             @RequestBody @Valid MovieManageDto movieManageDto
@@ -67,7 +67,7 @@ public class MovieController {
     }
 
     // Role required endpoint
-    @DeleteMapping("/deleteMovie/{movieId}")
+    @DeleteMapping("/{movieId}")
     public void deleteMovie(
             @PathVariable("movieId") Long movieId
     ) {
