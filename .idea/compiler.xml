@@ -8,7 +8,6 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="config-server" />
-        <module name="user" />
         <module name="discovery" />
         <module name="gateway" />
       </profile>
@@ -35,6 +34,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="discovery-service" target="21" />
+      <module name="user" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
