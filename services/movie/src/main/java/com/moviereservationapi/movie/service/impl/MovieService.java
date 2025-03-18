@@ -161,8 +161,8 @@ public class MovieService implements IMovieService {
         log.info("api/movies/editMovie/movieId :: Movie found with the id of {}.", movieId);
 
         movie.setTitle(movieManageDto.getTitle());
-        movie.setLength(movieManageDto.getLength());
-        movie.setRelease(movieManageDto.getRelease());
+        movie.setDuration(movieManageDto.getLength());
+        movie.setReleaseDate(movieManageDto.getRelease());
         movie.setMovieGenre(movieManageDto.getMovieGenre());
 
         Movie savedMovie = movieRepository.save(movie);
