@@ -26,24 +26,22 @@ public class Movie {
     @Length(min = 1, max = 100, message = "Movie name must be between 1 and 100 characters.")
     private String title;
 
-    @NotNull(message = "Movie length cannot be null.")
-    private Double length;
+    @NotNull(message = "Movie duration cannot be null.")
+    private Double duration;
 
     @NotNull(message = "Movie release cannot be null.")
-    private LocalDateTime release;
+    private LocalDateTime releaseDate;
 
     @Enumerated(EnumType.STRING)
     private MovieGenre movieGenre;
 
-    // Cinema, showtime connection
-    @ManyToMany
-    @JoinTable(
-            name = "movie_cinema",
-            joinColumns = @JoinColumn(name = "movie_id"),
-            inverseJoinColumns = @JoinColumn(name = "cinema_id")
+    @ElementCollection
+    @CollectionTable(
+            name = "showtime_ids",
+            joinColumns = @JoinColumn(name = "movie_id")
     )
-    @ToString.Exclude
-    private List<Cinema> cinemas = new ArrayList<>();
+    @Column(name = "showtime_id")
+    private List<Long> showtimeIds = new ArrayList<>();
 
     @Version
     @ToString.Exclude
