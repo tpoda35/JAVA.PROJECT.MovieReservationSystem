@@ -1,12 +1,16 @@
 package com.moviereservationapi.cinema.service.impl;
 
 import com.moviereservationapi.cinema.dto.SeatDto;
-import com.moviereservationapi.cinema.dto.SeatNotFoundException;
+import com.moviereservationapi.cinema.dto.SeatManageDto;
+import com.moviereservationapi.cinema.exception.RoomNotFoundException;
+import com.moviereservationapi.cinema.exception.SeatNotFoundException;
 import com.moviereservationapi.cinema.mapper.SeatMapper;
+import com.moviereservationapi.cinema.model.Room;
 import com.moviereservationapi.cinema.model.Seat;
 import com.moviereservationapi.cinema.repository.RoomRepository;
 import com.moviereservationapi.cinema.repository.SeatRepository;
 import com.moviereservationapi.cinema.service.ISeatService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -14,6 +18,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -85,7 +90,7 @@ public class SeatService implements ISeatService {
 
     @Override
     @Async
-    public CompletableFuture<List<SeatDto>> getAllSeat(Long roomId) {
+    public CompletableFuture<List<SeatDto>> getAllSeatByRoom(Long roomId) {
         String cacheKey = String.format("cinema_seats_%d", roomId);
         Cache cache = cacheManager.getCache("cinema_seats");
 
@@ -126,6 +131,29 @@ public class SeatService implements ISeatService {
                 lock.unlock();
             }
         }
+    }
+
+    // Cache management will be optimized (I hope)
+    @Override
+    @CacheEvict(
+            value = "cinema_seats",
+            allEntries = true
+    )
+    public SeatDto addSeat(@Valid SeatManageDto seatManageDto) {
+        log.info("api/seats :: Evicting 'cinema_seats' cache. Saving new seat: {}", seatManageDto);
+
+        Room room = roomRepository.findById(seatManageDto.getRoomId())
+                .orElseThrow(() ->{
+                    log.info("api/seats :: Room not found with the id of {}.", seatManageDto.getRoomId());
+                    return new RoomNotFoundException("Room not found.");
+                });
+
+        Seat seat = SeatMapper.fromManageDtoToSeat(seatManageDto, room);
+        Seat savedSeat = seatRepository.save(seat);
+
+        log.info("api/seats :: Saved seat: {}.", savedSeat);
+
+        return SeatMapper.fromSeatToDto(savedSeat);
     }
 
     private SeatDto getCachedSeat(Cache cache, String cacheKey, String logPrefix) {
