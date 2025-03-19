@@ -10,6 +10,8 @@ import com.moviereservationapi.movie.service.IMovieService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
@@ -21,7 +23,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -30,8 +32,7 @@ public class MovieService implements IMovieService {
 
     private final MovieRepository movieRepository;
     private final CacheManager cacheManager;
-
-    private final ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
+    private final RedissonClient redissonClient;
 
     @Override
     @Async
@@ -39,23 +40,19 @@ public class MovieService implements IMovieService {
         String cacheKey = String.format("movies_page_%d_size_%d", pageNum, pageSize);
         Cache cache = cacheManager.getCache("movies");
 
-        ValueWrapper cachedResult;
-        log.info("api/movies :: Checking cache (1) for key '{}'.", cacheKey);
-        if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
-            log.info("api/movies :: Cache HIT for key '{}'. Returning cache.", cacheKey);
-            return CompletableFuture.completedFuture((Page<MovieDto>) cachedResult.get());
+        Page<MovieDto> movieDtos = getCachedMoviePage(cache, cacheKey, "api/movies");
+        if (movieDtos != null) {
+            return CompletableFuture.completedFuture(movieDtos);
         }
-        log.info("api/movies :: Cache MISS for key '{}'.", cacheKey);
 
-        Object lock = locks.computeIfAbsent(cacheKey, k -> new Object());
-        synchronized (lock) {
-            try {
-                log.info("api/movies :: Checking cache (2) for key '{}'.", cacheKey);
-                if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
-                    log.info("api/movies :: Cache HIT for key '{}'. Returning cache.", cacheKey);
-                    return CompletableFuture.completedFuture((Page<MovieDto>) cachedResult.get());
+        RLock lock = redissonClient.getLock(cacheKey);
+        try {
+            boolean locked = lock.tryLock(10, 30, TimeUnit.SECONDS);
+            if (locked) {
+                movieDtos = getCachedMoviePage(cache, cacheKey, "api/movies");
+                if (movieDtos != null) {
+                    return CompletableFuture.completedFuture(movieDtos);
                 }
-                log.info("api/movies :: Cache MISS for key '{}'. Fetching from DB...", cacheKey);
 
                 Page<Movie> movies = movieRepository.findAll(PageRequest.of(pageNum, pageSize));
                 if (movies.isEmpty()) {
@@ -70,8 +67,16 @@ public class MovieService implements IMovieService {
                 }
 
                 return CompletableFuture.completedFuture(results);
-            } finally {
-                locks.remove(cacheKey, lock);
+            } else {
+                log.warn("api/movies :: Failed to acquire lock for key: {}", cacheKey);
+                throw new RuntimeException("Failed to acquire lock");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Thread interrupted while acquiring lock", e);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
             }
         }
     }
@@ -82,23 +87,19 @@ public class MovieService implements IMovieService {
         String cacheKey = String.format("movie_%d", movieId);
         Cache cache = cacheManager.getCache("movie");
 
-        ValueWrapper cachedResult;
-        log.info("api/movies/movieId :: Checking cache (1) for key '{}'.", cacheKey);
-        if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
-            log.info("api/movies/movieId :: Cache HIT for key '{}'. Returning cache.", cacheKey);
-            return CompletableFuture.completedFuture((MovieDto) cachedResult.get());
+        MovieDto movieDto = getCachedMovie(cache, cacheKey, "api/movies/movieId");
+        if (movieDto != null) {
+            return CompletableFuture.completedFuture(movieDto);
         }
-        log.info("api/movies/movieId :: Cache MISS for key '{}'.", cacheKey);
 
-        Object lock = locks.computeIfAbsent(cacheKey, k -> new Object());
-        synchronized (lock) {
-            try {
-                log.info("api/movies/movieId :: Checking cache (2) for key '{}'.", cacheKey);
-                if (cache != null && (cachedResult = cache.get(cacheKey)) != null) {
-                    log.info("api/movies/movieId :: Cache HIT for key '{}'. Returning cache.", cacheKey);
-                    return CompletableFuture.completedFuture((MovieDto) cachedResult.get());
+        RLock lock = redissonClient.getLock(cacheKey);
+        try {
+            boolean locked = lock.tryLock(10, 30, TimeUnit.SECONDS);
+            if (locked) {
+                movieDto = getCachedMovie(cache, cacheKey, "api/movies/movieId");
+                if (movieDto != null) {
+                    return CompletableFuture.completedFuture(movieDto);
                 }
-                log.info("api/movies/movieId :: Cache MISS for key '{}'. Fetching from DB...", cacheKey);
 
                 Movie movie = movieRepository.findById(movieId)
                         .orElseThrow(() -> {
@@ -113,9 +114,16 @@ public class MovieService implements IMovieService {
                 }
 
                 return CompletableFuture.completedFuture(result);
+            } else {
+                log.warn("api/movies/movieId :: Failed to acquire lock for key: {}", cacheKey);
+                throw new RuntimeException("Failed to acquire lock");
             }
-            finally {
-                locks.remove(cacheKey, lock);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Thread interrupted while acquiring lock", e);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
             }
         }
     }
@@ -198,5 +206,38 @@ public class MovieService implements IMovieService {
         movieRepository.delete(movie);
     }
 
-    // Showtimes endpoint
+    private Page<MovieDto> getCachedMoviePage(Cache cache, String cacheKey, String logPrefix) {
+        if (cache == null) {
+            return null;
+        }
+
+        log.info("{} :: Checking cache for key '{}'.", logPrefix, cacheKey);
+        ValueWrapper cachedResult = cache.get(cacheKey);
+
+        if (cachedResult != null) {
+            log.info("{} :: Cache HIT for key '{}'. Returning cache.", logPrefix, cacheKey);
+            return (Page<MovieDto>) cachedResult.get();
+        }
+
+        log.info("{} :: Cache MISS for key '{}'.", logPrefix, cacheKey);
+        return null;
+    }
+
+    private MovieDto getCachedMovie(Cache cache, String cacheKey, String logPrefix) {
+        if (cache == null) {
+            return null;
+        }
+
+        log.info("{} :: Checking cache for list key '{}'.", logPrefix, cacheKey);
+        ValueWrapper cachedResult = cache.get(cacheKey);
+
+        if (cachedResult != null) {
+            log.info("{} :: Cache HIT for list key '{}'. Returning cache.", logPrefix, cacheKey);
+            return (MovieDto) cachedResult.get();
+        }
+
+        log.info("{} :: Cache MISS for list key '{}'.", logPrefix, cacheKey);
+        return null;
+    }
+
 }
