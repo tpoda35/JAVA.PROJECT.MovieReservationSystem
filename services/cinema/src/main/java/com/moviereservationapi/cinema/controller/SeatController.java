@@ -1,14 +1,16 @@
 package com.moviereservationapi.cinema.controller;
 
 import com.moviereservationapi.cinema.dto.SeatDto;
+import com.moviereservationapi.cinema.dto.SeatManageDto;
 import com.moviereservationapi.cinema.service.ISeatService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -28,4 +30,24 @@ public class SeatController {
         return seatService.getSeat(seatId);
     }
 
+    @GetMapping("/room/{roomId}")
+    public CompletableFuture<List<SeatDto>> getAllSeatByRoom(
+            @PathVariable("roomId") Long roomId
+    ) {
+        log.info("api/seats/room/roomId :: Called endpoint. (roomId:{})", roomId);
+
+        return seatService.getAllSeatByRoom(roomId);
+    }
+
+    @PostMapping
+    public ResponseEntity<SeatDto> addSeat(
+            @Valid @RequestBody SeatManageDto seatManageDto
+    ) {
+        log.info("api/seats :: Called endpoint. (seatManageDto:{})", seatManageDto);
+
+        SeatDto savedSeat = seatService.addSeat(seatManageDto);
+        URI location = URI.create("/seats/" + savedSeat.getId());
+
+        return ResponseEntity.created(location).body(savedSeat);
+    }
 }
