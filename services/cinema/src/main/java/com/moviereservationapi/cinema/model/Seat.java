@@ -3,6 +3,7 @@ package com.moviereservationapi.cinema.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -35,6 +36,6 @@ public class Seat {
     )
     @Column(name = "reservationSeat_id")
     @ToString.Exclude
-    private List<Long> reservationSeatids;
+    private List<Long> reservationSeatids = new ArrayList<>();
 
 }

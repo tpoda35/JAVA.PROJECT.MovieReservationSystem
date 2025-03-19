@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -30,7 +30,7 @@ public class Room {
     private Cinema cinema;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Collection<Seat> seat;
+    private List<Seat> seat = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(
@@ -38,5 +38,5 @@ public class Room {
             joinColumns = @JoinColumn(name = "room_id")
     )
     @Column(name = "showtime_id")
-    private List<Long> showtimeIds;
+    private List<Long> showtimeIds = new ArrayList<>();
 }
