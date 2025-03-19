@@ -11,15 +11,17 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"room_id", "seat_row", "seat_number"}))
 public class Seat {
 
     @Id
     @GeneratedValue
     private Long id;
 
+    @Column(name = "seat_row", nullable = false)
     private String seatRow;
 
+    @Column(name = "seat_number", nullable = false)
     private Integer seatNumber;
 
     @ManyToOne
