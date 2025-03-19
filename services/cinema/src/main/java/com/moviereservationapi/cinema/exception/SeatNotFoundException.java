@@ -1,4 +1,4 @@
-package com.moviereservationapi.cinema.dto;
+package com.moviereservationapi.cinema.exception;
 
 public class SeatNotFoundException extends RuntimeException {
     public SeatNotFoundException(String message) {
