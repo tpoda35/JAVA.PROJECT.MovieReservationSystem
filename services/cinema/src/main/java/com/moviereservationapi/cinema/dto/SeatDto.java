@@ -15,13 +15,15 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class SeatDto implements Serializable {
 
+    private Long id;
+
     @NotBlank(message = "Seat row field cannot be empty.")
     private String seatRow;
 
     @NotNull(message = "Seat number field cannot be empty.")
     private Integer seatNumber;
 
-    @NotNull(message = "Room field cannot be empty.")
+    @NotBlank(message = "Room field cannot be empty.")
     private String roomName;
 
 }
