@@ -9,7 +9,7 @@ public class SeatMapper {
         return SeatDto.builder()
                 .seatRow(seat.getSeatRow())
                 .seatNumber(seat.getSeatNumber())
-                .room(seat.getRoom())
+                .roomName(seat.getRoom().getName())
                 .build();
     }
 
