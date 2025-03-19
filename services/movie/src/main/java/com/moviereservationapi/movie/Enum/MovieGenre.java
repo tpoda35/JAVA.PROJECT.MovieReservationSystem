@@ -23,6 +23,7 @@ public enum MovieGenre {
     WAR,
     WESTERN,
     NOIR,
-    EXPERIMENTAL
+    EXPERIMENTAL,
+    SCIFI
 }
 
