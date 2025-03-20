@@ -18,8 +18,7 @@ public class SeatManageDto {
 
     @NotNull(message = "Seat number field cannot be empty.")
     private Integer seatNumber;
-
-    @NotNull(message = "Room field cannot be empty.")
+    
     private Long roomId;
 
 }
