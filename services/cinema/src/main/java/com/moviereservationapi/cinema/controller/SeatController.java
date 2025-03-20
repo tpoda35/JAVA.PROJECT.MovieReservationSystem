@@ -43,11 +43,21 @@ public class SeatController {
     public ResponseEntity<SeatDto> addSeat(
             @Valid @RequestBody SeatManageDto seatManageDto
     ) {
-        log.info("api/seats :: Called endpoint. (seatManageDto:{})", seatManageDto);
+        log.info("api/seats (addSeat) :: Called endpoint. (seatManageDto:{})", seatManageDto);
 
         SeatDto savedSeat = seatService.addSeat(seatManageDto);
         URI location = URI.create("/seats/" + savedSeat.getId());
 
         return ResponseEntity.created(location).body(savedSeat);
+    }
+
+    @PutMapping("/{seatId}")
+    public SeatDto editSeat(
+            @PathVariable("seatId") Long seatId,
+            @RequestBody @Valid SeatManageDto seatManageDto
+    ) {
+        log.info("api/seats/seatId (editSeat) :: Called endpoint. (seatManageDto:{})", seatManageDto);
+
+        return seatService.editSeat(seatId, seatManageDto);
     }
 }
