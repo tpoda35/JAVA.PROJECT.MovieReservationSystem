@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/JAVA.PROJECT.MovieReservationSystem.iml" filepath="$PROJECT_DIR$/.idea/JAVA.PROJECT.MovieReservationSystem.iml" />
-      <module fileurl="file://$PROJECT_DIR$/services/cinema/cinema.iml" filepath="$PROJECT_DIR$/services/cinema/cinema.iml" />
     </modules>
   </component>
 </project>
