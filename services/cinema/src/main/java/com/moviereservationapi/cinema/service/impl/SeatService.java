@@ -201,6 +201,33 @@ public class SeatService implements ISeatService {
         return SeatMapper.fromSeatToDto(savedSeat);
     }
 
+    @Override
+    @Caching(
+            evict = {
+                    @CacheEvict(
+                            value = "seat",
+                            key = "'seat_' + #seatId"
+                    ),
+                    @CacheEvict(
+                            value = "cinema_seats",
+                            allEntries = true
+                    )
+            }
+    )
+    public void deleteSeat(Long seatId) {
+        log.info("api/seats/seatId (deleteSeat) :: Evicting cache 'seat' and 'cinema_seats' with the key of 'seat_{}'", seatId);
+        log.info("api/seats/seatId (deleteSeat) :: Deleting seat with the id of {}.", seatId);
+
+        Seat seat = seatRepository.findById(seatId)
+                .orElseThrow(() -> {
+                    log.info("api/seats/seatId (deleteSeat) :: Seat not found with the id of {}.", seatId);
+                    return new SeatNotFoundException("Seat not found.");
+                });
+        log.info("api/seats/seatId (deleteSeat) :: Seat found with the id of {} and data of {}.", seatId, seat);
+
+        seatRepository.delete(seat);
+    }
+
     private <T> T getCachedData(Cache cache, String cacheKey, String logPrefix, Class<T> type) {
         if (cache == null) {
             return null;
