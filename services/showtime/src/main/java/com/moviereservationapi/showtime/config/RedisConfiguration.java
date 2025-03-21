@@ -21,6 +21,7 @@ public class RedisConfiguration {
                 .entryTtl(Duration.ofMinutes(20));
 
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
+        cacheConfigurations.put("showtimes", cacheConfiguration.entryTtl(Duration.ofDays(1)));
         cacheConfigurations.put("showtime", cacheConfiguration.entryTtl(Duration.ofDays(1)));
 
         return RedisCacheManager.builder(redisConnectionFactory)
