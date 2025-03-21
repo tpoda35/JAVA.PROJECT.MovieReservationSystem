@@ -6,6 +6,7 @@ import com.moviereservationapi.cinema.service.ISeatService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,5 +60,15 @@ public class SeatController {
         log.info("api/seats/seatId (editSeat) :: Called endpoint. (seatManageDto:{})", seatManageDto);
 
         return seatService.editSeat(seatId, seatManageDto);
+    }
+
+    @DeleteMapping("/{seatId}")
+    public ResponseEntity<Void> deleteSeat(
+            @PathVariable("seatId") Long seatId
+    ) {
+        log.info("api/seats/seatId (deleteSeat) :: Called endpoint. (seatId:{})", seatId);
+
+        seatService.deleteSeat(seatId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
