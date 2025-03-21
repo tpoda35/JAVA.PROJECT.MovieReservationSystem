@@ -5,10 +5,7 @@ import com.moviereservationapi.showtime.service.IShowtimeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -28,6 +25,15 @@ public class ShowtimeController {
         log.info("api/showtimes :: Called endpoint. (pageNum:{}, pageSize:{})", pageNum, pageSize);
 
         return showtimeService.getShowtimes(pageNum, pageSize);
+    }
+
+    @GetMapping("/{showtimeId}")
+    public CompletableFuture<ShowtimeDto> getShowtime(
+            @PathVariable("showtimeId") Long showtimeId
+    ) {
+        log.info("api/showtimes/showtimeId :: Called endpoint. (showtimeId:{})", showtimeId);
+
+        return showtimeService.getShowtime(showtimeId);
     }
 
 }
