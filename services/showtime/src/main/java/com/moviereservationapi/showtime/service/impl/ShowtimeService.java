@@ -1,6 +1,7 @@
 package com.moviereservationapi.showtime.service.impl;
 
 import com.moviereservationapi.showtime.dto.ShowtimeDto;
+import com.moviereservationapi.showtime.dto.ShowtimeManageDto;
 import com.moviereservationapi.showtime.exception.ShowtimeNotFoundException;
 import com.moviereservationapi.showtime.mapper.ShowtimeMapper;
 import com.moviereservationapi.showtime.model.Showtime;
@@ -76,6 +77,64 @@ public class ShowtimeService implements IShowtimeService {
         }
     }
 
+    @Override
+    @Async
+    public CompletableFuture<ShowtimeDto> getShowtime(Long showtimeId) {
+        String cacheKey = String.format("showtime_%d", showtimeId);
+        Cache cache = cacheManager.getCache("showtime");
+
+        ShowtimeDto showtimeDto = getCachedShowtimeDto(cache, cacheKey, "api/showtimes/showtimeId");
+        if (showtimeDto != null) {
+            return CompletableFuture.completedFuture(showtimeDto);
+        }
+
+        RLock lock = redissonClient.getLock(cacheKey);
+        try {
+            boolean locked = lock.tryLock(10, 30, TimeUnit.SECONDS);
+            if (locked) {
+                showtimeDto = getCachedShowtimeDto(cache, cacheKey, "api/showtimes/showtimeId");
+                if (showtimeDto != null) {
+                    return CompletableFuture.completedFuture(showtimeDto);
+                }
+
+                Showtime showtime = showtimeRepository.findById(showtimeId)
+                        .orElseThrow(() -> {
+                            log.info("api/showtimes/showtimeId :: Showtime not found with the id of {}.", showtimeId);
+                            return new ShowtimeNotFoundException("Showtime not found.");
+                        });
+
+                log.info("api/showtimes/showtimeId :: Showtime found with the id of {}. Caching data for key '{}'", showtimeId, cacheKey);
+                showtimeDto = ShowtimeMapper.fromShowtimeToDto(showtime);
+                if (cache != null) {
+                    cache.put(cacheKey, showtimeDto);
+                }
+
+                return CompletableFuture.completedFuture(showtimeDto);
+            } else {
+                log.warn("api/showtimes/showtimeId :: Failed to acquire lock for key: {}", cacheKey);
+                throw new RuntimeException("Failed to acquire lock");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Thread interrupted while acquiring lock", e);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+    }
+
+    @Override
+    public ShowtimeDto addShowtime(ShowtimeManageDto showtimeManageDto) {
+        log.info("api/showtimes (addShowtime) :: Evicting 'showtimes' cache. Saving new showtime: {}", showtimeManageDto);
+
+        return null;
+
+//        log.info("api/showtimes (addShowtime) :: Saved showtime: {}.", showtime);
+//
+//        return MovieMapper.fromMovieToDto(savedMovie);
+    }
+
     private Page<ShowtimeDto> getCachedShowtimePage(Cache cache, String cacheKey, String logPrefix) {
         if (cache == null) {
             return null;
@@ -90,6 +149,23 @@ public class ShowtimeService implements IShowtimeService {
         }
 
         log.info("{} :: Cache MISS for key '{}'.", logPrefix, cacheKey);
+        return null;
+    }
+
+    private ShowtimeDto getCachedShowtimeDto(Cache cache, String cacheKey, String logPrefix) {
+        if (cache == null) {
+            return null;
+        }
+
+        log.info("{} :: Checking cache for list key '{}'.", logPrefix, cacheKey);
+        Cache.ValueWrapper cachedResult = cache.get(cacheKey);
+
+        if (cachedResult != null) {
+            log.info("{} :: Cache HIT for list key '{}'. Returning cache.", logPrefix, cacheKey);
+            return (ShowtimeDto) cachedResult.get();
+        }
+
+        log.info("{} :: Cache MISS for list key '{}'.", logPrefix, cacheKey);
         return null;
     }
 
