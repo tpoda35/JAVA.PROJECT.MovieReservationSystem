@@ -134,12 +134,12 @@ public class MovieService implements IMovieService {
             allEntries = true
     )
     public MovieDto addMovie(@Valid MovieManageDto movieManageDto) {
-        log.info("api/movies/addMovie :: Evicting 'movies' cache. Saving new movie: {}", movieManageDto);
+        log.info("api/movies (addMovie) :: Evicting 'movies' cache. Saving new movie: {}", movieManageDto);
 
         Movie movie = MovieMapper.fromManageDtoToMovie(movieManageDto);
         Movie savedMovie = movieRepository.save(movie);
 
-        log.info("api/movies/addMovie :: Saved Movie: {}.", movie);
+        log.info("api/movies (addMovie) :: Saved Movie: {}.", movie);
 
         return MovieMapper.fromMovieToDto(savedMovie);
     }
@@ -158,15 +158,15 @@ public class MovieService implements IMovieService {
             }
     )
     public MovieDto editMovie(Long movieId, @Valid MovieManageDto movieManageDto) {
-        log.info("api/movies/editMovie/movieId :: Evicting cache 'movies' and 'movie' with the key of 'movie_{}'", movieId);
-        log.info("api/movies/editMovie/movieId :: Editing movie with the id of {} and data of {}", movieId, movieManageDto);
+        log.info("api/movies/movieId (editMovie) :: Evicting cache 'movies' and 'movie' with the key of 'movie_{}'", movieId);
+        log.info("api/movies/movieId (editMovie) :: Editing movie with the id of {} and data of {}", movieId, movieManageDto);
 
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> {
-                    log.info("api/movies/editMovie/movieId :: Movie not found with the id of {}.", movieId);
+                    log.info("api/movies/movieId (editMovie) :: Movie not found with the id of {}.", movieId);
                     return new MovieNotFoundException("Movie not found.");
                 });
-        log.info("api/movies/editMovie/movieId :: Movie found with the id of {}.", movieId);
+        log.info("api/movies/movieId (editMovie) :: Movie found with the id of {}.", movieId);
 
         movie.setTitle(movieManageDto.getTitle());
         movie.setDuration(movieManageDto.getLength());
@@ -174,7 +174,7 @@ public class MovieService implements IMovieService {
         movie.setMovieGenre(movieManageDto.getMovieGenre());
 
         Movie savedMovie = movieRepository.save(movie);
-        log.info("api/movies/editMovie/movieId :: Saved movie: {}", movie);
+        log.info("api/movies/movieId (editMovie) :: Saved movie: {}", movie);
 
         return MovieMapper.fromMovieToDto(savedMovie);
     }
@@ -193,15 +193,15 @@ public class MovieService implements IMovieService {
             }
     )
     public void deleteMovie(Long movieId) {
-        log.info("api/movies/deleteMovie/movieId :: Evicting cache 'movies' and 'movie' with the key of 'movie_{}'", movieId);
-        log.info("api/movies/editMovie/movieId :: Deleting movie with the id of {}.", movieId);
+        log.info("api/movies/movieId (deleteMovie) :: Evicting cache 'movies' and 'movie' with the key of 'movie_{}'", movieId);
+        log.info("api/movies/movieId (deleteMovie) :: Deleting movie with the id of {}.", movieId);
 
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> {
-                    log.info("api/movies/deleteMovie/movieId :: Movie not found with the id of {}.", movieId);
+                    log.info("api/movies/movieId (deleteMovie) :: Movie not found with the id of {}.", movieId);
                     return new MovieNotFoundException("Movie not found.");
                 });
-        log.info("api/movies/editMovie/movieId :: Movie found with the id of {} and data of {}.", movieId, movie);
+        log.info("api/movies/movieId (deleteMovie) :: Movie found with the id of {} and data of {}.", movieId, movie);
 
         movieRepository.delete(movie);
     }
