@@ -6,6 +6,7 @@ import com.moviereservationapi.movie.repository.MovieRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class MovieDataSeeder {
     };
 
     @Bean
+    @Profile("dev")
     public CommandLineRunner seedMovieData(MovieRepository movieRepository) {
         return args -> {
             if (movieRepository.count() > 0) {
