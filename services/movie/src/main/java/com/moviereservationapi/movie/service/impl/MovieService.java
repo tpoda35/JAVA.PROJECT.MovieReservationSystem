@@ -61,12 +61,12 @@ public class MovieService implements IMovieService {
                 }
 
                 log.info("api/movies :: Found {} movies. Caching data for key '{}'.", movies.getTotalElements(), cacheKey);
-                Page<MovieDto> results = movies.map(MovieMapper::fromMovieToDto);
+                movieDtos = movies.map(MovieMapper::fromMovieToDto);
                 if (cache != null) {
-                    cache.put(cacheKey, results);
+                    cache.put(cacheKey, movieDtos);
                 }
 
-                return CompletableFuture.completedFuture(results);
+                return CompletableFuture.completedFuture(movieDtos);
             } else {
                 log.warn("api/movies :: Failed to acquire lock for key: {}", cacheKey);
                 throw new RuntimeException("Failed to acquire lock");
@@ -108,12 +108,12 @@ public class MovieService implements IMovieService {
                         });
 
                 log.info("api/movies/movieId :: Movie found with the id of {}. Caching data for key '{}'", movieId, cacheKey);
-                MovieDto result = MovieMapper.fromMovieToDto(movie);
+                movieDto = MovieMapper.fromMovieToDto(movie);
                 if (cache != null) {
-                    cache.put(cacheKey, result);
+                    cache.put(cacheKey, movieDto);
                 }
 
-                return CompletableFuture.completedFuture(result);
+                return CompletableFuture.completedFuture(movieDto);
             } else {
                 log.warn("api/movies/movieId :: Failed to acquire lock for key: {}", cacheKey);
                 throw new RuntimeException("Failed to acquire lock");
