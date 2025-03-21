@@ -9,6 +9,7 @@ import com.moviereservationapi.cinema.repository.SeatRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 public class DataSeederConfig {
 
     @Bean
+    @Profile("dev")
     CommandLineRunner initDatabase(CinemaRepository cinemaRepository,
                                    RoomRepository roomRepository,
                                    SeatRepository seatRepository) {
