@@ -11,4 +11,5 @@ public interface ISeatService {
     CompletableFuture<List<SeatDto>> getAllSeatByRoom(Long roomId);
     SeatDto addSeat(SeatManageDto seatManageDto);
     SeatDto editSeat(Long seatId, SeatManageDto seatManageDto);
+    void deleteSeat(Long seatId);
 }
