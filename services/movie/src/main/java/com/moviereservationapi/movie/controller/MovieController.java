@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,7 +46,7 @@ public class MovieController {
     public ResponseEntity<MovieDto> addMovie(
             @RequestBody @Valid MovieManageDto movieManageDto
     ) {
-        log.info("api/movies/addMovie :: Called endpoint. (movieManageDto:{})", movieManageDto);
+        log.info("api/movies (addMovie) :: Called endpoint. (movieManageDto:{})", movieManageDto);
 
         MovieDto savedMovie = movieService.addMovie(movieManageDto);
         URI location = URI.create("/movies/" + savedMovie.getId());
@@ -59,7 +60,7 @@ public class MovieController {
             @PathVariable("movieId") Long movieId,
             @RequestBody @Valid MovieManageDto movieManageDto
     ) {
-        log.info("api/movies/editMovie/movieId :: Called endpoint. (movieManageDto:{}, movieId:{})",
+        log.info("api/movies/movieId (editMovie) :: Called endpoint. (movieManageDto:{}, movieId:{})",
                 movieManageDto, movieId
         );
 
@@ -68,11 +69,13 @@ public class MovieController {
 
     // Role required endpoint
     @DeleteMapping("/{movieId}")
-    public void deleteMovie(
+    public ResponseEntity<Void> deleteMovie(
             @PathVariable("movieId") Long movieId
     ) {
-        log.info("api/movies/deleteMovie/movieId :: Called endpoint. (movieId:{})", movieId);
+        log.info("api/movies/movieId (deleteMovie) :: Called endpoint. (movieId:{})", movieId);
         movieService.deleteMovie(movieId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }
