@@ -13,8 +13,34 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ShowtimeNotFoundException.class)
+    @ExceptionHandler(RoomNotFoundException.class)
+    public ResponseEntity<CustomExceptionDto> handleRoomNotFoundException(
+            RoomNotFoundException ex
+    ) {
+        return ResponseEntity.status(NOT_FOUND).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        NOT_FOUND.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(MovieNotFoundException.class)
     public ResponseEntity<CustomExceptionDto> handleMovieNotFoundException(
+            MovieNotFoundException ex
+    ) {
+        return ResponseEntity.status(NOT_FOUND).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        NOT_FOUND.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(ShowtimeNotFoundException.class)
+    public ResponseEntity<CustomExceptionDto> handleShowtimeNotFoundException(
             ShowtimeNotFoundException ex
     ) {
         return ResponseEntity.status(NOT_FOUND).body(
@@ -33,7 +59,11 @@ public class GlobalExceptionHandler {
         }
 
         if (ex instanceof ShowtimeNotFoundException) {
-            return handleMovieNotFoundException((ShowtimeNotFoundException) ex);
+            return handleShowtimeNotFoundException((ShowtimeNotFoundException) ex);
+        } else if (ex instanceof MovieNotFoundException) {
+            return handleMovieNotFoundException((MovieNotFoundException) ex);
+        } else if (ex instanceof RoomNotFoundException) {
+            return handleRoomNotFoundException((RoomNotFoundException) ex);
         } else {
             return handleException(ex);
         }
