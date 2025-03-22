@@ -38,3 +38,4 @@ src/main/resources/configurations/movie-service.yml
 src/main/resources/configurations/user-service.yml
 src/main/resources/configurations/cinema-service.yml
 src/main/resources/configurations/showtime-service.yml
+src/main/resources/configurations/reservation-service.yml
