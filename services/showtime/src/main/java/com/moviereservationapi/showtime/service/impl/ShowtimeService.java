@@ -2,17 +2,23 @@ package com.moviereservationapi.showtime.service.impl;
 
 import com.moviereservationapi.showtime.dto.ShowtimeDto;
 import com.moviereservationapi.showtime.dto.ShowtimeManageDto;
+import com.moviereservationapi.showtime.exception.MovieNotFoundException;
+import com.moviereservationapi.showtime.exception.RoomNotFoundException;
 import com.moviereservationapi.showtime.exception.ShowtimeNotFoundException;
+import com.moviereservationapi.showtime.feign.CinemaClient;
+import com.moviereservationapi.showtime.feign.MovieClient;
 import com.moviereservationapi.showtime.mapper.ShowtimeMapper;
 import com.moviereservationapi.showtime.model.Showtime;
 import com.moviereservationapi.showtime.repository.ShowtimeRepository;
 import com.moviereservationapi.showtime.service.IShowtimeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
@@ -27,6 +33,8 @@ import java.util.concurrent.TimeUnit;
 public class ShowtimeService implements IShowtimeService {
 
     private final ShowtimeRepository showtimeRepository;
+    private final MovieClient movieClient;
+    private final CinemaClient cinemaClient;
     private final CacheManager cacheManager;
     private final RedissonClient redissonClient;
 
@@ -125,14 +133,30 @@ public class ShowtimeService implements IShowtimeService {
     }
 
     @Override
-    public ShowtimeDto addShowtime(ShowtimeManageDto showtimeManageDto) {
+    @CacheEvict(
+            value = "showtimes",
+            allEntries = true
+    )
+    public ShowtimeDto addShowtime(@Valid ShowtimeManageDto showtimeManageDto) {
         log.info("api/showtimes (addShowtime) :: Evicting 'showtimes' cache. Saving new showtime: {}", showtimeManageDto);
+        Long movieId = showtimeManageDto.getMovieId();
+        Long roomId = showtimeManageDto.getRoomId();
 
-        return null;
+        if (!movieClient.movieExists(movieId)) {
+            log.info("api/showtimes (addShowtime) :: Movie not found with the id of {}.", movieId);
+            throw new MovieNotFoundException("Movie not found.");
+        }
 
-//        log.info("api/showtimes (addShowtime) :: Saved showtime: {}.", showtime);
-//
-//        return MovieMapper.fromMovieToDto(savedMovie);
+        if (!cinemaClient.roomExists(roomId)) {
+            log.info("api/showtimes (addShowtime) :: Room not found with the id of {}.", roomId);
+            throw new RoomNotFoundException("Room not found.");
+        }
+
+        Showtime showtime = ShowtimeMapper.fromManageDtoToShowtime(showtimeManageDto);
+        Showtime savedShowtime = showtimeRepository.save(showtime);
+        log.info("api/showtimes (addShowtime) :: Saved showtime: {}.", showtime);
+
+        return ShowtimeMapper.fromShowtimeToDto(savedShowtime);
     }
 
     private Page<ShowtimeDto> getCachedShowtimePage(Cache cache, String cacheKey, String logPrefix) {
