@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"reservation_id", "seatId"}))
 public class ReservationSeat {
 
     @Id
