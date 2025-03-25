@@ -1,5 +1,6 @@
 package com.moviereservationapi.reservation.model;
 
+import com.moviereservationapi.reservation.Enum.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,9 @@ public class Reservation {
     private Long id;
 
     private LocalDateTime reservationTime;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
