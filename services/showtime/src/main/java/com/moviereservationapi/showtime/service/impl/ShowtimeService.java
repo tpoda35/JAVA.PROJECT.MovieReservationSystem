@@ -11,6 +11,7 @@ import com.moviereservationapi.showtime.mapper.ShowtimeMapper;
 import com.moviereservationapi.showtime.model.Showtime;
 import com.moviereservationapi.showtime.repository.ShowtimeRepository;
 import com.moviereservationapi.showtime.service.IShowtimeService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -137,6 +138,7 @@ public class ShowtimeService implements IShowtimeService {
             value = "showtimes",
             allEntries = true
     )
+    @Transactional
     public ShowtimeDto addShowtime(@Valid ShowtimeManageDto showtimeManageDto) {
         log.info("api/showtimes (addShowtime) :: Evicting 'showtimes' cache. Saving new showtime: {}", showtimeManageDto);
         Long movieId = showtimeManageDto.getMovieId();
@@ -155,6 +157,8 @@ public class ShowtimeService implements IShowtimeService {
         Showtime showtime = ShowtimeMapper.fromManageDtoToShowtime(showtimeManageDto);
         Showtime savedShowtime = showtimeRepository.save(showtime);
         log.info("api/showtimes (addShowtime) :: Saved showtime: {}.", showtime);
+
+        movieClient.addShowtimeToMovie(movieId, showtime.getId());
 
         return ShowtimeMapper.fromShowtimeToDto(savedShowtime);
     }
