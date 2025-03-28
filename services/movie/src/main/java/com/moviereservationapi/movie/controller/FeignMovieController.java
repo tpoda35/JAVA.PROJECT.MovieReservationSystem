@@ -3,10 +3,7 @@ package com.moviereservationapi.movie.controller;
 import com.moviereservationapi.movie.service.IMovieFeignService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/movies/feign")
@@ -23,6 +20,14 @@ public class FeignMovieController {
         log.info("(Feign call) Checking movie existence with the id of {}.", movieId);
 
         return movieFeignService.movieExists(movieId);
+    }
+
+    @PostMapping("/addShowtimeToMovie/{movieId}/{showtimeId}")
+    public void addShowtimeToMovie(
+            @PathVariable("movieId") Long movieId,
+            @PathVariable("showtimeId") Long showtimeId
+    ) {
+        movieFeignService.addShowtimeToMovie(movieId, showtimeId);
     }
 
 }
