@@ -45,5 +45,14 @@ public class Movie {
 
     @Version
     @ToString.Exclude
-    private Integer version;
+    private Long version;
+
+    public void addShowtimeId(Long showtimeId) {
+        if (this.showtimeIds == null) {
+            this.showtimeIds = new ArrayList<>();
+        }
+        if (!this.showtimeIds.contains(showtimeId)) {
+            this.showtimeIds.add(showtimeId);
+        }
+    }
 }
