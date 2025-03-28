@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+// Need more constraint.
+// Problem: Users can reserve the same seat in the same showtime.
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"reservation_id", "seatId"}))
 public class ReservationSeat {
 
