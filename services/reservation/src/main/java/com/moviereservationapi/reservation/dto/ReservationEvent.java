@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReservationEvent {
 
-
+    private String testData;
 
 }
