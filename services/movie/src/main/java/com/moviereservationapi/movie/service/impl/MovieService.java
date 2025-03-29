@@ -228,15 +228,15 @@ public class MovieService implements IMovieService {
             return null;
         }
 
-        log.info("{} :: Checking cache for list key '{}'.", logPrefix, cacheKey);
+        log.info("{} :: Checking cache for key '{}'.", logPrefix, cacheKey);
         ValueWrapper cachedResult = cache.get(cacheKey);
 
         if (cachedResult != null) {
-            log.info("{} :: Cache HIT for list key '{}'. Returning cache.", logPrefix, cacheKey);
+            log.info("{} :: Cache HIT for key '{}'. Returning cache.", logPrefix, cacheKey);
             return (MovieDto) cachedResult.get();
         }
 
-        log.info("{} :: Cache MISS for list key '{}'.", logPrefix, cacheKey);
+        log.info("{} :: Cache MISS for key '{}'.", logPrefix, cacheKey);
         return null;
     }
 
