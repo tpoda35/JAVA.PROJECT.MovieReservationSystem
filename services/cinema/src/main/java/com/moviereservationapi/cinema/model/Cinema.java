@@ -1,10 +1,7 @@
 package com.moviereservationapi.cinema.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,4 +25,11 @@ public class Cinema {
     @OneToMany(mappedBy = "cinema", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Room> rooms = new ArrayList<>();
 
+    public Integer getRoomNum() {
+        if (rooms == null) {
+            return 0;
+        } else {
+            return rooms.size();
+        }
+    }
 }
