@@ -1,7 +1,7 @@
 package com.moviereservationapi.cinema.controller;
 
-import com.moviereservationapi.cinema.dto.CinemaDetailsDto;
-import com.moviereservationapi.cinema.dto.CinemaDto;
+import com.moviereservationapi.cinema.dto.CinemaDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.CinemaDetailsDtoV2;
 import com.moviereservationapi.cinema.dto.CinemaManageDto;
 import com.moviereservationapi.cinema.service.ICinemaService;
 import jakarta.validation.Valid;
@@ -23,7 +23,7 @@ public class CinemaController {
     private final ICinemaService cinemaService;
 
     @GetMapping
-    public CompletableFuture<Page<CinemaDetailsDto>> getCinemas(
+    public CompletableFuture<Page<CinemaDetailsDtoV1>> getCinemas(
             @RequestParam(defaultValue = "0") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize
     ) {
@@ -33,7 +33,7 @@ public class CinemaController {
     }
 
     @GetMapping("/{cinemaId}")
-    public CompletableFuture<CinemaDetailsDto> getCinema(
+    public CompletableFuture<CinemaDetailsDtoV1> getCinema(
             @PathVariable("cinemaId") Long cinemaId
     ) {
         log.info("api/cinemas/cinemaId :: Called endpoint. (cinemaId: {})", cinemaId);
@@ -42,7 +42,7 @@ public class CinemaController {
     }
 
     @PostMapping
-    public CinemaDetailsDto addCinema(
+    public CinemaDetailsDtoV1 addCinema(
             @RequestBody @Valid CinemaManageDto cinemaManageDto
     ) {
         log.info("api/cinemas (addCinema) :: Called endpoint. (cinemaManageDto: {})", cinemaManageDto);
@@ -51,7 +51,7 @@ public class CinemaController {
     }
 
     @PutMapping("/{cinemaId}")
-    public CinemaDto editCinema(
+    public CinemaDetailsDtoV2 editCinema(
             @RequestBody @Valid CinemaManageDto cinemaManageDto,
             @PathVariable("cinemaId") Long cinemaId
     ) {
