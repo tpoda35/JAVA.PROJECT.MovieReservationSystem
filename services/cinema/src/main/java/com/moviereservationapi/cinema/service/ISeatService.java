@@ -1,15 +1,15 @@
 package com.moviereservationapi.cinema.service;
 
-import com.moviereservationapi.cinema.dto.SeatDto;
+import com.moviereservationapi.cinema.dto.SeatDetailsDtoV1;
 import com.moviereservationapi.cinema.dto.SeatManageDto;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface ISeatService {
-    CompletableFuture<SeatDto> getSeat(Long seatId);
-    CompletableFuture<List<SeatDto>> getAllSeatByRoom(Long roomId);
-    SeatDto addSeat(SeatManageDto seatManageDto);
-    SeatDto editSeat(Long seatId, SeatManageDto seatManageDto);
+    CompletableFuture<SeatDetailsDtoV1> getSeat(Long seatId);
+    CompletableFuture<List<SeatDetailsDtoV1>> getAllSeatByRoom(Long roomId);
+    SeatDetailsDtoV1 addSeat(SeatManageDto seatManageDto);
+    SeatDetailsDtoV1 editSeat(Long seatId, SeatManageDto seatManageDto);
     void deleteSeat(Long seatId);
 }
