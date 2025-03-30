@@ -1,6 +1,6 @@
 package com.moviereservationapi.cinema.controller;
 
-import com.moviereservationapi.cinema.dto.SeatDto;
+import com.moviereservationapi.cinema.dto.SeatDetailsDtoV1;
 import com.moviereservationapi.cinema.dto.SeatManageDto;
 import com.moviereservationapi.cinema.service.ISeatService;
 import jakarta.validation.Valid;
@@ -23,7 +23,7 @@ public class SeatController {
     private final ISeatService seatService;
 
     @GetMapping("/{seatId}")
-    public CompletableFuture<SeatDto> getSeat(
+    public CompletableFuture<SeatDetailsDtoV1> getSeat(
             @PathVariable("seatId") Long seatId
     ) {
         log.info("api/seats/seatId :: Called endpoint. (seatId:{})", seatId);
@@ -32,7 +32,7 @@ public class SeatController {
     }
 
     @GetMapping("/room/{roomId}")
-    public CompletableFuture<List<SeatDto>> getAllSeatByRoom(
+    public CompletableFuture<List<SeatDetailsDtoV1>> getAllSeatByRoom(
             @PathVariable("roomId") Long roomId
     ) {
         log.info("api/seats/room/roomId :: Called endpoint. (roomId:{})", roomId);
@@ -41,19 +41,19 @@ public class SeatController {
     }
 
     @PostMapping
-    public ResponseEntity<SeatDto> addSeat(
+    public ResponseEntity<SeatDetailsDtoV1> addSeat(
             @Valid @RequestBody SeatManageDto seatManageDto
     ) {
         log.info("api/seats (addSeat) :: Called endpoint. (seatManageDto:{})", seatManageDto);
 
-        SeatDto savedSeat = seatService.addSeat(seatManageDto);
+        SeatDetailsDtoV1 savedSeat = seatService.addSeat(seatManageDto);
         URI location = URI.create("/seats/" + savedSeat.getId());
 
         return ResponseEntity.created(location).body(savedSeat);
     }
 
     @PutMapping("/{seatId}")
-    public SeatDto editSeat(
+    public SeatDetailsDtoV1 editSeat(
             @PathVariable("seatId") Long seatId,
             @RequestBody @Valid SeatManageDto seatManageDto
     ) {
