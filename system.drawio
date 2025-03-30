@@ -420,37 +420,40 @@
         <mxCell id="OI7wT00bF3bCO601Q9EA-42" value="GET - api/reservations/user/{id}" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="OI7wT00bF3bCO601Q9EA-34" vertex="1">
           <mxGeometry y="120" width="220" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="TdeLhOXd9JfJQ4YcXId2-0" value="RoomController" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
-          <mxGeometry x="1820" y="-1290" width="220" height="150" as="geometry" />
+        <mxCell id="TdeLhOXd9JfJQ4YcXId2-0" value="RoomController" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
+          <mxGeometry x="1820" y="-1290" width="220" height="180" as="geometry" />
         </mxCell>
-        <mxCell id="TdeLhOXd9JfJQ4YcXId2-12" value="GET - api/rooms/{cinemaId}" style="text;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="TdeLhOXd9JfJQ4YcXId2-0">
+        <mxCell id="TdeLhOXd9JfJQ4YcXId2-12" value="GET - api/rooms/{cinemaId}" style="text;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="TdeLhOXd9JfJQ4YcXId2-0" vertex="1">
           <mxGeometry y="30" width="220" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="TdeLhOXd9JfJQ4YcXId2-3" value="POST - /api/rooms/{cinemaId}" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="TdeLhOXd9JfJQ4YcXId2-0">
+        <mxCell id="vGgX5iu1GreOPSB62ODf-0" value="GET - api/rooms/{id}" style="text;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="TdeLhOXd9JfJQ4YcXId2-0">
           <mxGeometry y="60" width="220" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="TdeLhOXd9JfJQ4YcXId2-4" value="PUT - /api/rooms/{id}" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="TdeLhOXd9JfJQ4YcXId2-0">
+        <mxCell id="TdeLhOXd9JfJQ4YcXId2-3" value="POST - /api/rooms/{cinemaId}" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;" parent="TdeLhOXd9JfJQ4YcXId2-0" vertex="1">
           <mxGeometry y="90" width="220" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="TdeLhOXd9JfJQ4YcXId2-5" value="DELETE - /api/rooms/{id}" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="TdeLhOXd9JfJQ4YcXId2-0">
+        <mxCell id="TdeLhOXd9JfJQ4YcXId2-4" value="PUT - /api/rooms/{id}" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;" parent="TdeLhOXd9JfJQ4YcXId2-0" vertex="1">
           <mxGeometry y="120" width="220" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="TdeLhOXd9JfJQ4YcXId2-6" value="Cinema" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+        <mxCell id="TdeLhOXd9JfJQ4YcXId2-5" value="DELETE - /api/rooms/{id}" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;" parent="TdeLhOXd9JfJQ4YcXId2-0" vertex="1">
+          <mxGeometry y="150" width="220" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="TdeLhOXd9JfJQ4YcXId2-6" value="Cinema" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
           <mxGeometry x="1590" y="-1290" width="220" height="180" as="geometry" />
         </mxCell>
-        <mxCell id="TdeLhOXd9JfJQ4YcXId2-8" value="GET - api/cinemas (cache, pag)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="TdeLhOXd9JfJQ4YcXId2-6">
+        <mxCell id="TdeLhOXd9JfJQ4YcXId2-8" value="GET - api/cinemas (cache, pag)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="TdeLhOXd9JfJQ4YcXId2-6" vertex="1">
           <mxGeometry y="30" width="220" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="TdeLhOXd9JfJQ4YcXId2-7" value="GET - api/cinemas/id (cache)" style="text;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="TdeLhOXd9JfJQ4YcXId2-6">
+        <mxCell id="TdeLhOXd9JfJQ4YcXId2-7" value="GET - api/cinemas/id (cache)" style="text;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="TdeLhOXd9JfJQ4YcXId2-6" vertex="1">
           <mxGeometry y="60" width="220" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="TdeLhOXd9JfJQ4YcXId2-9" value="POST - /api/cinemas" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="TdeLhOXd9JfJQ4YcXId2-6">
+        <mxCell id="TdeLhOXd9JfJQ4YcXId2-9" value="POST - /api/cinemas" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;" parent="TdeLhOXd9JfJQ4YcXId2-6" vertex="1">
           <mxGeometry y="90" width="220" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="TdeLhOXd9JfJQ4YcXId2-10" value="PUT - /api/cinemas/{id}" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="TdeLhOXd9JfJQ4YcXId2-6">
+        <mxCell id="TdeLhOXd9JfJQ4YcXId2-10" value="PUT - /api/cinemas/{id}" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;" parent="TdeLhOXd9JfJQ4YcXId2-6" vertex="1">
           <mxGeometry y="120" width="220" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="TdeLhOXd9JfJQ4YcXId2-11" value="DELETE - /api/cinemas/{id}" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="TdeLhOXd9JfJQ4YcXId2-6">
+        <mxCell id="TdeLhOXd9JfJQ4YcXId2-11" value="DELETE - /api/cinemas/{id}" style="text;strokeColor=#C73500;fillColor=#fa6800;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#000000;" parent="TdeLhOXd9JfJQ4YcXId2-6" vertex="1">
           <mxGeometry y="150" width="220" height="30" as="geometry" />
         </mxCell>
       </root>
