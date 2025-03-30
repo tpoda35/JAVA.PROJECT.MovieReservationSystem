@@ -1,6 +1,6 @@
 package com.moviereservationapi.cinema.service.impl;
 
-import com.moviereservationapi.cinema.dto.SeatDto;
+import com.moviereservationapi.cinema.dto.SeatDetailsDtoV1;
 import com.moviereservationapi.cinema.dto.SeatManageDto;
 import com.moviereservationapi.cinema.exception.RoomNotFoundException;
 import com.moviereservationapi.cinema.exception.SeatNotFoundException;
@@ -9,6 +9,7 @@ import com.moviereservationapi.cinema.model.Room;
 import com.moviereservationapi.cinema.model.Seat;
 import com.moviereservationapi.cinema.repository.RoomRepository;
 import com.moviereservationapi.cinema.repository.SeatRepository;
+import com.moviereservationapi.cinema.service.ICacheService;
 import com.moviereservationapi.cinema.service.ISeatService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.cache.Cache;
-import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
@@ -37,18 +37,19 @@ public class SeatService implements ISeatService {
     private final RoomRepository roomRepository;
     private final CacheManager cacheManager;
     private final RedissonClient redissonClient;
-
     private final TransactionTemplate transactionTemplate;
+    private final ICacheService cacheService;
 
     @Override
     @Async
-    public CompletableFuture<SeatDto> getSeat(Long seatId) {
+    public CompletableFuture<SeatDetailsDtoV1> getSeat(Long seatId) {
         String cacheKey = String.format("seat_%d", seatId);
         Cache cache = cacheManager.getCache("seat");
+        String LOG_PREFIX = "api/seats/seatId";
 
-        SeatDto seatDto = getCachedData(cache, cacheKey, "api/seats/seatId", SeatDto.class);
-        if (seatDto != null) {
-            return CompletableFuture.completedFuture(seatDto);
+        SeatDetailsDtoV1 seatDetailsDtoV1 = cacheService.getCachedData(cache, cacheKey, LOG_PREFIX, SeatDetailsDtoV1.class);
+        if (seatDetailsDtoV1 != null) {
+            return CompletableFuture.completedFuture(seatDetailsDtoV1);
         }
 
         RLock lock = redissonClient.getLock(cacheKey);
@@ -57,26 +58,23 @@ public class SeatService implements ISeatService {
             // Change lock to env variables.
             boolean locked = lock.tryLock(10, 30, TimeUnit.SECONDS);
             if (locked) {
-                seatDto = getCachedData(cache, cacheKey, "api/seats/seatId", SeatDto.class);
-                if (seatDto != null) {
-                    return CompletableFuture.completedFuture(seatDto);
+                seatDetailsDtoV1 = cacheService.getCachedData(cache, cacheKey, LOG_PREFIX, SeatDetailsDtoV1.class);
+                if (seatDetailsDtoV1 != null) {
+                    return CompletableFuture.completedFuture(seatDetailsDtoV1);
                 }
 
                 Seat seat = seatRepository.findById(seatId)
                         .orElseThrow(() -> {
-                            log.error("api/seats/seatId :: Seat not found with id: {}", seatId);
+                            log.error("{} :: Seat not found with id: {}", LOG_PREFIX, seatId);
                             return new SeatNotFoundException("Seat not found.");
                         });
 
-                seatDto = SeatMapper.fromSeatToDto(seat);
-                if (cache != null) {
-                    cache.put(cacheKey, seatDto);
-                    log.info("api/seats/seatId :: Cached seat data for key: {}", cacheKey);
-                }
+                seatDetailsDtoV1 = SeatMapper.fromSeatToDto(seat);
+                cacheService.saveInCache(cache, cacheKey, seatDetailsDtoV1, LOG_PREFIX);
 
-                return CompletableFuture.completedFuture(seatDto);
+                return CompletableFuture.completedFuture(seatDetailsDtoV1);
             } else {
-                log.warn("api/seats/seatId :: Failed to acquire lock for key: {}", cacheKey);
+                log.warn("{} :: Failed to acquire lock for key: {}", LOG_PREFIX, cacheKey);
                 throw new RuntimeException("Failed to acquire lock");
             }
         } catch (InterruptedException e) {
@@ -91,37 +89,42 @@ public class SeatService implements ISeatService {
 
     @Override
     @Async
-    public CompletableFuture<List<SeatDto>> getAllSeatByRoom(Long roomId) {
+    public CompletableFuture<List<SeatDetailsDtoV1>> getAllSeatByRoom(Long roomId) {
         String cacheKey = String.format("cinema_seats_%d", roomId);
         Cache cache = cacheManager.getCache("cinema_seats");
+        String LOG_PREFIX = "api/seats/room/roomId";
 
-        List<SeatDto> seatDtos = getCachedSeatList(cache, cacheKey, "api/seats/room/roomId");
-        if (seatDtos != null && !seatDtos.isEmpty()) {
-            return CompletableFuture.completedFuture(seatDtos);
+        List<SeatDetailsDtoV1> seatDetailsDtoV1s = cacheService.getCachedSeatList(cache, cacheKey, LOG_PREFIX);
+        if (seatDetailsDtoV1s != null && !seatDetailsDtoV1s.isEmpty()) {
+            return CompletableFuture.completedFuture(seatDetailsDtoV1s);
         }
 
         RLock lock = redissonClient.getLock(cacheKey);
         try {
             boolean locked = lock.tryLock(10, 30, TimeUnit.SECONDS);
             if (locked) {
-                seatDtos = getCachedSeatList(cache, cacheKey, "api/seats/room/roomId");
-                if (seatDtos != null && !seatDtos.isEmpty()) {
-                    return CompletableFuture.completedFuture(seatDtos);
+                seatDetailsDtoV1s = cacheService.getCachedSeatList(cache, cacheKey, LOG_PREFIX);
+                if (seatDetailsDtoV1s != null && !seatDetailsDtoV1s.isEmpty()) {
+                    return CompletableFuture.completedFuture(seatDetailsDtoV1s);
                 }
 
                 return CompletableFuture.completedFuture(transactionTemplate.execute(status -> {
+                    // Maybe I should check the room first for more accurate error message.
                     List<Seat> seats = roomRepository.findAllSeatsByRoomId(roomId);
                     if (seats.isEmpty()) {
-                        log.info("api/seats/room/roomId :: No seat found.");
+                        log.info("{} :: No seat found.", LOG_PREFIX);
                         throw new SeatNotFoundException("No seat found.");
                     }
 
-                    return seats.stream()
+                    var mappedSeats = seats.stream()
                             .map(SeatMapper::fromSeatToDto)
                             .toList();
+                    cacheService.saveInCache(cache, cacheKey, mappedSeats, LOG_PREFIX);
+
+                    return mappedSeats;
                 }));
             } else {
-                log.warn("api/seats/room/roomId :: Failed to acquire lock for key: {}", cacheKey);
+                log.warn("{}:: Failed to acquire lock for key: {}", LOG_PREFIX, cacheKey);
                 throw new RuntimeException("Failed to acquire lock");
             }
         } catch (InterruptedException e) {
@@ -140,21 +143,24 @@ public class SeatService implements ISeatService {
             value = "cinema_seats",
             allEntries = true
     )
-    public SeatDto addSeat(@Valid SeatManageDto seatManageDto) {
+    public SeatDetailsDtoV1 addSeat(@Valid SeatManageDto seatManageDto) {
         log.info("api/seats (addSeat) :: Evicting 'cinema_seats' cache. Saving new seat: {}", seatManageDto);
         final Long roomId = seatManageDto.getRoomId();
 
-        Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> {
-                    log.info("api/seats (addSeat) :: Room not found with the id of {}.", roomId);
-                    return new RoomNotFoundException("Room not found.");
-                });
+        return transactionTemplate.execute(status -> {
+            Room room = roomRepository.findById(roomId)
+                    .orElseThrow(() -> {
+                        log.info("api/seats (addSeat) :: Room not found with the id of {}.", roomId);
+                        return new RoomNotFoundException("Room not found.");
+                    });
 
-        Seat savedSeat = seatRepository.save(SeatMapper.fromManageDtoToSeat(seatManageDto, room));
+            Seat savedSeat = seatRepository.save(SeatMapper.fromManageDtoToSeat(seatManageDto, room));
+            room.getSeat().add(savedSeat);
 
-        log.info("api/seats :: Saved seat: {}.", savedSeat);
+            log.info("api/seats :: Saved seat: {} added to room with the id of: {}.", savedSeat, roomId);
 
-        return SeatMapper.fromSeatToDto(savedSeat);
+            return SeatMapper.fromSeatToDto(savedSeat);
+        });
     }
 
     @Override
@@ -170,35 +176,36 @@ public class SeatService implements ISeatService {
                     )
             }
     )
-    public SeatDto editSeat(Long seatId, SeatManageDto seatManageDto) {
+    public SeatDetailsDtoV1 editSeat(Long seatId, @Valid SeatManageDto seatManageDto) {
         log.info("api/seats/seatId (editSeat) :: Evicting cache 'seat' and 'cinema_seats' with the key of 'seat_{}'", seatId);
         log.info("api/seats/seatId (editSeat) :: Editing seat with the id of {} and data of {}", seatId, seatManageDto);
 
-
-        Seat seat = seatRepository.findById(seatId)
-                .orElseThrow(() -> {
-                    log.info("api/seats/seatId (editSeat) :: Seat not found with the id of {}.", seatId);
-                    return new SeatNotFoundException("Seat not found.");
-                });
-        log.info("api/seats/seatId (editSeat) :: Seat found with the id of {}.", seatId);
-
-        if (seatManageDto.getRoomId() != null) {
-            final Long roomId = seatManageDto.getRoomId();
-            Room room = roomRepository.findById(roomId)
+        return transactionTemplate.execute(status -> {
+            Seat seat = seatRepository.findById(seatId)
                     .orElseThrow(() -> {
-                        log.info("api/seats/seatId (editSeat) :: Room not found with the id of {}.", roomId);
-                        return new RoomNotFoundException("Room not found.");
+                        log.info("api/seats/seatId (editSeat) :: Seat not found with the id of {}.", seatId);
+                        return new SeatNotFoundException("Seat not found.");
                     });
-            seat.setRoom(room);
-        }
+            log.info("api/seats/seatId (editSeat) :: Seat found with the id of {}.", seatId);
 
-        seat.setSeatRow(seatManageDto.getSeatRow());
-        seat.setSeatNumber(seatManageDto.getSeatNumber());
+            if (seatManageDto.getRoomId() != null) {
+                final Long roomId = seatManageDto.getRoomId();
+                Room room = roomRepository.findById(roomId)
+                        .orElseThrow(() -> {
+                            log.info("api/seats/seatId (editSeat) :: Room not found with the id of {}.", roomId);
+                            return new RoomNotFoundException("Room not found.");
+                        });
+                seat.setRoom(room);
+            }
 
-        Seat savedSeat = seatRepository.save(seat);
-        log.info("api/seats/seatId (editSeat) :: Saved seat: {}", seat);
+            seat.setSeatRow(seatManageDto.getSeatRow());
+            seat.setSeatNumber(seatManageDto.getSeatNumber());
 
-        return SeatMapper.fromSeatToDto(savedSeat);
+            Seat savedSeat = seatRepository.save(seat);
+            log.info("api/seats/seatId (editSeat) :: Saved seat: {}", seat);
+
+            return SeatMapper.fromSeatToDto(savedSeat);
+        });
     }
 
     @Override
@@ -226,39 +233,5 @@ public class SeatService implements ISeatService {
         log.info("api/seats/seatId (deleteSeat) :: Seat found with the id of {} and data of {}.", seatId, seat);
 
         seatRepository.delete(seat);
-    }
-
-    private <T> T getCachedData(Cache cache, String cacheKey, String logPrefix, Class<T> type) {
-        if (cache == null) {
-            return null;
-        }
-
-        log.info("{} :: Checking cache for key '{}'.", logPrefix, cacheKey);
-        ValueWrapper cachedResult = cache.get(cacheKey);
-
-        if (cachedResult != null) {
-            log.info("{} :: Cache HIT for key '{}'. Returning cache.", logPrefix, cacheKey);
-            return type.cast(cachedResult.get());
-        }
-
-        log.info("{} :: Cache MISS for key '{}'.", logPrefix, cacheKey);
-        return null;
-    }
-
-    private List<SeatDto> getCachedSeatList(Cache cache, String cacheKey, String logPrefix) {
-        if (cache == null) {
-            return null;
-        }
-
-        log.info("{} :: Checking cache for list key '{}'.", logPrefix, cacheKey);
-        ValueWrapper cachedResult = cache.get(cacheKey);
-
-        if (cachedResult != null) {
-            log.info("{} :: Cache HIT for list key '{}'. Returning cache.", logPrefix, cacheKey);
-            return (List<SeatDto>) cachedResult.get();
-        }
-
-        log.info("{} :: Cache MISS for list key '{}'.", logPrefix, cacheKey);
-        return null;
     }
 }
