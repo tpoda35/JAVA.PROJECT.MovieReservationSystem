@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SeatDto implements Serializable {
+public class SeatDetailsDtoV1 implements Serializable {
 
     private Long id;
 
