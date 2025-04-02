@@ -1,6 +1,6 @@
 package com.moviereservationapi.cinema.service.impl;
 
-import com.moviereservationapi.cinema.dto.SeatDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.seat.SeatDetailsDtoV1;
 import com.moviereservationapi.cinema.exception.SeatNotFoundException;
 import com.moviereservationapi.cinema.mapper.SeatMapper;
 import com.moviereservationapi.cinema.model.Seat;
@@ -33,7 +33,7 @@ public class SeatFeignService implements ISeatFeignService {
         log.info("(Feign call) Found all seats.");
 
         return seats.stream()
-                .map(SeatMapper::fromSeatToDto)
+                .map(SeatMapper::fromSeatToDetailsDtoV1)
                 .toList();
     }
 
