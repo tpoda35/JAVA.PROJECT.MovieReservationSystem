@@ -1,8 +1,8 @@
 package com.moviereservationapi.cinema.service;
 
-import com.moviereservationapi.cinema.dto.CinemaDetailsDtoV1;
-import com.moviereservationapi.cinema.dto.RoomDetailsDtoV1;
-import com.moviereservationapi.cinema.dto.SeatDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.cinema.CinemaDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.room.RoomDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.seat.SeatDetailsDtoV1;
 import org.springframework.cache.Cache;
 import org.springframework.data.domain.Page;
 
