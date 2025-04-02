@@ -1,4 +1,4 @@
-package com.moviereservationapi.cinema.dto;
+package com.moviereservationapi.cinema.dto.room;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

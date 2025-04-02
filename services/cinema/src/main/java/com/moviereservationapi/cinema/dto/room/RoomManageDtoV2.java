@@ -1,4 +1,4 @@
-package com.moviereservationapi.cinema.dto;
+package com.moviereservationapi.cinema.dto.room;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -11,15 +11,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoomManageDto {
+public class RoomManageDtoV2 {
 
     @NotBlank(message = "Name field cannot be empty.")
     private String name;
 
-    @NotBlank(message = "Total seat field cannot be empty.")
+    @NotNull(message = "Total seat field cannot be empty.")
     private Integer totalSeat;
-
-    @NotNull(message = "CinemaID field cannot be empty.")
-    private Long cinemaId;
 
 }

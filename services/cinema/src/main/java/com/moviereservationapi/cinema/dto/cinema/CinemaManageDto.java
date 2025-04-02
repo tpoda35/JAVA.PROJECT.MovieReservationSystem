@@ -1,4 +1,4 @@
-package com.moviereservationapi.cinema.dto;
+package com.moviereservationapi.cinema.dto.cinema;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package com.moviereservationapi.cinema.dto;
+package com.moviereservationapi.cinema.dto.exception;
 
 import java.time.LocalDateTime;
 

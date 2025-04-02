@@ -1,4 +1,4 @@
-package com.moviereservationapi.cinema.dto;
+package com.moviereservationapi.cinema.dto.seat;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -7,15 +7,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SeatDetailsDtoV1 implements Serializable {
-
-    private Long id;
+public class SeatCreateDto {
 
     @NotBlank(message = "Seat row field cannot be empty.")
     private String seatRow;
@@ -23,7 +19,6 @@ public class SeatDetailsDtoV1 implements Serializable {
     @NotNull(message = "Seat number field cannot be empty.")
     private Integer seatNumber;
 
-    @NotBlank(message = "Room field cannot be empty.")
-    private String roomName;
-
+    @NotNull(message = "RoomId field cannot be empty.")
+    private Long roomId;
 }
