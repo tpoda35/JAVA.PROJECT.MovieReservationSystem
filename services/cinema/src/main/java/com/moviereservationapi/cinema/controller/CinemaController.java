@@ -1,8 +1,8 @@
 package com.moviereservationapi.cinema.controller;
 
-import com.moviereservationapi.cinema.dto.CinemaDetailsDtoV1;
-import com.moviereservationapi.cinema.dto.CinemaDetailsDtoV2;
-import com.moviereservationapi.cinema.dto.CinemaManageDto;
+import com.moviereservationapi.cinema.dto.cinema.CinemaDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.cinema.CinemaDetailsDtoV2;
+import com.moviereservationapi.cinema.dto.cinema.CinemaManageDto;
 import com.moviereservationapi.cinema.service.ICinemaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
