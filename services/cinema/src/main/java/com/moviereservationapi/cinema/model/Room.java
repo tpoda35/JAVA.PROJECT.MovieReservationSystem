@@ -1,10 +1,7 @@
 package com.moviereservationapi.cinema.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +24,11 @@ public class Room {
 
     @ManyToOne
     @JoinColumn(name = "cinema_id")
+    @ToString.Exclude
     private Cinema cinema;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<Seat> seat = new ArrayList<>();
 
     @ElementCollection
@@ -38,5 +37,6 @@ public class Room {
             joinColumns = @JoinColumn(name = "room_id")
     )
     @Column(name = "showtime_id")
+    @ToString.Exclude
     private List<Long> showtimeIds = new ArrayList<>();
 }
