@@ -1,7 +1,8 @@
 package com.moviereservationapi.cinema.controller;
 
-import com.moviereservationapi.cinema.dto.SeatDetailsDtoV1;
-import com.moviereservationapi.cinema.dto.SeatManageDto;
+import com.moviereservationapi.cinema.dto.seat.SeatCreateDto;
+import com.moviereservationapi.cinema.dto.seat.SeatDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.seat.SeatEditDto;
 import com.moviereservationapi.cinema.service.ISeatService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,30 +24,30 @@ public class SeatController {
     private final ISeatService seatService;
 
     @GetMapping("/{seatId}")
-    public CompletableFuture<SeatDetailsDtoV1> getSeat(
+    public CompletableFuture<SeatDetailsDtoV1> getSeatById(
             @PathVariable("seatId") Long seatId
     ) {
-        log.info("api/seats/seatId :: Called endpoint. (seatId:{})", seatId);
+        log.info("getSeatById :: Called endpoint. (seatId:{})", seatId);
 
-        return seatService.getSeat(seatId);
+        return seatService.getSeatById(seatId);
     }
 
     @GetMapping("/room/{roomId}")
     public CompletableFuture<List<SeatDetailsDtoV1>> getAllSeatByRoom(
             @PathVariable("roomId") Long roomId
     ) {
-        log.info("api/seats/room/roomId :: Called endpoint. (roomId:{})", roomId);
+        log.info("getAllSeatByRoom :: Called endpoint. (roomId:{})", roomId);
 
         return seatService.getAllSeatByRoom(roomId);
     }
 
     @PostMapping
     public ResponseEntity<SeatDetailsDtoV1> addSeat(
-            @Valid @RequestBody SeatManageDto seatManageDto
+            @Valid @RequestBody SeatCreateDto seatCreateDto
     ) {
-        log.info("api/seats (addSeat) :: Called endpoint. (seatManageDto:{})", seatManageDto);
+        log.info("addSeat :: Called endpoint. (SeatCreateDto:{})", seatCreateDto);
 
-        SeatDetailsDtoV1 savedSeat = seatService.addSeat(seatManageDto);
+        SeatDetailsDtoV1 savedSeat = seatService.addSeat(seatCreateDto);
         URI location = URI.create("/seats/" + savedSeat.getId());
 
         return ResponseEntity.created(location).body(savedSeat);
@@ -55,18 +56,18 @@ public class SeatController {
     @PutMapping("/{seatId}")
     public SeatDetailsDtoV1 editSeat(
             @PathVariable("seatId") Long seatId,
-            @RequestBody @Valid SeatManageDto seatManageDto
+            @RequestBody @Valid SeatEditDto seatEditDto
     ) {
-        log.info("api/seats/seatId (editSeat) :: Called endpoint. (seatManageDto:{})", seatManageDto);
+        log.info("editSeat :: Called endpoint. (seatManageDto:{})", seatEditDto);
 
-        return seatService.editSeat(seatId, seatManageDto);
+        return seatService.editSeat(seatId, seatEditDto);
     }
 
     @DeleteMapping("/{seatId}")
     public ResponseEntity<Void> deleteSeat(
             @PathVariable("seatId") Long seatId
     ) {
-        log.info("api/seats/seatId (deleteSeat) :: Called endpoint. (seatId:{})", seatId);
+        log.info("deleteSeat :: Called endpoint. (seatId:{})", seatId);
 
         seatService.deleteSeat(seatId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
