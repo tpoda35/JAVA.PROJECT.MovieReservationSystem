@@ -1,8 +1,8 @@
 package com.moviereservationapi.cinema.service.impl;
 
-import com.moviereservationapi.cinema.dto.CinemaDetailsDtoV1;
-import com.moviereservationapi.cinema.dto.CinemaDetailsDtoV2;
-import com.moviereservationapi.cinema.dto.CinemaManageDto;
+import com.moviereservationapi.cinema.dto.cinema.CinemaDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.cinema.CinemaDetailsDtoV2;
+import com.moviereservationapi.cinema.dto.cinema.CinemaManageDto;
 import com.moviereservationapi.cinema.exception.CinemaNotFoundException;
 import com.moviereservationapi.cinema.mapper.CinemaMapper;
 import com.moviereservationapi.cinema.model.Cinema;
@@ -75,7 +75,7 @@ public class CinemaService implements ICinemaService {
 
                 return CompletableFuture.completedFuture(cinemaDetailsDtos);
             } else {
-                log.warn("api/cinemas :: Failed to acquire lock for key: {}", cacheKey);
+                failedAcquireLock(LOG_PREFIX, cacheKey);
                 throw new RuntimeException("Failed to acquire lock");
             }
         } catch (InterruptedException e) {
@@ -116,7 +116,7 @@ public class CinemaService implements ICinemaService {
                 cinemaDetailsDtoV1 = transactionTemplate.execute(status -> {
                     Cinema cinema = cinemaRepository.findById(cinemaId)
                             .orElseThrow(() -> {
-                                log.error("api/cinemas/cinemaId :: Cinema not found with id: {}", cinemaId);
+                                log.error("{} :: Cinema not found with id: {}", LOG_PREFIX, cinemaId);
                                 return new CinemaNotFoundException("Cinema not found.");
                             });
 
@@ -127,7 +127,7 @@ public class CinemaService implements ICinemaService {
 
                 return CompletableFuture.completedFuture(cinemaDetailsDtoV1);
             } else {
-                log.warn("api/cinemas/cinemaId :: Failed to acquire lock for key: {}", cacheKey);
+                failedAcquireLock(LOG_PREFIX, cacheKey);
                 throw new RuntimeException("Failed to acquire lock");
             }
         } catch (InterruptedException e) {
@@ -214,5 +214,9 @@ public class CinemaService implements ICinemaService {
         log.info("api/cinemas/cinemaId (deleteCinema) :: Cinema found with the id of {} and data of {}.", cinemaId, cinema);
 
         cinemaRepository.delete(cinema);
+    }
+
+    private void failedAcquireLock(String LOG_PREFIX, String cacheKey) {
+        log.warn("{} :: Failed to acquire lock for key: {}", LOG_PREFIX, cacheKey);
     }
 }
