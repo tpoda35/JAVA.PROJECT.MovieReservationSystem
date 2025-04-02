@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 
 public interface IRoomService {
     CompletableFuture<Page<RoomDetailsDtoV1>> getRoomsByCinema(Long cinemaId, int pageSize, int pageNum);
-    CompletableFuture<RoomDetailsDtoV1> getRoom(Long roomId);
+    CompletableFuture<RoomDetailsDtoV1> getRoomById(Long roomId);
     RoomDetailsDtoV1 addRoom(RoomManageDtoV1 roomManageDtoV1);
     RoomDetailsDtoV1 editRoom(RoomManageDtoV2 roomManageDtoV2, Long roomId);
     void deleteRoom(Long roomId);

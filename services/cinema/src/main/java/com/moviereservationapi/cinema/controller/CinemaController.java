@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -27,7 +28,7 @@ public class CinemaController {
             @RequestParam(defaultValue = "0") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize
     ) {
-        log.info("api/cinemas :: Called endpoint. (pageNum:{}, pageSize:{})", pageNum, pageSize);
+        log.info("getCinemas :: Called endpoint. (pageNum:{}, pageSize:{})", pageNum, pageSize);
 
         return cinemaService.getCinemas(pageNum, pageSize);
     }
@@ -36,18 +37,21 @@ public class CinemaController {
     public CompletableFuture<CinemaDetailsDtoV1> getCinema(
             @PathVariable("cinemaId") Long cinemaId
     ) {
-        log.info("api/cinemas/cinemaId :: Called endpoint. (cinemaId: {})", cinemaId);
+        log.info("getCinema :: Called endpoint. (cinemaId: {})", cinemaId);
 
         return cinemaService.getCinema(cinemaId);
     }
 
     @PostMapping
-    public CinemaDetailsDtoV1 addCinema(
+    public ResponseEntity<CinemaDetailsDtoV1> addCinema(
             @RequestBody @Valid CinemaManageDto cinemaManageDto
     ) {
-        log.info("api/cinemas (addCinema) :: Called endpoint. (cinemaManageDto: {})", cinemaManageDto);
+        log.info("addCinema :: Called endpoint. (cinemaManageDto: {})", cinemaManageDto);
 
-        return cinemaService.addCinema(cinemaManageDto);
+        CinemaDetailsDtoV1 savedCinema = cinemaService.addCinema(cinemaManageDto);
+        URI location = URI.create("/seats/" + savedCinema.getId());
+
+        return ResponseEntity.created(location).body(savedCinema);
     }
 
     @PutMapping("/{cinemaId}")
@@ -55,7 +59,7 @@ public class CinemaController {
             @RequestBody @Valid CinemaManageDto cinemaManageDto,
             @PathVariable("cinemaId") Long cinemaId
     ) {
-        log.info("api/cinemas (editCinema) :: Called endpoint. (cinemaManageDto: {}, cinemaId: {})", cinemaManageDto, cinemaId);
+        log.info("editCinema :: Called endpoint. (cinemaManageDto: {}, cinemaId: {})", cinemaManageDto, cinemaId);
 
         return cinemaService.editCinema(cinemaManageDto, cinemaId);
     }
@@ -64,7 +68,7 @@ public class CinemaController {
     public ResponseEntity<Void> deleteCinema(
             @PathVariable("cinemaId") Long cinemaId
     ) {
-        log.info("api/cinemas/cinemaId (deleteMovie) :: Called endpoint. (cinemaId:{})", cinemaId);
+        log.info("deleteCinema :: Called endpoint. (cinemaId:{})", cinemaId);
         cinemaService.deleteCinema(cinemaId);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

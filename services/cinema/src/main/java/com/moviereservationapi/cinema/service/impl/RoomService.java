@@ -4,6 +4,8 @@ import com.moviereservationapi.cinema.dto.room.RoomDetailsDtoV1;
 import com.moviereservationapi.cinema.dto.room.RoomManageDtoV1;
 import com.moviereservationapi.cinema.dto.room.RoomManageDtoV2;
 import com.moviereservationapi.cinema.exception.CinemaNotFoundException;
+import com.moviereservationapi.cinema.exception.LockAcquisitionException;
+import com.moviereservationapi.cinema.exception.LockInterruptedException;
 import com.moviereservationapi.cinema.exception.RoomNotFoundException;
 import com.moviereservationapi.cinema.mapper.RoomMapper;
 import com.moviereservationapi.cinema.model.Cinema;
@@ -48,7 +50,7 @@ public class RoomService implements IRoomService {
     public CompletableFuture<Page<RoomDetailsDtoV1>> getRoomsByCinema(Long cinemaId, int pageSize, int pageNum) {
         String cacheKey = String.format("cinema_rooms_%d_page_%d_size_%d", cinemaId, pageNum, pageSize);
         Cache cache = cacheManager.getCache("cinema_rooms");
-        String LOG_PREFIX = "api/rooms";
+        String LOG_PREFIX = "getRoomsByCinema";
 
         Page<RoomDetailsDtoV1> roomDetailsDtoV1s = cacheService.getCachedRoomPage(cache, cacheKey, LOG_PREFIX);
         if (roomDetailsDtoV1s != null && !roomDetailsDtoV1s.isEmpty()) {
@@ -80,11 +82,11 @@ public class RoomService implements IRoomService {
 
             } else {
                 failedAcquireLock(LOG_PREFIX, cacheKey);
-                throw new RuntimeException("Failed to acquire lock");
+                throw new LockAcquisitionException("Failed to acquire lock");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("Thread interrupted while acquiring lock", e);
+            throw new LockInterruptedException("Thread interrupted while acquiring lock", e);
         } finally {
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
@@ -94,10 +96,10 @@ public class RoomService implements IRoomService {
 
     @Override
     @Async
-    public CompletableFuture<RoomDetailsDtoV1> getRoom(Long roomId) {
+    public CompletableFuture<RoomDetailsDtoV1> getRoomById(Long roomId) {
         String cacheKey = String.format("room_%d", roomId);
         Cache cache = cacheManager.getCache("room");
-        String LOG_PREFIX = "api/rooms/roomId";
+        String LOG_PREFIX = "getRoomById";
 
         RoomDetailsDtoV1 roomDetailsDtoV1 =
                 cacheService.getCachedData(cache, cacheKey, LOG_PREFIX, RoomDetailsDtoV1.class);
@@ -127,11 +129,11 @@ public class RoomService implements IRoomService {
                 return CompletableFuture.completedFuture(roomDetailsDtoV1);
             } else {
                 failedAcquireLock(LOG_PREFIX, cacheKey);
-                throw new RuntimeException("Failed to acquire lock");
+                throw new LockAcquisitionException("Failed to acquire lock");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("Thread interrupted while acquiring lock", e);
+            throw new LockInterruptedException("Thread interrupted while acquiring lock", e);
         } finally {
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
@@ -154,7 +156,7 @@ public class RoomService implements IRoomService {
             }
     )
     public RoomDetailsDtoV1 addRoom(@Valid RoomManageDtoV1 roomManageDtoV1) {
-        String LOG_PREFIX = "api/rooms (addRoom)";
+        String LOG_PREFIX = "addRoom";
         Long cinemaId = roomManageDtoV1.getCinemaId();
 
         log.info("{} :: Evicting 'cinema_rooms' cache. Saving new room: {}", LOG_PREFIX, roomManageDtoV1);
@@ -184,7 +186,7 @@ public class RoomService implements IRoomService {
             }
     )
     public RoomDetailsDtoV1 editRoom(@Valid RoomManageDtoV2 roomManageDtoV2, Long roomId) {
-        String LOG_PREFIX = "api/rooms (editRoom)";
+        String LOG_PREFIX = "editRoom";
 
         log.info("{} :: Evicting cache 'cinema_rooms' and 'room' with the key of 'room_{}'", LOG_PREFIX,  roomId);
         log.info("{} :: Editing room with the id of {} and data of {}.", LOG_PREFIX, roomId, roomManageDtoV2);
@@ -216,7 +218,7 @@ public class RoomService implements IRoomService {
             }
     )
     public void deleteRoom(Long roomId) {
-        String LOG_PREFIX = "api/rooms (deleteRoom)";
+        String LOG_PREFIX = "deleteRoom";
 
         log.info("{} :: Evicting cache 'cinema_rooms' and 'room' with the key of 'room_{}'", LOG_PREFIX, roomId);
         log.info("{} :: Deleting room with the id of {}.", LOG_PREFIX, roomId);

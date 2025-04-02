@@ -40,7 +40,7 @@ public class RoomController {
     ) {
         log.info("getRoomById :: Called endpoint. (roomId: {})", roomId);
 
-        return roomService.getRoom(roomId);
+        return roomService.getRoomById(roomId);
     }
 
     @PostMapping

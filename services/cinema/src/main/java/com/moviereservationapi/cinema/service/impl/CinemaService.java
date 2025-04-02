@@ -4,6 +4,8 @@ import com.moviereservationapi.cinema.dto.cinema.CinemaDetailsDtoV1;
 import com.moviereservationapi.cinema.dto.cinema.CinemaDetailsDtoV2;
 import com.moviereservationapi.cinema.dto.cinema.CinemaManageDto;
 import com.moviereservationapi.cinema.exception.CinemaNotFoundException;
+import com.moviereservationapi.cinema.exception.LockAcquisitionException;
+import com.moviereservationapi.cinema.exception.LockInterruptedException;
 import com.moviereservationapi.cinema.mapper.CinemaMapper;
 import com.moviereservationapi.cinema.model.Cinema;
 import com.moviereservationapi.cinema.repository.CinemaRepository;
@@ -42,7 +44,7 @@ public class CinemaService implements ICinemaService {
     public CompletableFuture<Page<CinemaDetailsDtoV1>> getCinemas(int pageNum, int pageSize) {
         String cacheKey = String.format("cinemas_page_%d_size_%d", pageNum, pageSize);
         Cache cache = cacheManager.getCache("cinemas");
-        String LOG_PREFIX = "api/cinemas";
+        String LOG_PREFIX = "getCinemas";
 
         Page<CinemaDetailsDtoV1> cinemaDetailsDtos = cacheService.getCachedCinemaPage(cache, cacheKey, LOG_PREFIX);
         if (cinemaDetailsDtos != null) {
@@ -61,12 +63,12 @@ public class CinemaService implements ICinemaService {
                 cinemaDetailsDtos = transactionTemplate.execute(status -> {
                     Page<Cinema> cinemas = cinemaRepository.findAll(PageRequest.of(pageNum, pageSize));
                     if (cinemas.isEmpty()) {
-                        log.info("api/cinemas :: No cinema found.");
+                        log.info("{} :: No cinema found.", LOG_PREFIX);
                         throw new CinemaNotFoundException("There's no cinema found.");
                     }
 
-                    log.info("api/cinemas :: Found {} cinemas. Caching data for key '{}'.",
-                            cinemas.getTotalElements(), cacheKey);
+                    log.info("{} :: Found {} cinemas. Caching data for key '{}'.",
+                            LOG_PREFIX, cinemas.getTotalElements(), cacheKey);
 
                     return cinemas.map(CinemaMapper::fromCinemaToDetailsDto);
                 });
@@ -76,11 +78,11 @@ public class CinemaService implements ICinemaService {
                 return CompletableFuture.completedFuture(cinemaDetailsDtos);
             } else {
                 failedAcquireLock(LOG_PREFIX, cacheKey);
-                throw new RuntimeException("Failed to acquire lock");
+                throw new LockAcquisitionException("Failed to acquire lock");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("Thread interrupted while acquiring lock", e);
+            throw new LockInterruptedException("Thread interrupted while acquiring lock", e);
         } finally {
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
@@ -93,7 +95,7 @@ public class CinemaService implements ICinemaService {
     public CompletableFuture<CinemaDetailsDtoV1> getCinema(Long cinemaId) {
         String cacheKey = String.format("cinema_%d", cinemaId);
         Cache cache = cacheManager.getCache("cinema");
-        String LOG_PREFIX = "api/cinemas/cinemaId";
+        String LOG_PREFIX = "getCinema";
 
         CinemaDetailsDtoV1 cinemaDetailsDtoV1 =
                 cacheService.getCachedData(cache, cacheKey, LOG_PREFIX, CinemaDetailsDtoV1.class);
@@ -114,12 +116,7 @@ public class CinemaService implements ICinemaService {
                 }
 
                 cinemaDetailsDtoV1 = transactionTemplate.execute(status -> {
-                    Cinema cinema = cinemaRepository.findById(cinemaId)
-                            .orElseThrow(() -> {
-                                log.error("{} :: Cinema not found with id: {}", LOG_PREFIX, cinemaId);
-                                return new CinemaNotFoundException("Cinema not found.");
-                            });
-
+                    Cinema cinema = findCinemaById(cinemaId, LOG_PREFIX);
                     return CinemaMapper.fromCinemaToDetailsDto(cinema);
                 });
 
@@ -128,11 +125,11 @@ public class CinemaService implements ICinemaService {
                 return CompletableFuture.completedFuture(cinemaDetailsDtoV1);
             } else {
                 failedAcquireLock(LOG_PREFIX, cacheKey);
-                throw new RuntimeException("Failed to acquire lock");
+                throw new LockAcquisitionException("Failed to acquire lock");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("Thread interrupted while acquiring lock", e);
+            throw new LockInterruptedException("Thread interrupted while acquiring lock", e);
         } finally {
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
@@ -146,12 +143,14 @@ public class CinemaService implements ICinemaService {
             allEntries = true
     )
     public CinemaDetailsDtoV1 addCinema(CinemaManageDto cinemaManageDto) {
-        log.info("api/cinemas (addCinema) :: Evicting 'cinemas' cache. Saving new cinema: {}", cinemaManageDto);
+        String LOG_PREFIX = "addCinema";
+
+        log.info("{} :: Evicting 'cinemas' cache. Saving new cinema: {}", LOG_PREFIX, cinemaManageDto);
 
         Cinema cinema = CinemaMapper.fromCinemaManageDtoToCinema(cinemaManageDto);
         Cinema savedCinema = cinemaRepository.save(cinema);
 
-        log.info("api/cinemas (addCinema) :: Saved cinema: {}.", cinema);
+        log.info("{} :: Saved cinema: {}.", LOG_PREFIX, cinema);
 
         return CinemaMapper.fromCinemaToDetailsDto(savedCinema);
     }
@@ -170,21 +169,19 @@ public class CinemaService implements ICinemaService {
             }
     )
     public CinemaDetailsDtoV2 editCinema(CinemaManageDto cinemaManageDto, Long cinemaId) {
-        log.info("api/cinemas/cinemaId (editCinema) :: Evicting cache 'cinemas' and 'cinema' with the key of 'cinema_{}'", cinemaId);
-        log.info("api/cinemas/cinemaId (editCinema) :: Editing cinema with the id of {} and data of {}", cinemaId, cinemaManageDto);
+        String LOG_PREFIX = "editCinema";
 
-        Cinema cinema = cinemaRepository.findById(cinemaId)
-                .orElseThrow(() -> {
-                    log.info("api/cinemas/cinemaId (editCinema) :: Cinema not found with the id of {}.", cinemaId);
-                    return new CinemaNotFoundException("Cinema not found.");
-                });
-        log.info("api/cinemas/cinemaId (editCinema) :: Cinema found with the id of {}.", cinemaId);
+        log.info("{} :: Evicting cache 'cinemas' and 'cinema' with the key of 'cinema_{}'", LOG_PREFIX, cinemaId);
+        log.info("{} :: Editing cinema with the id of {} and data of {}", LOG_PREFIX, cinemaId, cinemaManageDto);
+
+        Cinema cinema = findCinemaById(cinemaId, LOG_PREFIX);
+        log.info("{} :: Cinema found with the id of {}.", LOG_PREFIX, cinemaId);
 
         cinema.setName(cinemaManageDto.getName());
         cinema.setLocation(cinemaManageDto.getLocation());
 
         Cinema savedCinema = cinemaRepository.save(cinema);
-        log.info("api/cinemas/cinemaId (editCinema) :: Saved cinema: {}", cinema);
+        log.info("{} :: Saved cinema: {}", LOG_PREFIX, cinema);
 
         return CinemaMapper.fromCinemaToCinemaDto(savedCinema);
     }
@@ -203,20 +200,26 @@ public class CinemaService implements ICinemaService {
             }
     )
     public void deleteCinema(Long cinemaId) {
-        log.info("api/cinemas/cinemaId (deleteCinema) :: Evicting cache 'cinemas' and 'cinema' with the key of 'cinema_{}'", cinemaId);
-        log.info("api/cinemas/cinemaId (deleteCinema) :: Deleting cinema with the id of {}.", cinemaId);
+        String LOG_PREFIX = "deleteCinema";
 
-        Cinema cinema = cinemaRepository.findById(cinemaId)
-                .orElseThrow(() -> {
-                    log.info("api/cinemas/cinemaId (deleteCinema) :: Cinema not found with the id of {}.", cinemaId);
-                    return new CinemaNotFoundException("Cinema not found.");
-                });
-        log.info("api/cinemas/cinemaId (deleteCinema) :: Cinema found with the id of {} and data of {}.", cinemaId, cinema);
+        log.info("{} :: Evicting cache 'cinemas' and 'cinema' with the key of 'cinema_{}'", LOG_PREFIX, cinemaId);
+        log.info("{} :: Deleting cinema with the id of {}.", LOG_PREFIX, cinemaId);
+
+        Cinema cinema = findCinemaById(cinemaId, LOG_PREFIX);
+        log.info("{} :: Cinema found with the id of {} and data of {}.", LOG_PREFIX, cinemaId, cinema);
 
         cinemaRepository.delete(cinema);
     }
 
     private void failedAcquireLock(String LOG_PREFIX, String cacheKey) {
         log.warn("{} :: Failed to acquire lock for key: {}", LOG_PREFIX, cacheKey);
+    }
+
+    private Cinema findCinemaById(Long cinemaId, String LOG_PREFIX) {
+        return cinemaRepository.findById(cinemaId)
+                .orElseThrow(() -> {
+                    log.error("{} :: Cinema not found with id: {}", LOG_PREFIX, cinemaId);
+                    return new CinemaNotFoundException("Cinema not found.");
+                });
     }
 }
