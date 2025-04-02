@@ -1,8 +1,8 @@
 package com.moviereservationapi.cinema.mapper;
 
-import com.moviereservationapi.cinema.dto.CinemaDetailsDtoV1;
-import com.moviereservationapi.cinema.dto.CinemaDetailsDtoV2;
-import com.moviereservationapi.cinema.dto.CinemaManageDto;
+import com.moviereservationapi.cinema.dto.cinema.CinemaDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.cinema.CinemaDetailsDtoV2;
+import com.moviereservationapi.cinema.dto.cinema.CinemaManageDto;
 import com.moviereservationapi.cinema.model.Cinema;
 
 public class CinemaMapper {
@@ -25,6 +25,7 @@ public class CinemaMapper {
 
     public static CinemaDetailsDtoV2 fromCinemaToCinemaDto(Cinema cinema) {
         return CinemaDetailsDtoV2.builder()
+                .id(cinema.getId())
                 .name(cinema.getName())
                 .location(cinema.getLocation())
                 .build();
