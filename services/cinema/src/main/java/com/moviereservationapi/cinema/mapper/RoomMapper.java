@@ -1,6 +1,8 @@
 package com.moviereservationapi.cinema.mapper;
 
-import com.moviereservationapi.cinema.dto.RoomDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.room.RoomDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.room.RoomManageDtoV1;
+import com.moviereservationapi.cinema.model.Cinema;
 import com.moviereservationapi.cinema.model.Room;
 
 public class RoomMapper {
@@ -13,4 +15,11 @@ public class RoomMapper {
                 .build();
     }
 
+    public static Room fromManageDtoV1ToRoom(RoomManageDtoV1 roomManageDtoV1, Cinema cinema) {
+        return Room.builder()
+                .name(roomManageDtoV1.getName())
+                .totalSeat(roomManageDtoV1.getTotalSeat())
+                .cinema(cinema)
+                .build();
+    }
 }
