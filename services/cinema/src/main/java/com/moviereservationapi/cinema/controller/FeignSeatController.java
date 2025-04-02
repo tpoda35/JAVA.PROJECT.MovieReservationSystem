@@ -1,6 +1,6 @@
 package com.moviereservationapi.cinema.controller;
 
-import com.moviereservationapi.cinema.dto.SeatDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.seat.SeatDetailsDtoV1;
 import com.moviereservationapi.cinema.service.ISeatFeignService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
