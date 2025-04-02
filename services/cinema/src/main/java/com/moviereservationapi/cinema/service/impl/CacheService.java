@@ -1,8 +1,8 @@
 package com.moviereservationapi.cinema.service.impl;
 
-import com.moviereservationapi.cinema.dto.CinemaDetailsDtoV1;
-import com.moviereservationapi.cinema.dto.RoomDetailsDtoV1;
-import com.moviereservationapi.cinema.dto.SeatDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.cinema.CinemaDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.room.RoomDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.seat.SeatDetailsDtoV1;
 import com.moviereservationapi.cinema.service.ICacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
