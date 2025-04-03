@@ -23,20 +23,20 @@ public class MovieController {
     private final IMovieService movieService;
 
     @GetMapping
-    public CompletableFuture<Page<MovieDto>> getAllMovie(
+    public CompletableFuture<Page<MovieDto>> getMovies(
             @RequestParam(defaultValue = "0") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize
     ){
-        log.info("api/movies :: Called endpoint. (pageNum:{}, pageSize:{})", pageNum, pageSize);
+        log.info("getMovies :: Called endpoint. (pageNum:{}, pageSize:{})", pageNum, pageSize);
 
-        return movieService.getAllMovie(pageNum, pageSize);
+        return movieService.getMovies(pageNum, pageSize);
     }
 
     @GetMapping("/{movieId}")
     public CompletableFuture<MovieDto> getMovie(
             @PathVariable("movieId") Long movieId
     ) {
-        log.info("api/movies/movieId :: Called endpoint. (movieId:{})", movieId);
+        log.info("getMovie :: Called endpoint. (movieId:{})", movieId);
 
         return movieService.getMovie(movieId);
     }
@@ -46,7 +46,7 @@ public class MovieController {
     public ResponseEntity<MovieDto> addMovie(
             @RequestBody @Valid MovieManageDto movieManageDto
     ) {
-        log.info("api/movies (addMovie) :: Called endpoint. (movieManageDto:{})", movieManageDto);
+        log.info("addMovie :: Called endpoint. (movieManageDto:{})", movieManageDto);
 
         MovieDto savedMovie = movieService.addMovie(movieManageDto);
         URI location = URI.create("/movies/" + savedMovie.getId());
@@ -60,7 +60,7 @@ public class MovieController {
             @PathVariable("movieId") Long movieId,
             @RequestBody @Valid MovieManageDto movieManageDto
     ) {
-        log.info("api/movies/movieId (editMovie) :: Called endpoint. (movieManageDto:{}, movieId:{})",
+        log.info("editMovie :: Called endpoint. (movieManageDto:{}, movieId:{})",
                 movieManageDto, movieId
         );
 
@@ -72,7 +72,7 @@ public class MovieController {
     public ResponseEntity<Void> deleteMovie(
             @PathVariable("movieId") Long movieId
     ) {
-        log.info("api/movies/movieId (deleteMovie) :: Called endpoint. (movieId:{})", movieId);
+        log.info("deleteMovie :: Called endpoint. (movieId:{})", movieId);
         movieService.deleteMovie(movieId);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
