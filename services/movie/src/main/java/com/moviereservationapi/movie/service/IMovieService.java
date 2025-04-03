@@ -7,12 +7,9 @@ import org.springframework.data.domain.Page;
 import java.util.concurrent.CompletableFuture;
 
 public interface IMovieService {
-    CompletableFuture<Page<MovieDto>> getAllMovie(int pageNum, int pageSize);
+    CompletableFuture<Page<MovieDto>> getMovies(int pageNum, int pageSize);
     CompletableFuture<MovieDto> getMovie(Long movieId);
-    // Role required.
     MovieDto addMovie(MovieManageDto movieManageDto);
-    // Role required.
     MovieDto editMovie(Long movieId, MovieManageDto movieManageDto);
-    // Role required.
     void deleteMovie(Long movieId);
 }
