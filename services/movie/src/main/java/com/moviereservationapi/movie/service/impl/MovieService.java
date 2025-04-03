@@ -2,10 +2,13 @@ package com.moviereservationapi.movie.service.impl;
 
 import com.moviereservationapi.movie.dto.MovieDto;
 import com.moviereservationapi.movie.dto.MovieManageDto;
+import com.moviereservationapi.movie.exception.LockAcquisitionException;
+import com.moviereservationapi.movie.exception.LockInterruptedException;
 import com.moviereservationapi.movie.exception.MovieNotFoundException;
 import com.moviereservationapi.movie.mapper.MovieMapper;
 import com.moviereservationapi.movie.model.Movie;
 import com.moviereservationapi.movie.repository.MovieRepository;
+import com.moviereservationapi.movie.service.ICacheService;
 import com.moviereservationapi.movie.service.IMovieService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.cache.Cache;
-import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
@@ -33,14 +35,17 @@ public class MovieService implements IMovieService {
     private final MovieRepository movieRepository;
     private final CacheManager cacheManager;
     private final RedissonClient redissonClient;
+    private final ICacheService cacheService;
 
     @Override
     @Async
-    public CompletableFuture<Page<MovieDto>> getAllMovie(int pageNum, int pageSize) {
+    public CompletableFuture<Page<MovieDto>> getMovies(int pageNum, int pageSize) {
+        String LOG_PREFIX = "getMovies";
+
         String cacheKey = String.format("movies_page_%d_size_%d", pageNum, pageSize);
         Cache cache = cacheManager.getCache("movies");
 
-        Page<MovieDto> movieDtos = getCachedMoviePage(cache, cacheKey, "api/movies");
+        Page<MovieDto> movieDtos = cacheService.getCachedMoviePage(cache, cacheKey, LOG_PREFIX);
         if (movieDtos != null) {
             return CompletableFuture.completedFuture(movieDtos);
         }
@@ -49,31 +54,30 @@ public class MovieService implements IMovieService {
         try {
             boolean locked = lock.tryLock(10, 30, TimeUnit.SECONDS);
             if (locked) {
-                movieDtos = getCachedMoviePage(cache, cacheKey, "api/movies");
+                movieDtos = cacheService.getCachedMoviePage(cache, cacheKey, LOG_PREFIX);
                 if (movieDtos != null) {
                     return CompletableFuture.completedFuture(movieDtos);
                 }
 
                 Page<Movie> movies = movieRepository.findAll(PageRequest.of(pageNum, pageSize));
                 if (movies.isEmpty()) {
-                    log.info("api/movies :: No movies found.");
+                    log.info("{} :: No movies found.", LOG_PREFIX);
                     throw new MovieNotFoundException("There's no movie found.");
                 }
 
-                log.info("api/movies :: Found {} movies. Caching data for key '{}'.", movies.getTotalElements(), cacheKey);
+                log.info("{} :: Found {} movies. Caching data for key '{}'.", LOG_PREFIX, movies.getTotalElements(), cacheKey);
                 movieDtos = movies.map(MovieMapper::fromMovieToDto);
-                if (cache != null) {
-                    cache.put(cacheKey, movieDtos);
-                }
+
+                cacheService.saveInCache(cache, cacheKey, movieDtos, LOG_PREFIX);
 
                 return CompletableFuture.completedFuture(movieDtos);
             } else {
-                log.warn("api/movies :: Failed to acquire lock for key: {}", cacheKey);
-                throw new RuntimeException("Failed to acquire lock");
+                failedAcquireLock(LOG_PREFIX, cacheKey);
+                throw new LockAcquisitionException("Failed to acquire lock");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("Thread interrupted while acquiring lock", e);
+            throw new LockInterruptedException("Thread interrupted while acquiring lock", e);
         } finally {
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
@@ -84,10 +88,12 @@ public class MovieService implements IMovieService {
     @Override
     @Async
     public CompletableFuture<MovieDto> getMovie(Long movieId) {
+        String LOG_PREFIX = "getMovie";
+
         String cacheKey = String.format("movie_%d", movieId);
         Cache cache = cacheManager.getCache("movie");
 
-        MovieDto movieDto = getCachedMovie(cache, cacheKey, "api/movies/movieId");
+        MovieDto movieDto = cacheService.getCachedData(cache, cacheKey, LOG_PREFIX, MovieDto.class);
         if (movieDto != null) {
             return CompletableFuture.completedFuture(movieDto);
         }
@@ -96,31 +102,26 @@ public class MovieService implements IMovieService {
         try {
             boolean locked = lock.tryLock(10, 30, TimeUnit.SECONDS);
             if (locked) {
-                movieDto = getCachedMovie(cache, cacheKey, "api/movies/movieId");
+                movieDto = cacheService.getCachedData(cache, cacheKey, LOG_PREFIX, MovieDto.class);
                 if (movieDto != null) {
                     return CompletableFuture.completedFuture(movieDto);
                 }
 
-                Movie movie = movieRepository.findById(movieId)
-                        .orElseThrow(() -> {
-                            log.info("api/movies/movieId :: Movie not found with the id of {}.", movieId);
-                            return new MovieNotFoundException("Movie not found.");
-                        });
+                Movie movie = findMovieById(movieId, LOG_PREFIX);
+                log.info("{} :: Movie found with the id of {}. Caching data for key '{}'", LOG_PREFIX, movieId, cacheKey);
 
-                log.info("api/movies/movieId :: Movie found with the id of {}. Caching data for key '{}'", movieId, cacheKey);
                 movieDto = MovieMapper.fromMovieToDto(movie);
-                if (cache != null) {
-                    cache.put(cacheKey, movieDto);
-                }
+
+                cacheService.saveInCache(cache, cacheKey, movieDto, LOG_PREFIX);
 
                 return CompletableFuture.completedFuture(movieDto);
             } else {
-                log.warn("api/movies/movieId :: Failed to acquire lock for key: {}", cacheKey);
-                throw new RuntimeException("Failed to acquire lock");
+                failedAcquireLock(LOG_PREFIX, cacheKey);
+                throw new LockAcquisitionException("Failed to acquire lock");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("Thread interrupted while acquiring lock", e);
+            throw new LockInterruptedException("Thread interrupted while acquiring lock", e);
         } finally {
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
@@ -134,12 +135,14 @@ public class MovieService implements IMovieService {
             allEntries = true
     )
     public MovieDto addMovie(@Valid MovieManageDto movieManageDto) {
-        log.info("api/movies (addMovie) :: Evicting 'movies' cache. Saving new movie: {}", movieManageDto);
+        String LOG_PREFIX = "addMovie";
+
+        log.info("{} :: Evicting 'movies' cache. Saving new movie: {}", LOG_PREFIX, movieManageDto);
 
         Movie movie = MovieMapper.fromManageDtoToMovie(movieManageDto);
         Movie savedMovie = movieRepository.save(movie);
 
-        log.info("api/movies (addMovie) :: Saved Movie: {}.", movie);
+        log.info("{} :: Saved Movie: {}.", LOG_PREFIX, movie);
 
         return MovieMapper.fromMovieToDto(savedMovie);
     }
@@ -158,15 +161,13 @@ public class MovieService implements IMovieService {
             }
     )
     public MovieDto editMovie(Long movieId, @Valid MovieManageDto movieManageDto) {
-        log.info("api/movies/movieId (editMovie) :: Evicting cache 'movies' and 'movie' with the key of 'movie_{}'", movieId);
-        log.info("api/movies/movieId (editMovie) :: Editing movie with the id of {} and data of {}", movieId, movieManageDto);
+        String LOG_PREFIX = "editMovie";
 
-        Movie movie = movieRepository.findById(movieId)
-                .orElseThrow(() -> {
-                    log.info("api/movies/movieId (editMovie) :: Movie not found with the id of {}.", movieId);
-                    return new MovieNotFoundException("Movie not found.");
-                });
-        log.info("api/movies/movieId (editMovie) :: Movie found with the id of {}.", movieId);
+        log.info("{} :: Evicting cache 'movies' and 'movie' with the key of 'movie_{}'", LOG_PREFIX, movieId);
+        log.info("{} :: Editing movie with the id of {} and data of {}", LOG_PREFIX, movieId, movieManageDto);
+
+        Movie movie = findMovieById(movieId, LOG_PREFIX);
+        log.info("{} :: Movie found with the id of {}.", LOG_PREFIX, movieId);
 
         movie.setTitle(movieManageDto.getTitle());
         movie.setDuration(movieManageDto.getLength());
@@ -174,7 +175,7 @@ public class MovieService implements IMovieService {
         movie.setMovieGenre(movieManageDto.getMovieGenre());
 
         Movie savedMovie = movieRepository.save(movie);
-        log.info("api/movies/movieId (editMovie) :: Saved movie: {}", movie);
+        log.info("{} :: Saved movie: {}", LOG_PREFIX, movie);
 
         return MovieMapper.fromMovieToDto(savedMovie);
     }
@@ -193,51 +194,26 @@ public class MovieService implements IMovieService {
             }
     )
     public void deleteMovie(Long movieId) {
-        log.info("api/movies/movieId (deleteMovie) :: Evicting cache 'movies' and 'movie' with the key of 'movie_{}'", movieId);
-        log.info("api/movies/movieId (deleteMovie) :: Deleting movie with the id of {}.", movieId);
+        String LOG_PREFIX = "deleteMovie";
 
-        Movie movie = movieRepository.findById(movieId)
-                .orElseThrow(() -> {
-                    log.info("api/movies/movieId (deleteMovie) :: Movie not found with the id of {}.", movieId);
-                    return new MovieNotFoundException("Movie not found.");
-                });
-        log.info("api/movies/movieId (deleteMovie) :: Movie found with the id of {} and data of {}.", movieId, movie);
+        log.info("{} :: Evicting cache 'movies' and 'movie' with the key of 'movie_{}'", LOG_PREFIX, movieId);
+        log.info("{} :: Deleting movie with the id of {}.", LOG_PREFIX, movieId);
+
+        Movie movie = findMovieById(movieId, LOG_PREFIX);
+        log.info("{} :: Movie found with the id of {} and data of {}.", LOG_PREFIX, movieId, movie);
 
         movieRepository.delete(movie);
     }
 
-    private Page<MovieDto> getCachedMoviePage(Cache cache, String cacheKey, String logPrefix) {
-        if (cache == null) {
-            return null;
-        }
-
-        log.info("{} :: Checking cache for key '{}'.", logPrefix, cacheKey);
-        ValueWrapper cachedResult = cache.get(cacheKey);
-
-        if (cachedResult != null) {
-            log.info("{} :: Cache HIT for key '{}'. Returning cache.", logPrefix, cacheKey);
-            return (Page<MovieDto>) cachedResult.get();
-        }
-
-        log.info("{} :: Cache MISS for key '{}'.", logPrefix, cacheKey);
-        return null;
+    private void failedAcquireLock(String LOG_PREFIX, String cacheKey) {
+        log.warn("{} :: Failed to acquire lock for key: {}", LOG_PREFIX, cacheKey);
     }
 
-    private MovieDto getCachedMovie(Cache cache, String cacheKey, String logPrefix) {
-        if (cache == null) {
-            return null;
-        }
-
-        log.info("{} :: Checking cache for key '{}'.", logPrefix, cacheKey);
-        ValueWrapper cachedResult = cache.get(cacheKey);
-
-        if (cachedResult != null) {
-            log.info("{} :: Cache HIT for key '{}'. Returning cache.", logPrefix, cacheKey);
-            return (MovieDto) cachedResult.get();
-        }
-
-        log.info("{} :: Cache MISS for key '{}'.", logPrefix, cacheKey);
-        return null;
+    private Movie findMovieById(Long movieId, String LOG_PREFIX) {
+        return movieRepository.findById(movieId)
+                .orElseThrow(() -> {
+                    log.info("{} :: Movie not found with the id of {}.", LOG_PREFIX, movieId);
+                    return new MovieNotFoundException("Movie not found.");
+                });
     }
-
 }
