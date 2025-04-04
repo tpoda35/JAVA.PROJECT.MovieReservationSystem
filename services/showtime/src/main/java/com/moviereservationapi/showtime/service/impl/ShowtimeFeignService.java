@@ -1,6 +1,6 @@
 package com.moviereservationapi.showtime.service.impl;
 
-import com.moviereservationapi.showtime.dto.ShowtimeDto;
+import com.moviereservationapi.showtime.dto.ShowtimeDetailsDtoV1;
 import com.moviereservationapi.showtime.exception.ShowtimeNotFoundException;
 import com.moviereservationapi.showtime.mapper.ShowtimeMapper;
 import com.moviereservationapi.showtime.model.Showtime;
@@ -19,7 +19,7 @@ public class ShowtimeFeignService implements IShowtimeFeignService {
     private final ShowtimeRepository showtimeRepository;
 
     @Override
-    public ShowtimeDto getShowtime(Long showtimeId) {
+    public ShowtimeDetailsDtoV1 getShowtime(Long showtimeId) {
         Showtime showtime = findShowtime(showtimeId);
         log.info("(Feign call) Showtime found the id of {}.", showtimeId);
 
