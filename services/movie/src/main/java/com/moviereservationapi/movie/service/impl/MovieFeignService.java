@@ -17,19 +17,18 @@ public class MovieFeignService implements IMovieFeignService {
     private final MovieRepository movieRepository;
 
     @Override
-    public Boolean movieExists(Long movieId) {
-        boolean exists = movieRepository.existsById(movieId);
-        log.info("(Feign call) Movie with the id of {} exists: {}.", movieId, exists);
-        return exists;
+    @Transactional
+    public void addShowtimeToMovie(Long showtimeId, Long movieId) {
+        Movie movie = findMovieById(movieId);
+        movie.getShowtimeIds().add(showtimeId);
+        movieRepository.save(movie);
     }
 
-    @Override
-    @Transactional
-    public void addShowtimeToMovie(Long movieId, Long showtimeId) {
-        Movie movie = movieRepository.findById(movieId)
-                .orElseThrow(() -> new MovieNotFoundException("Movie not found."));
-
-        movie.addShowtimeId(showtimeId);
-        movieRepository.save(movie);
+    private Movie findMovieById(Long movieId) {
+        return movieRepository.findById(movieId)
+                .orElseThrow(() -> {
+                    log.info("(Feign call) Movie with the id of {} not found.", movieId);
+                    return new MovieNotFoundException("Movie not found.");
+                });
     }
 }
