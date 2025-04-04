@@ -3,10 +3,7 @@ package com.moviereservationapi.cinema.controller;
 import com.moviereservationapi.cinema.service.IRoomFeignService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/rooms/feign")
@@ -16,13 +13,14 @@ public class FeignRoomController {
 
     private final IRoomFeignService roomFeignService;
 
-    @GetMapping("/roomExists/{roomId}")
-    public Boolean roomExists(
+    @PostMapping("/addShowtimeToRoom/{showtimeId}/{roomId}")
+    public void addShowtimeToRoom(
+            @PathVariable("showtimeId") Long showtimeId,
             @PathVariable("roomId") Long roomId
     ) {
-        log.info("(Feign call) Checking room existence with the id of {}.", roomId);
+        log.info("(Feign call) Adding showtime to the room with the id of {}.", roomId);
 
-        return roomFeignService.roomExists(roomId);
+        roomFeignService.addShowtimeToRoom(showtimeId, roomId);
     }
 
 }

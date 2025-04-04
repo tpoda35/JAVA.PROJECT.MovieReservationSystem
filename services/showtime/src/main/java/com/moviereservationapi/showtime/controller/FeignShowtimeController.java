@@ -1,6 +1,6 @@
 package com.moviereservationapi.showtime.controller;
 
-import com.moviereservationapi.showtime.dto.ShowtimeDto;
+import com.moviereservationapi.showtime.dto.ShowtimeDetailsDtoV1;
 import com.moviereservationapi.showtime.service.IShowtimeFeignService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ public class FeignShowtimeController {
     private final IShowtimeFeignService showtimeFeignService;
 
     @GetMapping("/getShowtime/{showtimeId}")
-    public ShowtimeDto getShowtime(
+    public ShowtimeDetailsDtoV1 getShowtime(
             @PathVariable("showtimeId") Long showtimeId
     ) {
         return showtimeFeignService.getShowtime(showtimeId);

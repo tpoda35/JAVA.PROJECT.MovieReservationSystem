@@ -13,21 +13,14 @@ public class FeignMovieController {
 
     private final IMovieFeignService movieFeignService;
 
-    @GetMapping("/movieExists/{movieId}")
-    public Boolean movieExists(
+    @PostMapping("/addShowtimeToMovie/{showtimeId}/{movieId}")
+    public void addShowtimeToMovie(
+            @PathVariable("showtimeId") Long showtimeId,
             @PathVariable("movieId") Long movieId
     ) {
-        log.info("(Feign call) Checking movie existence with the id of {}.", movieId);
+        log.info("(Feign call) Adding showtime to the movie with the id of {}.", movieId);
 
-        return movieFeignService.movieExists(movieId);
-    }
-
-    @PostMapping("/addShowtimeToMovie/{movieId}/{showtimeId}")
-    public void addShowtimeToMovie(
-            @PathVariable("movieId") Long movieId,
-            @PathVariable("showtimeId") Long showtimeId
-    ) {
-        movieFeignService.addShowtimeToMovie(movieId, showtimeId);
+        movieFeignService.addShowtimeToMovie(showtimeId, movieId);
     }
 
 }
