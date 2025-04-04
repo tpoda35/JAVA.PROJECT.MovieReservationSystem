@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ShowtimeManageDto {
+public class ShowtimeCreateDto {
 
     @NotNull(message = "Start time field cannot be empty.")
     private LocalDateTime startTime;

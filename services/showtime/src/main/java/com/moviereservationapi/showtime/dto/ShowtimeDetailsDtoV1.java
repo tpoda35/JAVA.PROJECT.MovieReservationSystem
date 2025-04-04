@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ShowtimeDto implements Serializable {
+public class ShowtimeDetailsDtoV1 implements Serializable {
 
     private Long id;
 
