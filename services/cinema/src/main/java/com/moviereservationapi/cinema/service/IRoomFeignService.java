@@ -1,5 +1,5 @@
 package com.moviereservationapi.cinema.service;
 
 public interface IRoomFeignService {
-    Boolean roomExists(Long roomId);
+    void addShowtimeToRoom(Long showtimeId, Long roomId);
 }
