@@ -1,7 +1,7 @@
 package com.moviereservationapi.showtime.controller;
 
-import com.moviereservationapi.showtime.dto.ShowtimeDto;
-import com.moviereservationapi.showtime.dto.ShowtimeManageDto;
+import com.moviereservationapi.showtime.dto.ShowtimeDetailsDtoV1;
+import com.moviereservationapi.showtime.dto.ShowtimeCreateDto;
 import com.moviereservationapi.showtime.service.IShowtimeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,34 +22,45 @@ public class ShowtimeController {
     private final IShowtimeService showtimeService;
 
     @GetMapping
-    public CompletableFuture<Page<ShowtimeDto>> getShowtimes(
+    public CompletableFuture<Page<ShowtimeDetailsDtoV1>> getShowtimes(
             @RequestParam(defaultValue = "0") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize
     ) {
-        log.info("api/showtimes :: Called endpoint. (pageNum:{}, pageSize:{})", pageNum, pageSize);
+        log.info("getShowtimes :: Called endpoint. (pageNum:{}, pageSize:{})", pageNum, pageSize);
 
         return showtimeService.getShowtimes(pageNum, pageSize);
     }
 
     @GetMapping("/{showtimeId}")
-    public CompletableFuture<ShowtimeDto> getShowtime(
+    public CompletableFuture<ShowtimeDetailsDtoV1> getShowtime(
             @PathVariable("showtimeId") Long showtimeId
     ) {
-        log.info("api/showtimes/showtimeId :: Called endpoint. (showtimeId:{})", showtimeId);
+        log.info("getShowtime :: Called endpoint. (showtimeId:{})", showtimeId);
 
         return showtimeService.getShowtime(showtimeId);
     }
 
     @PostMapping
-    public ResponseEntity<ShowtimeDto> addShowtime(
-            @RequestBody @Valid ShowtimeManageDto showtimeManageDto
+    public ResponseEntity<ShowtimeDetailsDtoV1> addShowtime(
+            @RequestBody @Valid ShowtimeCreateDto showtimeCreateDto
     ) {
-        log.info("api/showtimes (addShowtime) :: Called endpoint. (showtimeManageDto:{})", showtimeManageDto);
+        log.info("addShowtime :: Called endpoint. (showtimeManageDto:{})", showtimeCreateDto);
 
-        ShowtimeDto savedShowtime = showtimeService.addShowtime(showtimeManageDto);
+        ShowtimeDetailsDtoV1 savedShowtime = showtimeService.addShowtime(showtimeCreateDto);
         URI location = URI.create("/showtimes/" + savedShowtime.getId());
 
         return ResponseEntity.created(location).body(savedShowtime);
+    }
+
+    @GetMapping("/movie/{movieId}")
+    public CompletableFuture<Page<ShowtimeDetailsDtoV1>> getShowtimesByMovie(
+            @RequestParam(defaultValue = "0") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @PathVariable("movieId") Long movieId
+    ) {
+        log.info("getShowtimesByMovie :: Called endpoint. (pageNum:{}, pageSize:{}, movieId:{})", pageNum, pageSize, movieId);
+
+        return showtimeService.getShowtimesByMovie(movieId, pageNum, pageSize);
     }
 
 }
