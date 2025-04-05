@@ -1,11 +1,13 @@
 package com.moviereservationapi.showtime.service.impl;
 
-import com.moviereservationapi.showtime.dto.ShowtimeDetailsDtoV1;
-import com.moviereservationapi.showtime.dto.ShowtimeCreateDto;
+import com.moviereservationapi.showtime.dto.seat.SeatAvailabilityDto;
+import com.moviereservationapi.showtime.dto.showtime.ShowtimeDetailsDtoV1;
+import com.moviereservationapi.showtime.dto.showtime.ShowtimeCreateDto;
 import com.moviereservationapi.showtime.dto.feign.SeatDto;
 import com.moviereservationapi.showtime.exception.*;
 import com.moviereservationapi.showtime.feign.CinemaClient;
 import com.moviereservationapi.showtime.feign.MovieClient;
+import com.moviereservationapi.showtime.feign.ReservationClient;
 import com.moviereservationapi.showtime.mapper.ShowtimeMapper;
 import com.moviereservationapi.showtime.model.Showtime;
 import com.moviereservationapi.showtime.repository.ShowtimeRepository;
@@ -37,6 +39,7 @@ public class ShowtimeService implements IShowtimeService {
     private final ShowtimeRepository showtimeRepository;
     private final MovieClient movieClient;
     private final CinemaClient cinemaClient;
+    private final ReservationClient reservationClient;
     private final CacheManager cacheManager;
     private final RedissonClient redissonClient;
     private final ICacheService cacheService;
@@ -195,8 +198,22 @@ public class ShowtimeService implements IShowtimeService {
     }
 
     @Override
-    public CompletableFuture<List<SeatDto>> getSeatsByShowtime(Long showtimeId) {
-        return null;
+    @Async
+    public CompletableFuture<List<SeatAvailabilityDto>> getSeatsByShowtime(Long showtimeId) {
+        Showtime showtime = showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new ShowtimeNotFoundException("Showtime not found"));
+        Long roomId = showtime.getRoomId();
+
+        List<SeatDto> seats = cinemaClient.getSeatsByRoomId(roomId);
+        List<Long> reservationSeatIds = reservationClient.findReservedSeatIdsByShowtimeId(showtimeId);
+
+        return CompletableFuture.completedFuture(seats.stream()
+                .map(seat -> new SeatAvailabilityDto(
+                        seat.getId(),
+                        seat.getSeatRow(),
+                        seat.getSeatNumber(),
+                        !reservationSeatIds.contains(seat.getId())
+                )).toList());
     }
 
     @Override
