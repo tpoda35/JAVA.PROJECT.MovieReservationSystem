@@ -1,8 +1,8 @@
 package com.moviereservationapi.showtime.service;
 
-import com.moviereservationapi.showtime.dto.ShowtimeDetailsDtoV1;
-import com.moviereservationapi.showtime.dto.ShowtimeCreateDto;
-import com.moviereservationapi.showtime.dto.feign.SeatDto;
+import com.moviereservationapi.showtime.dto.seat.SeatAvailabilityDto;
+import com.moviereservationapi.showtime.dto.showtime.ShowtimeCreateDto;
+import com.moviereservationapi.showtime.dto.showtime.ShowtimeDetailsDtoV1;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -13,6 +13,6 @@ public interface IShowtimeService {
     CompletableFuture<ShowtimeDetailsDtoV1> getShowtime(Long showtimeId);
     ShowtimeDetailsDtoV1 addShowtime(ShowtimeCreateDto showtimeCreateDto);
     CompletableFuture<Page<ShowtimeDetailsDtoV1>> getShowtimesByMovie(Long movieId, int pageNum, int pageSize);
-    CompletableFuture<List<SeatDto>> getSeatsByShowtime(Long showtimeId);
+    CompletableFuture<List<SeatAvailabilityDto>> getSeatsByShowtime(Long showtimeId);
     void deleteShowtime(Long showtimeId);
 }
