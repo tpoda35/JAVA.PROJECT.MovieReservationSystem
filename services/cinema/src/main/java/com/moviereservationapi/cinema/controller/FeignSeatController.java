@@ -1,13 +1,11 @@
 package com.moviereservationapi.cinema.controller;
 
 import com.moviereservationapi.cinema.dto.seat.SeatDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.seat.SeatDto;
 import com.moviereservationapi.cinema.service.ISeatFeignService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,6 +22,13 @@ public class FeignSeatController {
             @RequestParam List<Long> seatIds
     ) {
         return seatFeignService.getSeats(seatIds);
+    }
+
+    @GetMapping("/getSeatsByRoomId/{roomId}")
+    public List<SeatDto> getSeatsByRoomId(
+            @PathVariable("roomId") Long roomId
+    ) {
+        return seatFeignService.getSeatsByRoomId(roomId);
     }
 
 }
