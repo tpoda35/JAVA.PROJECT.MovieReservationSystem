@@ -1,7 +1,8 @@
 package com.moviereservationapi.showtime.controller;
 
-import com.moviereservationapi.showtime.dto.ShowtimeDetailsDtoV1;
-import com.moviereservationapi.showtime.dto.ShowtimeCreateDto;
+import com.moviereservationapi.showtime.dto.seat.SeatAvailabilityDto;
+import com.moviereservationapi.showtime.dto.showtime.ShowtimeDetailsDtoV1;
+import com.moviereservationapi.showtime.dto.showtime.ShowtimeCreateDto;
 import com.moviereservationapi.showtime.service.IShowtimeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -61,6 +63,13 @@ public class ShowtimeController {
         log.info("getShowtimesByMovie :: Called endpoint. (pageNum:{}, pageSize:{}, movieId:{})", pageNum, pageSize, movieId);
 
         return showtimeService.getShowtimesByMovie(movieId, pageNum, pageSize);
+    }
+
+    @GetMapping("/{showtimeId}/seats")
+    public CompletableFuture<List<SeatAvailabilityDto>> getSeatsByShowtime(
+            @PathVariable("showtimeId") Long showtimeId
+    ) {
+        return showtimeService.getSeatsByShowtime(showtimeId);
     }
 
 }
