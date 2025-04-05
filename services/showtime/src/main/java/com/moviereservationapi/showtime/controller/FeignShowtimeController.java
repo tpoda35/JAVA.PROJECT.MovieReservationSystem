@@ -1,6 +1,6 @@
 package com.moviereservationapi.showtime.controller;
 
-import com.moviereservationapi.showtime.dto.ShowtimeDetailsDtoV1;
+import com.moviereservationapi.showtime.dto.showtime.ShowtimeDetailsDtoV1;
 import com.moviereservationapi.showtime.service.IShowtimeFeignService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
