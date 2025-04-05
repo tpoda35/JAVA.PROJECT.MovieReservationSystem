@@ -1,6 +1,7 @@
 package com.moviereservationapi.cinema.service.impl;
 
 import com.moviereservationapi.cinema.dto.seat.SeatDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.seat.SeatDto;
 import com.moviereservationapi.cinema.exception.SeatNotFoundException;
 import com.moviereservationapi.cinema.mapper.SeatMapper;
 import com.moviereservationapi.cinema.model.Seat;
@@ -34,6 +35,20 @@ public class SeatFeignService implements ISeatFeignService {
 
         return seats.stream()
                 .map(SeatMapper::fromSeatToDetailsDtoV1)
+                .toList();
+    }
+
+    @Override
+    public List<SeatDto> getSeatsByRoomId(Long roomId) {
+        List<Seat> seats = seatRepository.findAllByRoom_Id(roomId);
+        if (seats.isEmpty()) {
+            log.info("(Feign call) No seat found.");
+            throw new SeatNotFoundException("There's no seat found.");
+        }
+        log.info("(Feign call) Found {} seats for the room with the id of {}.", seats.size(), roomId);
+
+        return seats.stream()
+                .map(SeatMapper::fromSeatToDto)
                 .toList();
     }
 
