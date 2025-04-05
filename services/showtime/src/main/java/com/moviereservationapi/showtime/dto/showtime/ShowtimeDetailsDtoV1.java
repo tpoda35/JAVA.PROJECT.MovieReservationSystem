@@ -1,4 +1,4 @@
-package com.moviereservationapi.showtime.dto;
+package com.moviereservationapi.showtime.dto.showtime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

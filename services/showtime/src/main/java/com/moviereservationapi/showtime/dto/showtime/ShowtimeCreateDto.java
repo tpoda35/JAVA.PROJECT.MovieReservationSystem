@@ -1,4 +1,4 @@
-package com.moviereservationapi.showtime.dto;
+package com.moviereservationapi.showtime.dto.showtime;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
