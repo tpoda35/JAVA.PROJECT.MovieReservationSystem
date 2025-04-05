@@ -13,4 +13,6 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
     @Query("SELECT COUNT(e) FROM Seat e WHERE e.id IN :ids")
     long countByIdIn(List<Long> ids);
 
+    List<Seat> findAllByRoom_Id(Long roomId);
+
 }
