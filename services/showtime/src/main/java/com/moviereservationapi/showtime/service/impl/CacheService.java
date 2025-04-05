@@ -1,6 +1,6 @@
 package com.moviereservationapi.showtime.service.impl;
 
-import com.moviereservationapi.showtime.dto.ShowtimeDetailsDtoV1;
+import com.moviereservationapi.showtime.dto.showtime.ShowtimeDetailsDtoV1;
 import com.moviereservationapi.showtime.service.ICacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
