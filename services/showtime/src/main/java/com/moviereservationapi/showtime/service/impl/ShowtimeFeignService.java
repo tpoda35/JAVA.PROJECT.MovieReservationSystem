@@ -1,6 +1,6 @@
 package com.moviereservationapi.showtime.service.impl;
 
-import com.moviereservationapi.showtime.dto.ShowtimeDetailsDtoV1;
+import com.moviereservationapi.showtime.dto.showtime.ShowtimeDetailsDtoV1;
 import com.moviereservationapi.showtime.exception.ShowtimeNotFoundException;
 import com.moviereservationapi.showtime.mapper.ShowtimeMapper;
 import com.moviereservationapi.showtime.model.Showtime;
