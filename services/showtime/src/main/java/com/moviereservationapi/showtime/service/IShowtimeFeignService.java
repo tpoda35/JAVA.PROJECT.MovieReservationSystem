@@ -1,6 +1,6 @@
 package com.moviereservationapi.showtime.service;
 
-import com.moviereservationapi.showtime.dto.ShowtimeDetailsDtoV1;
+import com.moviereservationapi.showtime.dto.showtime.ShowtimeDetailsDtoV1;
 
 public interface IShowtimeFeignService {
     ShowtimeDetailsDtoV1 getShowtime(Long showtimeId);
