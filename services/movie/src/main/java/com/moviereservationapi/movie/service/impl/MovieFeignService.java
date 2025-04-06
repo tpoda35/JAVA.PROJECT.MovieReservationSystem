@@ -24,6 +24,19 @@ public class MovieFeignService implements IMovieFeignService {
         movieRepository.save(movie);
     }
 
+    @Override
+    @Transactional
+    public void deleteShowtimeFromMovie(Long showtimeId, Long movieId) {
+        Movie movie = findMovieById(movieId);
+
+        if (movie.getShowtimeIds().remove(showtimeId)) {
+            movieRepository.save(movie);
+        } else {
+            log.info("(Feign call) Showtime(id:{}) associated with the Movie(id:{}) not found.", showtimeId, movieId);
+            throw new IllegalArgumentException("Showtime ID not found in movie");
+        }
+    }
+
     private Movie findMovieById(Long movieId) {
         return movieRepository.findById(movieId)
                 .orElseThrow(() -> {
