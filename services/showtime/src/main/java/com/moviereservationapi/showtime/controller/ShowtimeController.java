@@ -69,7 +69,19 @@ public class ShowtimeController {
     public CompletableFuture<List<SeatAvailabilityDto>> getSeatsByShowtime(
             @PathVariable("showtimeId") Long showtimeId
     ) {
+        log.info("getSeatsByShowtime :: Called endpoint. (showtimeId:{})", showtimeId);
+
         return showtimeService.getSeatsByShowtime(showtimeId);
+    }
+
+    @DeleteMapping("/{showtimeId}")
+    public ResponseEntity<Void> deleteShowtime(
+        @PathVariable("showtimeId") Long showtimeId
+    ) {
+        log.info("deleteShowtime :: Called endpoint. (showtimeId:{})", showtimeId);
+        showtimeService.deleteShowtime(showtimeId);
+
+        return ResponseEntity.noContent().build();
     }
 
 }
