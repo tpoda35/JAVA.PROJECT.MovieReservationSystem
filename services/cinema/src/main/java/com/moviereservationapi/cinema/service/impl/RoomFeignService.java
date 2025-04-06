@@ -24,6 +24,19 @@ public class RoomFeignService implements IRoomFeignService {
         roomRepository.save(room);
     }
 
+    @Override
+    @Transactional
+    public void deleteShowtimeFromRoom(Long showtimeId, Long roomId) {
+        Room room = findRoomById(roomId);
+
+        if (room.getShowtimeIds().remove(showtimeId)) {
+            roomRepository.save(room);
+        } else {
+            log.info("(Feign call) Showtime(id:{}) associated with the Room(id:{}) not found.", showtimeId, roomId);
+            throw new IllegalArgumentException("Showtime ID not found in Room.");
+        }
+    }
+
     private Room findRoomById(Long roomId) {
         return roomRepository.findById(roomId)
                 .orElseThrow(() -> {
