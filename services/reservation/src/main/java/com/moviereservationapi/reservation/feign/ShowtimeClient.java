@@ -1,6 +1,6 @@
 package com.moviereservationapi.reservation.feign;
 
-import com.moviereservationapi.reservation.dto.ShowtimeDto;
+import com.moviereservationapi.reservation.dto.feign.ShowtimeDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
