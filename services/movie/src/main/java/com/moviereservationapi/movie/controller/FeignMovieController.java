@@ -23,4 +23,14 @@ public class FeignMovieController {
         movieFeignService.addShowtimeToMovie(showtimeId, movieId);
     }
 
+    @DeleteMapping("/deleteShowtimeFromMovie/{showtimeId}/{movieId}")
+    public void deleteShowtimeFromMovie(
+         @PathVariable("showtimeId") Long showtimeId,
+         @PathVariable("movieId") Long movieId
+    ) {
+        log.info("(Feign call) Removing showtime with the id of {} from the movie with the id of {}.", showtimeId, movieId);
+
+        movieFeignService.deleteShowtimeFromMovie(showtimeId, movieId);
+    }
+
 }
