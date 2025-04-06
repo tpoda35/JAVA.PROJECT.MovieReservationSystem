@@ -1,6 +1,11 @@
 package com.moviereservationapi.reservation.service.impl;
 
-import com.moviereservationapi.reservation.dto.*;
+import com.moviereservationapi.reservation.dto.feign.SeatDto;
+import com.moviereservationapi.reservation.dto.feign.ShowtimeDto;
+import com.moviereservationapi.reservation.dto.reservation.ReservationDetailsDtoV1;
+import com.moviereservationapi.reservation.dto.reservation.ReservationCreateDto;
+import com.moviereservationapi.reservation.dto.reservation.ReservationResponseDto;
+import com.moviereservationapi.reservation.exception.SeatAlreadyReservedException;
 import com.moviereservationapi.reservation.exception.UserNotFoundException;
 import com.moviereservationapi.reservation.feign.CinemaClient;
 import com.moviereservationapi.reservation.feign.ShowtimeClient;
@@ -12,6 +17,8 @@ import com.moviereservationapi.reservation.repository.ReservationRepository;
 import com.moviereservationapi.reservation.repository.ReservationSeatRepository;
 import com.moviereservationapi.reservation.repository.UserRepository;
 import com.moviereservationapi.reservation.service.IReservationService;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -35,10 +42,17 @@ public class ReservationService implements IReservationService {
     private final CinemaClient cinemaClient;
 
     @Override
-    public ReservationResponseDto addReservation(ReservationManageDto reservationManageDto) {
-        Long userId = reservationManageDto.getUserId();
-        Long showtimeId = reservationManageDto.getShowtimeId();
-        List<Long> seatIds = reservationManageDto.getSeatIds();
+    @Transactional
+    public ReservationResponseDto addReservation(@Valid ReservationCreateDto reservationCreateDto) {
+        Long userId = reservationCreateDto.getUserId();
+        Long showtimeId = reservationCreateDto.getShowtimeId();
+        List<Long> seatIds = reservationCreateDto.getSeatIds();
+
+        boolean alreadyReserved = reservationSeatRepository
+                .existsBySeatIdInAndReservation_ShowtimeId(seatIds, showtimeId);
+        if (alreadyReserved) {
+            throw new SeatAlreadyReservedException("Some seats are already taken.");
+        }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
@@ -60,15 +74,14 @@ public class ReservationService implements IReservationService {
         reservation.setReservationSeats(reservationSeats);
 
         reservationRepository.save(reservation);
-        reservationSeatRepository.saveAll(reservationSeats);
 
-
+        user.getReservations().add(reservation);
 
         return ReservationMapper.toReservationResponseDto(reservation, showtimeDto, seatDtos);
     }
 
     @Override
-    public CompletableFuture<ReservationDto> getReservation(Long reservationId) {
+    public CompletableFuture<ReservationDetailsDtoV1> getReservation(Long reservationId) {
         return null;
     }
 
@@ -78,7 +91,7 @@ public class ReservationService implements IReservationService {
     }
 
     @Override
-    public CompletableFuture<Page<ReservationDto>> getUserReservations(int pageNum, int pageSize, Long userId) {
+    public CompletableFuture<Page<ReservationDetailsDtoV1>> getUserReservations(int pageNum, int pageSize, Long userId) {
         return null;
     }
 }
