@@ -38,7 +38,8 @@ public class Movie {
     @ElementCollection
     @CollectionTable(
             name = "movie_showtime",
-            joinColumns = @JoinColumn(name = "movie_id")
+            joinColumns = @JoinColumn(name = "movie_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"movie_id", "showtime_id"})
     )
     @Column(name = "showtime_id")
     private List<Long> showtimeIds = new ArrayList<>();
