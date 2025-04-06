@@ -23,4 +23,14 @@ public class FeignRoomController {
         roomFeignService.addShowtimeToRoom(showtimeId, roomId);
     }
 
+    @DeleteMapping("/deleteShowtimeFromRoom/{showtimeId}/{roomId}")
+    public void deleteShowtimeFromRoom(
+            @PathVariable("showtimeId") Long showtimeId,
+            @PathVariable("roomId") Long roomId
+    ) {
+        log.info("(Feign call) Removing showtime with the id of {} from the room with the id of {}.", showtimeId, roomId);
+
+        roomFeignService.deleteShowtimeFromRoom(showtimeId, roomId);
+    }
+
 }
