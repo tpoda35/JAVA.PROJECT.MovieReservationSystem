@@ -1,6 +1,8 @@
-package com.moviereservationapi.reservation.dto;
+package com.moviereservationapi.reservation.dto.reservation;
 
 import com.moviereservationapi.reservation.Enum.PaymentStatus;
+import com.moviereservationapi.reservation.dto.feign.SeatDto;
+import com.moviereservationapi.reservation.dto.feign.ShowtimeDto;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
