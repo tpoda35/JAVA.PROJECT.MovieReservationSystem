@@ -1,6 +1,6 @@
 package com.moviereservationapi.reservation.exception;
 
-import com.moviereservationapi.reservation.dto.CustomExceptionDto;
+import com.moviereservationapi.reservation.dto.exception.CustomExceptionDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
