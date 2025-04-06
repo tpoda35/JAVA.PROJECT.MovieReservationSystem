@@ -1,4 +1,4 @@
-package com.moviereservationapi.reservation.dto;
+package com.moviereservationapi.reservation.dto.feign;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
