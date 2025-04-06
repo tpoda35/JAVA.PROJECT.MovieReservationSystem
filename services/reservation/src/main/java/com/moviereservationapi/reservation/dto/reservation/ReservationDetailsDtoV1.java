@@ -1,4 +1,4 @@
-package com.moviereservationapi.reservation.dto;
+package com.moviereservationapi.reservation.dto.reservation;
 
 import com.moviereservationapi.reservation.Enum.PaymentStatus;
 import com.moviereservationapi.reservation.model.ReservationSeat;
@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReservationDto {
+public class ReservationDetailsDtoV1 {
 
     private LocalDateTime reservationTime;
 
