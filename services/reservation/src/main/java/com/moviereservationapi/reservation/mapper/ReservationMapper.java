@@ -1,8 +1,8 @@
 package com.moviereservationapi.reservation.mapper;
 
-import com.moviereservationapi.reservation.dto.ReservationResponseDto;
-import com.moviereservationapi.reservation.dto.SeatDto;
-import com.moviereservationapi.reservation.dto.ShowtimeDto;
+import com.moviereservationapi.reservation.dto.reservation.ReservationResponseDto;
+import com.moviereservationapi.reservation.dto.feign.SeatDto;
+import com.moviereservationapi.reservation.dto.feign.ShowtimeDto;
 import com.moviereservationapi.reservation.model.Reservation;
 
 import java.util.List;
