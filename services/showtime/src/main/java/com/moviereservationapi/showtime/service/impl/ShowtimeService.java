@@ -207,12 +207,6 @@ public class ShowtimeService implements IShowtimeService {
         }
     }
 
-    // chatGpt, recheck the seat availability at reservation.
-    //    boolean isAlreadyReserved = reservationSeatRepository
-    //            .existsBySeatIdAndReservation_ShowtimeId(seatId, showtimeId);
-    //if (isAlreadyReserved) {
-    //        throw new SeatAlreadyReservedException("Seat is already taken for this screening.");
-    //    }
     @Override
     @Async
     public CompletableFuture<List<SeatAvailabilityDto>> getSeatsByShowtime(Long showtimeId) {
