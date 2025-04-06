@@ -1,7 +1,7 @@
 package com.moviereservationapi.reservation.controller;
 
-import com.moviereservationapi.reservation.dto.ReservationManageDto;
-import com.moviereservationapi.reservation.dto.ReservationResponseDto;
+import com.moviereservationapi.reservation.dto.reservation.ReservationCreateDto;
+import com.moviereservationapi.reservation.dto.reservation.ReservationResponseDto;
 import com.moviereservationapi.reservation.service.IReservationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +20,9 @@ public class ReservationController {
 
     @PostMapping
     public ReservationResponseDto addReservation(
-            @RequestBody ReservationManageDto reservationManageDto
+            @RequestBody ReservationCreateDto reservationCreateDto
     ) {
-        return reservationService.addReservation(reservationManageDto);
+        return reservationService.addReservation(reservationCreateDto);
     }
 
 }
