@@ -15,7 +15,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table
+@Table(
+        indexes = {
+                @Index(name = "idx_reservation_showtime_id", columnList = "showtimeId")
+        }
+)
 public class Reservation {
 
     @Id
