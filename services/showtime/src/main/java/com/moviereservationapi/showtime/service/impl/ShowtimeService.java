@@ -22,6 +22,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
@@ -132,9 +133,17 @@ public class ShowtimeService implements IShowtimeService {
     }
 
     @Override
-    @CacheEvict(
-            value = "showtimes",
-            allEntries = true
+    @Caching(
+            evict = {
+                    @CacheEvict(
+                            value = "showtimes",
+                            allEntries = true
+                    ),
+                    @CacheEvict(
+                            value = "showtimes_movie",
+                            allEntries = true
+                    )
+            }
     )
     @Transactional
     public ShowtimeDetailsDtoV1 addShowtime(@Valid ShowtimeCreateDto showtimeCreateDto) {
@@ -157,9 +166,10 @@ public class ShowtimeService implements IShowtimeService {
     }
 
     @Override
+    @Async
     public CompletableFuture<Page<ShowtimeDetailsDtoV1>> getShowtimesByMovie(Long movieId, int pageNum, int pageSize) {
         String LOG_PREFIX = "getShowtimesByMovie";
-        String cacheKey = String.format("showtimes_movie_page_%d_size_%d", pageNum, pageSize);
+        String cacheKey = String.format("showtimes_movie_%d_page_%d_size_%d", movieId, pageNum, pageSize);
         Cache cache = cacheManager.getCache("showtimes_movie");
 
         Page<ShowtimeDetailsDtoV1> showtimeDtos = cacheService.getCachedShowtimePage(cache, cacheKey, LOG_PREFIX);
@@ -197,6 +207,12 @@ public class ShowtimeService implements IShowtimeService {
         }
     }
 
+    // chatGpt, recheck the seat availability at reservation.
+    //    boolean isAlreadyReserved = reservationSeatRepository
+    //            .existsBySeatIdAndReservation_ShowtimeId(seatId, showtimeId);
+    //if (isAlreadyReserved) {
+    //        throw new SeatAlreadyReservedException("Seat is already taken for this screening.");
+    //    }
     @Override
     @Async
     public CompletableFuture<List<SeatAvailabilityDto>> getSeatsByShowtime(Long showtimeId) {
@@ -217,8 +233,36 @@ public class ShowtimeService implements IShowtimeService {
     }
 
     @Override
+    @Transactional
+    @Caching(
+            evict = {
+                    @CacheEvict(
+                            value = "showtimes",
+                            allEntries = true
+                    ),
+                    @CacheEvict(
+                            value = "showtimes_movie",
+                            allEntries = true
+                    ),
+                    @CacheEvict(
+                            value = "showtime",
+                            key = "'showtime_' + #showtimeId"
+                    )
+            }
+    )
     public void deleteShowtime(Long showtimeId) {
+        String LOG_PREFIX = "deleteShowtime";
 
+        Showtime showtime = findShowtimeById(showtimeId, LOG_PREFIX);
+        log.info("{} :: Showtime found with the id of {}.", LOG_PREFIX, showtimeId);
+
+        Long movieId = showtime.getMovieId();
+        Long roomId = showtime.getRoomId();
+
+        movieClient.deleteShowtimeFromMovie(showtimeId, movieId);
+        cinemaClient.deleteShowtimeFromRoom(showtimeId, roomId);
+        reservationClient.deleteReservationWithShowtimeId(showtimeId);
+        showtimeRepository.delete(showtime);
     }
 
     private void failedAcquireLock(String LOG_PREFIX, String cacheKey) {
