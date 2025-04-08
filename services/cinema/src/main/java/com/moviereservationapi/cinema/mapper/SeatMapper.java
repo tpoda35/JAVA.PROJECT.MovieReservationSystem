@@ -2,6 +2,7 @@ package com.moviereservationapi.cinema.mapper;
 
 import com.moviereservationapi.cinema.dto.seat.SeatCreateDto;
 import com.moviereservationapi.cinema.dto.seat.SeatDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.seat.SeatDetailsDtoV2;
 import com.moviereservationapi.cinema.dto.seat.SeatDto;
 import com.moviereservationapi.cinema.model.Room;
 import com.moviereservationapi.cinema.model.Seat;
@@ -33,4 +34,13 @@ public class SeatMapper {
                 .build();
     }
 
+    public static SeatDetailsDtoV2 fromSeatToDetailsDtoV2(Seat seat) {
+        return SeatDetailsDtoV2.builder()
+                .id(seat.getId())
+                .seatRow(seat.getSeatRow())
+                .seatNumber(seat.getSeatNumber())
+                .roomName(seat.getRoom().getName())
+                .roomId(seat.getRoom().getId())
+                .build();
+    }
 }
