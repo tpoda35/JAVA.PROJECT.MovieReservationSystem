@@ -22,6 +22,7 @@ public class RedisConfiguration {
 
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
         cacheConfigurations.put("reservation", cacheConfiguration.entryTtl(Duration.ofDays(1)));
+        cacheConfigurations.put("reservation_user", cacheConfiguration.entryTtl(Duration.ofDays(1)));
 
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(cacheConfiguration)
@@ -29,5 +30,4 @@ public class RedisConfiguration {
                 .transactionAware()
                 .build();
     }
-
 }
