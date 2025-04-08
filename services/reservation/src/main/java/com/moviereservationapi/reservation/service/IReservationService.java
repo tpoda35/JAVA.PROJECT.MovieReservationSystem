@@ -2,6 +2,7 @@ package com.moviereservationapi.reservation.service;
 
 import com.moviereservationapi.reservation.dto.reservation.ReservationDetailsDtoV1;
 import com.moviereservationapi.reservation.dto.reservation.ReservationCreateDto;
+import com.moviereservationapi.reservation.dto.reservation.ReservationDetailsDtoV2;
 import com.moviereservationapi.reservation.dto.reservation.ReservationResponseDto;
 import org.springframework.data.domain.Page;
 
@@ -11,5 +12,5 @@ public interface IReservationService {
     ReservationResponseDto addReservation(ReservationCreateDto reservationCreateDto);
     CompletableFuture<ReservationDetailsDtoV1> getReservation(Long reservationId);
     void deleteReservation(Long reservationId);
-    CompletableFuture<Page<ReservationDetailsDtoV1>> getUserReservations(int pageNum, int pageSize, Long userId);
+    CompletableFuture<Page<ReservationDetailsDtoV2>> getUserReservations(int pageNum, int pageSize, Long userId);
 }
