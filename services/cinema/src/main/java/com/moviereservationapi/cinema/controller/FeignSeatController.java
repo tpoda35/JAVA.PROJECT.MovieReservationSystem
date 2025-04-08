@@ -1,6 +1,6 @@
 package com.moviereservationapi.cinema.controller;
 
-import com.moviereservationapi.cinema.dto.seat.SeatDetailsDtoV1;
+import com.moviereservationapi.cinema.dto.seat.SeatDetailsDtoV2;
 import com.moviereservationapi.cinema.dto.seat.SeatDto;
 import com.moviereservationapi.cinema.service.ISeatFeignService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class FeignSeatController {
     private final ISeatFeignService seatFeignService;
 
     @GetMapping("/getSeats")
-    public List<SeatDetailsDtoV1> getSeats(
+    public List<SeatDetailsDtoV2> getSeats(
             @RequestParam List<Long> seatIds
     ) {
         return seatFeignService.getSeats(seatIds);
