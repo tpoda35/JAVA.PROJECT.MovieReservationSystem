@@ -15,5 +15,6 @@ public class SeatDto {
     private String seatRow;
     private Integer seatNumber;
     private String roomName;
+    private Long roomId;
 
 }
