@@ -2,10 +2,7 @@ package com.moviereservationapi.reservation.model;
 
 import com.moviereservationapi.reservation.Enum.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,9 +30,11 @@ public class Reservation {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @ToString.Exclude
     private User user;
 
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<ReservationSeat> reservationSeats;
 
     // Feign
