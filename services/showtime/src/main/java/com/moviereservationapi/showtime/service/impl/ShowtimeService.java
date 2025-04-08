@@ -69,7 +69,7 @@ public class ShowtimeService implements IShowtimeService {
                 Page<Showtime> showtimes = showtimeRepository.findAll(PageRequest.of(pageNum, pageSize));
                 checkIfIsEmpty(showtimes, LOG_PREFIX, cacheKey);
 
-                showtimeDtos = showtimes.map(ShowtimeMapper::fromShowtimeToDto);
+                showtimeDtos = showtimes.map(ShowtimeMapper::fromShowtimeToDetailsDtoV1);
                 cacheService.saveInCache(cache, cacheKey , showtimeDtos, LOG_PREFIX);
 
                 return CompletableFuture.completedFuture(showtimeDtos);
@@ -114,7 +114,7 @@ public class ShowtimeService implements IShowtimeService {
                 Showtime showtime = findShowtimeById(showtimeId, LOG_PREFIX);
                 log.info("{} :: Showtime found with the id of {}. Caching data for key '{}'", LOG_PREFIX, showtimeId, cacheKey);
 
-                showtimeDetailsDtoV1 = ShowtimeMapper.fromShowtimeToDto(showtime);
+                showtimeDetailsDtoV1 = ShowtimeMapper.fromShowtimeToDetailsDtoV1(showtime);
                 cacheService.saveInCache(cache, cacheKey, showtimeDetailsDtoV1, LOG_PREFIX);
 
                 return CompletableFuture.completedFuture(showtimeDetailsDtoV1);
@@ -162,7 +162,7 @@ public class ShowtimeService implements IShowtimeService {
         movieClient.addShowtimeToMovie(showtimeId, movieId);
         cinemaClient.addShowtimeToRoom(showtimeId, roomId);
 
-        return ShowtimeMapper.fromShowtimeToDto(savedShowtime);
+        return ShowtimeMapper.fromShowtimeToDetailsDtoV1(savedShowtime);
     }
 
     @Override
@@ -189,7 +189,7 @@ public class ShowtimeService implements IShowtimeService {
                 Page<Showtime> showtimes = showtimeRepository.findByMovieId(movieId, PageRequest.of(pageNum, pageSize));
                 checkIfIsEmpty(showtimes, LOG_PREFIX, cacheKey);
 
-                showtimeDtos = showtimes.map(ShowtimeMapper::fromShowtimeToDto);
+                showtimeDtos = showtimes.map(ShowtimeMapper::fromShowtimeToDetailsDtoV1);
                 cacheService.saveInCache(cache, cacheKey , showtimeDtos, LOG_PREFIX);
 
                 return CompletableFuture.completedFuture(showtimeDtos);
