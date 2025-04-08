@@ -56,7 +56,6 @@ public class ReservationService implements IReservationService {
     private final ICacheService cacheService;
     private final TransactionTemplate transactionTemplate;
 
-    // check if the seats is connected to the selected showtime
     @Override
     @Transactional
     public ReservationResponseDto addReservation(@Valid ReservationCreateDto reservationCreateDto) {
@@ -65,10 +64,15 @@ public class ReservationService implements IReservationService {
         Long userId = reservationCreateDto.getUserId();
         Long showtimeId = reservationCreateDto.getShowtimeId();
         List<Long> seatIds = reservationCreateDto.getSeatIds();
+        if (seatIds.isEmpty()) {
+            log.info("{} :: Seat list empty.", LOG_PREFIX);
+            throw new SeatListEmtpyException("You must reserve at least one seat.");
+        }
 
         boolean alreadyReserved = reservationSeatRepository
                 .existsBySeatIdInAndReservation_ShowtimeId(seatIds, showtimeId);
         if (alreadyReserved) {
+            log.info("{} :: Seat(s) already reserved.", LOG_PREFIX);
             throw new SeatAlreadyReservedException("Some seats are already taken.");
         }
 
@@ -76,6 +80,14 @@ public class ReservationService implements IReservationService {
 
         ShowtimeDto showtimeDto = showtimeClient.getShowtime(showtimeId);
         List<SeatDto> seatDtos = cinemaClient.getSeats(seatIds);
+
+        boolean invalidSeats = seatDtos.stream()
+                .anyMatch(seat -> !seat.getRoomId().equals(showtimeDto.getRoomId()));
+
+        if (invalidSeats) {
+            log.info("{} :: One or more seat(s) do not belong to the room of the showtime.", LOG_PREFIX);
+            throw new InvalidSeatRoomException("Selected seats do not belong to the correct room.");
+        }
 
         Reservation reservation = new Reservation();
         reservation.setUser(user);
