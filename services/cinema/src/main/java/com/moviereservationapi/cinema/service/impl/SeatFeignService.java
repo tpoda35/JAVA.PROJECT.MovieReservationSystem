@@ -29,7 +29,7 @@ public class SeatFeignService implements ISeatFeignService {
 
         if (seatsSize != seatIdsSize) {
             log.info("(Feign call) Found only {} seats instead of {}.", seatsSize, seatIdsSize);
-            throw new SeatNotFoundException("Seat not found.");
+            throw new SeatNotFoundException("Didn't find all the seat.");
         }
         log.info("(Feign call) Found all seats.");
 
