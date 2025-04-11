@@ -13,6 +13,7 @@
         <option value="$PROJECT_DIR$/services/cinema/pom.xml" />
         <option value="$PROJECT_DIR$/services/showtime/pom.xml" />
         <option value="$PROJECT_DIR$/services/reservation/pom.xml" />
+        <option value="$PROJECT_DIR$/services/notification/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
