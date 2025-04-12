@@ -5,7 +5,7 @@
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
         <mxCell id="PJKf-jVnx4Yq2oBsgzTQ-46" value="Ports" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="290" y="-510" width="140" height="210" as="geometry" />
+          <mxGeometry x="290" y="-510" width="140" height="240" as="geometry" />
         </mxCell>
         <mxCell id="PJKf-jVnx4Yq2oBsgzTQ-47" value="ConfigServer: 8888" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="PJKf-jVnx4Yq2oBsgzTQ-46" vertex="1">
           <mxGeometry y="30" width="140" height="30" as="geometry" />
@@ -24,6 +24,9 @@
         </mxCell>
         <mxCell id="5EG6SM_OraX-agO98j8h-0" value="Reservation: 8093" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="PJKf-jVnx4Yq2oBsgzTQ-46" vertex="1">
           <mxGeometry y="180" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ULgLvwoihyijOJwNVFXd-0" value="Notification: 8094" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="PJKf-jVnx4Yq2oBsgzTQ-46">
+          <mxGeometry y="210" width="140" height="30" as="geometry" />
         </mxCell>
         <mxCell id="gdouTfoXXiuZc2-UNnxc-37" value="Colors:" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
           <mxGeometry x="687" y="-1090" width="140" height="120" as="geometry" />
