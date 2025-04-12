@@ -11,7 +11,7 @@
         <module name="discovery" />
         <module name="gateway" />
       </profile>
-      <profile name="Annotation profile for notification" enabled="true">
+      <profile name="Annotation profile for payment" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -20,6 +20,7 @@
         </processorPath>
         <module name="notification" />
         <module name="reservation" />
+        <module name="payment" />
         <module name="cinema" />
         <module name="movie" />
         <module name="showtime" />
@@ -39,6 +40,7 @@
       <module name="gateway" options="-parameters" />
       <module name="movie" options="-parameters" />
       <module name="notification" options="-parameters" />
+      <module name="payment" options="-parameters" />
       <module name="reservation" options="-parameters" />
       <module name="showtime" options="-parameters" />
       <module name="user" options="-parameters" />
