@@ -1,0 +1,12 @@
+# Rename this to "notification-service.yml"!
+
+spring:
+    data:
+      mongodb:
+        host: localhost
+        port: 27017
+        database: notification
+        authentication-database: admin
+
+server:
+  port: 8094
