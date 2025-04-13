@@ -1,0 +1,29 @@
+# Rename this to "payment-service.yml"!
+# Fill your own data where you see "your...".
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/yourdb
+    username: yourusername
+    password: yourpassword
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+
+server:
+  port: 8095
+
+apiKey:
+  stripeKey: yourStripeApiKey
+
+payment:
+  unit_amount: 1000
+  default_currency: EUR
+  success_url: http://localhost:8095/payments/success
+  cancel_url: http://localhost:8095/payments/cancel
