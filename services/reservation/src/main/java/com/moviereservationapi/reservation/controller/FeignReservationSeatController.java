@@ -25,4 +25,11 @@ public class FeignReservationSeatController {
         return reservationSeatFeignService.findReservedSeatIdsByShowtimeId(showtimeId);
     }
 
+    @GetMapping("/findSeatIdsByReservationId/{reservationId}")
+    public List<Long> findSeatIdsByReservationId(
+            @PathVariable("reservationId") Long reservationId
+    ) {
+        return reservationSeatFeignService.findSeatIdsByReservationId(reservationId);
+    }
+
 }
