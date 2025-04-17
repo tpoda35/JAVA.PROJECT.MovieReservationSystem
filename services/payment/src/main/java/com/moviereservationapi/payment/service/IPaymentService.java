@@ -1,10 +1,9 @@
 package com.moviereservationapi.payment.service;
 
-import com.moviereservationapi.payment.dto.ReservationPaymentRequest;
-import com.moviereservationapi.payment.dto.StripeResponse;
+import com.moviereservationapi.payment.dto.payment.StripeResponse;
 
 public interface IPaymentService {
 
-    StripeResponse checkout(ReservationPaymentRequest request);
+    StripeResponse checkout(Long reservationId, String currency);
 
 }
