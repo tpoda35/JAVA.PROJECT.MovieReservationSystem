@@ -1,4 +1,4 @@
-package com.moviereservationapi.payment.dto;
+package com.moviereservationapi.payment.dto.cinema;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
