@@ -1,15 +1,10 @@
 package com.moviereservationapi.payment.controller;
 
-import com.moviereservationapi.payment.dto.ReservationPaymentRequest;
-import com.moviereservationapi.payment.dto.StripeResponse;
+import com.moviereservationapi.payment.dto.payment.StripeResponse;
 import com.moviereservationapi.payment.service.IPaymentService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/payments")
@@ -19,11 +14,12 @@ public class PaymentController {
 
     private final IPaymentService paymentService;
 
-    @PostMapping
+    @PostMapping("/{reservationId}")
     public StripeResponse checkout(
-            @RequestBody @Valid ReservationPaymentRequest request
+        @PathVariable("reservationId") Long reservationId,
+        @RequestParam String currency
     ) {
-        return paymentService.checkout(request);
+        return paymentService.checkout(reservationId, currency);
     }
 
 }
