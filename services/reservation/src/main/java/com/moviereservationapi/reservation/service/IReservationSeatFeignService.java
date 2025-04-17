@@ -4,4 +4,5 @@ import java.util.List;
 
 public interface IReservationSeatFeignService {
     List<Long> findReservedSeatIdsByShowtimeId(Long showtimeId);
+    List<Long> findSeatIdsByReservationId(Long reservationId);
 }
