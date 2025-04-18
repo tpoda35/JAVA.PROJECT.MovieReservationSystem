@@ -7,7 +7,7 @@ import com.moviereservationapi.cinema.model.Cinema;
 
 public class CinemaMapper {
 
-    public static CinemaDetailsDtoV1 fromCinemaToDetailsDto(Cinema cinema) {
+    public static CinemaDetailsDtoV1 fromCinemaToDetailsDtoV1(Cinema cinema) {
         return CinemaDetailsDtoV1.builder()
                 .id(cinema.getId())
                 .name(cinema.getName())
@@ -23,7 +23,7 @@ public class CinemaMapper {
                 .build();
     }
 
-    public static CinemaDetailsDtoV2 fromCinemaToCinemaDto(Cinema cinema) {
+    public static CinemaDetailsDtoV2 fromCinemaToDetailsDtoV2(Cinema cinema) {
         return CinemaDetailsDtoV2.builder()
                 .id(cinema.getId())
                 .name(cinema.getName())
