@@ -7,14 +7,92 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(LockAcquisitionException.class)
+    public ResponseEntity<CustomExceptionDto> handleLockAcquisitionException(
+            LockAcquisitionException ex
+    ) {
+        return ResponseEntity.status(LOCKED).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        LOCKED.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(LockInterruptedException.class)
+    public ResponseEntity<CustomExceptionDto> handleLockInterruptedException(
+            LockInterruptedException ex
+    ) {
+        return ResponseEntity.status(SERVICE_UNAVAILABLE).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        SERVICE_UNAVAILABLE.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(InvalidSeatRoomException.class)
+    public ResponseEntity<CustomExceptionDto> handleInvalidSeatRoomException(
+            InvalidSeatRoomException ex
+    ) {
+        return ResponseEntity.status(BAD_REQUEST).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        BAD_REQUEST.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(SeatAlreadyReservedException.class)
+    public ResponseEntity<CustomExceptionDto> handleSeatAlreadyReservedException(
+            SeatAlreadyReservedException ex
+    ) {
+        return ResponseEntity.status(NOT_FOUND).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        NOT_FOUND.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(SeatListEmptyException.class)
+    public ResponseEntity<CustomExceptionDto> handleSeatListEmptyException(
+            SeatListEmptyException ex
+    ) {
+        return ResponseEntity.status(BAD_REQUEST).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        BAD_REQUEST.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<CustomExceptionDto> handleUserNotFoundException(
+            UserNotFoundException ex
+    ) {
+        return ResponseEntity.status(NOT_FOUND).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        NOT_FOUND.value()
+                )
+        );
+    }
+
     @ExceptionHandler(ReservationNotFoundException.class)
-    public ResponseEntity<CustomExceptionDto> handleMovieNotFoundException(
+    public ResponseEntity<CustomExceptionDto> handleReservationNotFoundException(
             ReservationNotFoundException ex
     ) {
         return ResponseEntity.status(NOT_FOUND).body(
@@ -33,7 +111,9 @@ public class GlobalExceptionHandler {
         }
 
         if (ex instanceof ReservationNotFoundException) {
-            return handleMovieNotFoundException((ReservationNotFoundException) ex);
+            return handleReservationNotFoundException((ReservationNotFoundException) ex);
+        } else if (ex instanceof UserNotFoundException) {
+            return handleUserNotFoundException((UserNotFoundException) ex);
         } else {
             return handleException(ex);
         }
