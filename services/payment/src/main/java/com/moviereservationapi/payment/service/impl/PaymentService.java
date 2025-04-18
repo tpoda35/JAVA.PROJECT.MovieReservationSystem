@@ -1,6 +1,7 @@
 package com.moviereservationapi.payment.service.impl;
 
 import com.moviereservationapi.payment.dto.payment.StripeResponse;
+import com.moviereservationapi.payment.dto.reservation.ReservationDetailsDtoV3;
 import com.moviereservationapi.payment.exception.PaymentException;
 import com.moviereservationapi.payment.feign.ReservationClient;
 import com.moviereservationapi.payment.service.IPaymentService;
@@ -54,18 +55,17 @@ public class PaymentService implements IPaymentService {
     public StripeResponse checkout(Long reservationId, String currency) {
         String LOG_PREFIX = "checkout";
 
-        // Change this to a class and get the showtimeId also to save it in the webhookservice.
-        List<Long> seatIds = reservationClient.findSeatIdsByReservationId(reservationId);
-        long seatNum = seatIds.size();
+        ReservationDetailsDtoV3 reservationData = reservationClient.findSeatIdsAndShowtimeIdByReservationId(reservationId);
+        Long showtimeId = reservationData.getShowtimeId();
+        List<Long> seatIds = reservationData.getSeatIds();
+        long seatCount = seatIds.size();
 
-        if (currency == null) {
-            currency = defaultCurrency;
-        }
+        String usedCurrency = (currency != null) ? currency : defaultCurrency;
 
         SessionCreateParams.LineItem lineItem = new SessionCreateParams.LineItem.Builder()
                 .setPriceData(
                         new SessionCreateParams.LineItem.PriceData.Builder()
-                                .setCurrency(currency)
+                                .setCurrency(usedCurrency)
                                 .setUnitAmount(unitAmount)
                                 .setProductData(
                                         new SessionCreateParams.LineItem.PriceData.ProductData.Builder()
@@ -74,7 +74,7 @@ public class PaymentService implements IPaymentService {
                                 )
                                 .build()
                 )
-                .setQuantity(seatNum)
+                .setQuantity(seatCount)
                 .build();
 
 
@@ -87,6 +87,7 @@ public class PaymentService implements IPaymentService {
                 .addLineItem(lineItem)
                 .putMetadata("reservationId", String.valueOf(reservationId))
                 .putMetadata("seatIds", String.valueOf(seatIds))
+                .putMetadata("showtimeId", String.valueOf(showtimeId))
                 .build();
 
         Session session;
@@ -94,7 +95,7 @@ public class PaymentService implements IPaymentService {
         try {
             session = Session.create(params);
         } catch (StripeException exception) {
-            log.info("{} :: An exception threw while creating session: {}.", LOG_PREFIX, exception.getMessage());
+            log.error("{} :: Exception occurred while creating payment session: {}", LOG_PREFIX, exception.getMessage(), exception);
             throw new PaymentException(exception.getMessage(), exception);
         }
 
