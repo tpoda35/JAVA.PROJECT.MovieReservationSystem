@@ -5,17 +5,7 @@ import com.moviereservationapi.movie.dto.MovieDto;
 import com.moviereservationapi.movie.model.Movie;
 
 public class MovieMapper {
-
-    public static Movie fromDtoToMovie(MovieDto movieDto) {
-        return Movie.builder()
-                .id(movieDto.getId())
-                .title(movieDto.getTitle())
-                .duration(movieDto.getLength())
-                .releaseDate(movieDto.getRelease())
-                .movieGenre(movieDto.getMovieGenre())
-                .build();
-    }
-
+    
     public static MovieDto fromMovieToDto(Movie movie) {
         return MovieDto.builder()
                 .id(movie.getId())
