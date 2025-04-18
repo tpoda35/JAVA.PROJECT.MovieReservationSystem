@@ -1,7 +1,7 @@
 package com.moviereservationapi.payment.service.impl;
 
 import com.moviereservationapi.payment.dto.payment.StripeResponse;
-import com.moviereservationapi.payment.dto.reservation.ReservationDetailsDtoV3;
+import com.moviereservationapi.payment.dto.reservation.ReservationPayment;
 import com.moviereservationapi.payment.exception.PaymentException;
 import com.moviereservationapi.payment.feign.ReservationClient;
 import com.moviereservationapi.payment.service.IPaymentService;
@@ -55,9 +55,10 @@ public class PaymentService implements IPaymentService {
     public StripeResponse checkout(Long reservationId, String currency) {
         String LOG_PREFIX = "checkout";
 
-        ReservationDetailsDtoV3 reservationData = reservationClient.findSeatIdsAndShowtimeIdByReservationId(reservationId);
+        ReservationPayment reservationData = reservationClient.getPaymentDataByReservationId(reservationId);
         Long showtimeId = reservationData.getShowtimeId();
         List<Long> seatIds = reservationData.getSeatIds();
+        Long userId = reservationData.getUserId();
         long seatCount = seatIds.size();
 
         String usedCurrency = (currency != null) ? currency : defaultCurrency;
@@ -88,6 +89,7 @@ public class PaymentService implements IPaymentService {
                 .putMetadata("reservationId", String.valueOf(reservationId))
                 .putMetadata("seatIds", String.valueOf(seatIds))
                 .putMetadata("showtimeId", String.valueOf(showtimeId))
+                .putMetadata("userId", String.valueOf(userId))
                 .build();
 
         Session session;
