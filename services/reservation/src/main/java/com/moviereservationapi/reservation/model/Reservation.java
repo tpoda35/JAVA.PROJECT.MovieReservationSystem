@@ -40,6 +40,10 @@ public class Reservation {
     // Feign
     private Long showtimeId;
 
+    @Version
+    @ToString.Exclude
+    private Long version;
+
     @PrePersist
     protected void onCreate() {
         reservationTime = LocalDateTime.now();
