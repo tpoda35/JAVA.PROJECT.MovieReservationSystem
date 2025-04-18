@@ -12,9 +12,10 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReservationDetailsDtoV3 {
+public class ReservationPayment {
 
     private List<Long> seatIds = new ArrayList<>();
     private Long showtimeId;
+    private Long userId;
 
 }
