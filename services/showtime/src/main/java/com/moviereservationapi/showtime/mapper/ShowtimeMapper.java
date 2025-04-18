@@ -15,7 +15,7 @@ public class ShowtimeMapper {
                 .build();
     }
 
-    public static Showtime fromManageDtoToShowtime(ShowtimeCreateDto showtimeCreateDto) {
+    public static Showtime fromCreateDtoToShowtime(ShowtimeCreateDto showtimeCreateDto) {
         return Showtime.builder()
                 .startTime(showtimeCreateDto.getStartTime())
                 .endTime(showtimeCreateDto.getEndTime())
