@@ -42,6 +42,7 @@ public class Movie {
             uniqueConstraints = @UniqueConstraint(columnNames = {"movie_id", "showtime_id"})
     )
     @Column(name = "showtime_id")
+    @ToString.Exclude
     private List<Long> showtimeIds = new ArrayList<>();
 
     @Version
