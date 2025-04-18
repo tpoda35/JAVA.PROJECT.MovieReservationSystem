@@ -1,8 +1,9 @@
 package com.moviereservationapi.reservation.service.impl;
 
-import com.moviereservationapi.reservation.Enum.PaymentStatus;
+import com.moviereservationapi.reservation.dto.reservation.ReservationPayment;
 import com.moviereservationapi.reservation.exception.ReservationNotFoundException;
 import com.moviereservationapi.reservation.model.Reservation;
+import com.moviereservationapi.reservation.model.ReservationSeat;
 import com.moviereservationapi.reservation.repository.ReservationRepository;
 import com.moviereservationapi.reservation.service.IReservationFeignService;
 import jakarta.transaction.Transactional;
@@ -47,6 +48,19 @@ public class ReservationFeignService implements IReservationFeignService {
         Reservation reservation = findReservationById(reservationId);
         reservation.setPaymentStatus(UNDER_PAYMENT);
         reservationRepository.save(reservation);
+    }
+
+    // Mapper can be used, but problems came up with the lazy loaded data.
+    @Override
+    @Transactional
+    public ReservationPayment getPaymentDataByReservationId(Long reservationId) {
+        Reservation reservation = findReservationById(reservationId);
+
+        return ReservationPayment.builder()
+                .seatIds(reservation.getReservationSeats().stream().map(ReservationSeat::getSeatId).toList())
+                .showtimeId(reservation.getShowtimeId())
+                .userId(reservation.getUser().getId())
+                .build();
     }
 
     private Reservation findReservationById(Long reservationId) {
