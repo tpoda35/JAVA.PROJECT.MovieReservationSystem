@@ -1,5 +1,6 @@
 package com.moviereservationapi.payment.feign;
 
+import com.moviereservationapi.payment.dto.reservation.ReservationDetailsDtoV3;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,14 +21,13 @@ public interface ReservationClient {
             @PathVariable("reservationId") Long reservationId
     );
 
-    @GetMapping("/api/reservationseats/feign/findSeatIdsByReservationId/{reservationId}")
-    List<Long> findSeatIdsByReservationId(
-            @PathVariable("reservationId") Long reservationId
-    );
-
-    @PostMapping("/api/reservationseats/feign/changeStatusToUnder_Payment/{reservationId}")
+    @PostMapping("/api/reservations/feign/changeStatusToUnder_Payment/{reservationId}")
     void changeStatusToUnder_Payment(
             @PathVariable("reservationId") Long reservationId
     );
 
+    @GetMapping("/api/reservationseats/feign/findSeatIdsAndShowtimeIdByReservationId/{reservationId}")
+    ReservationDetailsDtoV3 findSeatIdsAndShowtimeIdByReservationId(
+            @PathVariable("reservationId") Long reservationId
+    );
 }
