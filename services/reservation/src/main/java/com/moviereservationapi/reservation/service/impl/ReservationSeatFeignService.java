@@ -1,5 +1,6 @@
 package com.moviereservationapi.reservation.service.impl;
 
+import com.moviereservationapi.reservation.dto.reservation.ReservationDetailsDtoV3;
 import com.moviereservationapi.reservation.exception.ReservationNotFoundException;
 import com.moviereservationapi.reservation.model.Reservation;
 import com.moviereservationapi.reservation.model.ReservationSeat;
@@ -28,11 +29,13 @@ public class ReservationSeatFeignService implements IReservationSeatFeignService
 
     @Override
     @Transactional
-    public List<Long> findSeatIdsByReservationId(Long reservationId) {
-        return findReservationById(reservationId).getReservationSeats()
-                .stream()
-                .map(ReservationSeat::getSeatId)
-                .toList();
+    public ReservationDetailsDtoV3 findSeatIdsAndShowtimeIdByReservationId(Long reservationId) {
+        Reservation reservation = findReservationById(reservationId);
+
+        return ReservationDetailsDtoV3.builder()
+                .seatIds(reservation.getReservationSeats().stream().map(ReservationSeat::getSeatId).toList())
+                .showtimeId(reservation.getShowtimeId())
+                .build();
     }
 
     private Reservation findReservationById(Long reservationId) {
