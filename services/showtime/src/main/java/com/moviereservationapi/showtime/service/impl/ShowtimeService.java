@@ -149,18 +149,34 @@ public class ShowtimeService implements IShowtimeService {
     public ShowtimeDetailsDtoV1 addShowtime(@Valid ShowtimeCreateDto showtimeCreateDto) {
         String LOG_PREFIX = "addShowtime";
 
-        log.info("{} :: Evicting 'showtimes' cache. Saving new showtime: {}", LOG_PREFIX, showtimeCreateDto);
         Long movieId = showtimeCreateDto.getMovieId();
         Long roomId = showtimeCreateDto.getRoomId();
 
-        Showtime showtime = ShowtimeMapper.fromManageDtoToShowtime(showtimeCreateDto);
-        Showtime savedShowtime = showtimeRepository.save(showtime);
-        log.info("{} :: Saved showtime: {}.", LOG_PREFIX, showtime);
+        log.info("{} :: Checking for overlapping showtimes in room {}", LOG_PREFIX, roomId);
 
+        Showtime newShowtime = ShowtimeMapper.fromCreateDtoToShowtime(showtimeCreateDto);
+
+        List<Showtime> conflictingShowtimes = showtimeRepository.findOverlappingShowtimes(
+                roomId,
+                newShowtime.getStartTime(),
+                newShowtime.getEndTime()
+        );
+
+        if (!conflictingShowtimes.isEmpty()) {
+            log.warn("{} :: Conflict detected. Overlapping showtimes: {}", LOG_PREFIX, conflictingShowtimes);
+            throw new ShowtimeOverlapException("Showtime overlaps with another showtime in the same room.");
+        }
+
+        Showtime savedShowtime = showtimeRepository.save(newShowtime);
         Long showtimeId = savedShowtime.getId();
 
+        log.info("{} :: Showtime successfully saved with id: {}", LOG_PREFIX, showtimeId);
+
         movieClient.addShowtimeToMovie(showtimeId, movieId);
+        log.info("{} :: Showtime with id {} added to movie with id {}.", LOG_PREFIX, showtimeId, movieId);
+
         cinemaClient.addShowtimeToRoom(showtimeId, roomId);
+        log.info("{} :: Showtime with id {} added to room with id {}.", LOG_PREFIX, showtimeId, roomId);
 
         return ShowtimeMapper.fromShowtimeToDetailsDtoV1(savedShowtime);
     }
@@ -210,8 +226,9 @@ public class ShowtimeService implements IShowtimeService {
     @Override
     @Async
     public CompletableFuture<List<SeatAvailabilityDto>> getSeatsByShowtime(Long showtimeId) {
-        Showtime showtime = showtimeRepository.findById(showtimeId)
-                .orElseThrow(() -> new ShowtimeNotFoundException("Showtime not found"));
+        String LOG_PREFIX = "getSeatsByShowtime";
+
+        Showtime showtime = findShowtimeById(showtimeId, LOG_PREFIX);
         Long roomId = showtime.getRoomId();
 
         List<SeatDto> seats = cinemaClient.getSeatsByRoomId(roomId);
@@ -253,10 +270,14 @@ public class ShowtimeService implements IShowtimeService {
         Long movieId = showtime.getMovieId();
         Long roomId = showtime.getRoomId();
 
+        log.info("{} :: Deleting showtime from the movie with id {} and room with id {}.", LOG_PREFIX, movieId, roomId);
+
         movieClient.deleteShowtimeFromMovie(showtimeId, movieId);
         cinemaClient.deleteShowtimeFromRoom(showtimeId, roomId);
         reservationClient.deleteReservationWithShowtimeId(showtimeId);
         showtimeRepository.delete(showtime);
+
+        log.info("{} :: Showtime with id {} has been successfully deleted.", LOG_PREFIX, showtimeId);
     }
 
     private void failedAcquireLock(String LOG_PREFIX, String cacheKey) {
