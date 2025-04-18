@@ -63,14 +63,14 @@ public class CinemaService implements ICinemaService {
                 cinemaDetailsDtos = transactionTemplate.execute(status -> {
                     Page<Cinema> cinemas = cinemaRepository.findAll(PageRequest.of(pageNum, pageSize));
                     if (cinemas.isEmpty()) {
-                        log.info("{} :: No cinema found.", LOG_PREFIX);
+                        log.warn("{} :: No cinemas found. pageNum={}, pageSize={}.", LOG_PREFIX, pageNum, pageSize);
                         throw new CinemaNotFoundException("There's no cinema found.");
                     }
 
-                    log.info("{} :: Found {} cinemas. Caching data for key '{}'.",
-                            LOG_PREFIX, cinemas.getTotalElements(), cacheKey);
+                    log.info("{} :: Found {} cinema(s). Caching data for key '{}'. pageNum={}, pageSize={}.",
+                            LOG_PREFIX, cinemas.getTotalElements(), cacheKey, pageNum, pageSize);
 
-                    return cinemas.map(CinemaMapper::fromCinemaToDetailsDto);
+                    return cinemas.map(CinemaMapper::fromCinemaToDetailsDtoV1);
                 });
 
                 cacheService.saveInCache(cache, cacheKey, cinemaDetailsDtos, LOG_PREFIX);
@@ -117,7 +117,7 @@ public class CinemaService implements ICinemaService {
 
                 cinemaDetailsDtoV1 = transactionTemplate.execute(status -> {
                     Cinema cinema = findCinemaById(cinemaId, LOG_PREFIX);
-                    return CinemaMapper.fromCinemaToDetailsDto(cinema);
+                    return CinemaMapper.fromCinemaToDetailsDtoV1(cinema);
                 });
 
                 cacheService.saveInCache(cache, cacheKey, cinemaDetailsDtoV1, LOG_PREFIX);
@@ -145,14 +145,14 @@ public class CinemaService implements ICinemaService {
     public CinemaDetailsDtoV1 addCinema(CinemaManageDto cinemaManageDto) {
         String LOG_PREFIX = "addCinema";
 
-        log.info("{} :: Evicting 'cinemas' cache. Saving new cinema: {}", LOG_PREFIX, cinemaManageDto);
+        log.info("{} :: Evicting 'cinemas' cache and saving new cinema: {}", LOG_PREFIX, cinemaManageDto);
 
         Cinema cinema = CinemaMapper.fromCinemaManageDtoToCinema(cinemaManageDto);
         Cinema savedCinema = cinemaRepository.save(cinema);
 
-        log.info("{} :: Saved cinema: {}.", LOG_PREFIX, cinema);
+        log.info("{} :: Successfully saved new cinema with ID={}.", LOG_PREFIX, savedCinema.getId());
 
-        return CinemaMapper.fromCinemaToDetailsDto(savedCinema);
+        return CinemaMapper.fromCinemaToDetailsDtoV1(savedCinema);
     }
 
     @Override
@@ -171,19 +171,20 @@ public class CinemaService implements ICinemaService {
     public CinemaDetailsDtoV2 editCinema(CinemaManageDto cinemaManageDto, Long cinemaId) {
         String LOG_PREFIX = "editCinema";
 
-        log.info("{} :: Evicting cache 'cinemas' and 'cinema' with the key of 'cinema_{}'", LOG_PREFIX, cinemaId);
-        log.info("{} :: Editing cinema with the id of {} and data of {}", LOG_PREFIX, cinemaId, cinemaManageDto);
+        log.info("{} :: Evicting caches 'cinemas' (all entries) and 'cinema' with key 'cinema_{}'.",
+                LOG_PREFIX, cinemaId);
+        log.info("{} :: Editing cinema with ID={} and new data: {}", LOG_PREFIX, cinemaId, cinemaManageDto);
 
         Cinema cinema = findCinemaById(cinemaId, LOG_PREFIX);
-        log.info("{} :: Cinema found with the id of {}.", LOG_PREFIX, cinemaId);
+        log.info("{} :: Found cinema with ID={}: {}", LOG_PREFIX, cinemaId, cinema);
 
         cinema.setName(cinemaManageDto.getName());
         cinema.setLocation(cinemaManageDto.getLocation());
 
         Cinema savedCinema = cinemaRepository.save(cinema);
-        log.info("{} :: Saved cinema: {}", LOG_PREFIX, cinema);
+        log.info("{} :: Successfully updated cinema with ID={}. New data: {}", LOG_PREFIX, cinemaId, cinema);
 
-        return CinemaMapper.fromCinemaToCinemaDto(savedCinema);
+        return CinemaMapper.fromCinemaToDetailsDtoV2(savedCinema);
     }
 
     @Override
@@ -202,13 +203,16 @@ public class CinemaService implements ICinemaService {
     public void deleteCinema(Long cinemaId) {
         String LOG_PREFIX = "deleteCinema";
 
-        log.info("{} :: Evicting cache 'cinemas' and 'cinema' with the key of 'cinema_{}'", LOG_PREFIX, cinemaId);
-        log.info("{} :: Deleting cinema with the id of {}.", LOG_PREFIX, cinemaId);
+        log.info("{} :: Evicting caches 'cinemas' (all entries) and 'cinema' with key 'cinema_{}'.",
+                LOG_PREFIX, cinemaId);
+        log.info("{} :: Initiating deletion of cinema with ID={}.", LOG_PREFIX, cinemaId);
 
         Cinema cinema = findCinemaById(cinemaId, LOG_PREFIX);
-        log.info("{} :: Cinema found with the id of {} and data of {}.", LOG_PREFIX, cinemaId, cinema);
+        log.info("{} :: Cinema found with ID={}. Details: {}", LOG_PREFIX, cinemaId, cinema);
 
         cinemaRepository.delete(cinema);
+
+        log.info("{} :: Successfully deleted cinema with ID={}.", LOG_PREFIX, cinemaId);
     }
 
     private void failedAcquireLock(String LOG_PREFIX, String cacheKey) {
