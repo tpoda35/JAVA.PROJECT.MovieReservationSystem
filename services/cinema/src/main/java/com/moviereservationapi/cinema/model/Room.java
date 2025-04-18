@@ -39,4 +39,8 @@ public class Room {
     @Column(name = "showtime_id")
     @ToString.Exclude
     private List<Long> showtimeIds = new ArrayList<>();
+
+    @Version
+    @ToString.Exclude
+    private Long version;
 }

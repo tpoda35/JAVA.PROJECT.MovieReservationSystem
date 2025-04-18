@@ -41,4 +41,8 @@ public class Seat {
     @ToString.Exclude
     private List<Long> reservationSeatids = new ArrayList<>();
 
+    @Version
+    @ToString.Exclude
+    private Long version;
+
 }
