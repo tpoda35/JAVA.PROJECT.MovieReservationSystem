@@ -45,6 +45,7 @@ public class WebhookService implements IWebhookService {
         StripeObject stripeObject = event.getDataObjectDeserializer().getObject().orElse(null);
 
         if (stripeObject == null) {
+            log.error("(Stripe Webhook) Stripe object is null.");
             throw new PaymentException("Invalid Stripe object.");
         }
 
@@ -60,19 +61,25 @@ public class WebhookService implements IWebhookService {
                 String reservationIdStr = session.getMetadata().get("reservationId");
                 String seatIdsStr = session.getMetadata().get("seatIds");
                 String showtimeIdStr = session.getMetadata().get("showtimeId");
+                String userIdStr = session.getMetadata().get("userId");
 
                 if (reservationIdStr == null || seatIdsStr == null || showtimeIdStr == null) {
+                    log.error("(Stripe Webhook) Missing metadata. reservationIdStr: {}, seatIdsStr: {}, showtimeIdStr: {}.",
+                            reservationIdStr, seatIdsStr, showtimeIdStr);
                     throw new PaymentException("Missing required metadata in Stripe session.");
                 }
 
                 Long reservationId;
                 List<Long> seatIds;
                 long showtimeId;
+                long userId;
                 try {
                     reservationId = Long.valueOf(reservationIdStr);
                     seatIds = parseSeatIdList(seatIdsStr);
                     showtimeId = Long.parseLong(showtimeIdStr);
+                    userId = Long.parseLong(userIdStr);
                 } catch (NumberFormatException e) {
+                    log.error("(Stripe Webhook) Invalid metadata format.");
                     throw new PaymentException("Invalid metadata format in Stripe session.");
                 }
 
@@ -82,12 +89,16 @@ public class WebhookService implements IWebhookService {
                     reservationClient.changeStatusToPaid(reservationId);
 
                     Payment payment = Payment.builder()
-                            .seatIds(seatIds)
                             .showtimeId(showtimeId)
+                            .seatIds(seatIds)
+                            .userId(userId)
                             .build();
 
                     paymentRepository.save(payment);
+
+                    log.info("(Stripe Webhook) Saved new payment: {}.", payment);
                 } else {
+                    log.warn("(Stripe Webhook) Failed payment.");
                     reservationClient.changeStatusToFailed(reservationId);
                 }
                 break;
