@@ -65,14 +65,15 @@ public class ReservationService implements IReservationService {
         Long showtimeId = reservationCreateDto.getShowtimeId();
         List<Long> seatIds = reservationCreateDto.getSeatIds();
         if (seatIds.isEmpty()) {
-            log.info("{} :: Seat list empty.", LOG_PREFIX);
-            throw new SeatListEmtpyException("You must reserve at least one seat.");
+            log.error("{} :: Seat list is empty. userId={}, showtimeId={}", LOG_PREFIX, userId, showtimeId);
+            throw new SeatListEmptyException("You must reserve at least one seat.");
         }
 
         boolean alreadyReserved = reservationSeatRepository
                 .existsBySeatIdInAndReservation_ShowtimeId(seatIds, showtimeId);
         if (alreadyReserved) {
-            log.info("{} :: Seat(s) already reserved.", LOG_PREFIX);
+            log.warn("{} :: Seat(s) already reserved. userId={}, showtimeId={}, seatIds={}",
+                    LOG_PREFIX, userId, showtimeId, seatIds);
             throw new SeatAlreadyReservedException("Some seats are already taken.");
         }
 
@@ -85,7 +86,8 @@ public class ReservationService implements IReservationService {
                 .anyMatch(seat -> !seat.getRoomId().equals(showtimeDto.getRoomId()));
 
         if (invalidSeats) {
-            log.info("{} :: One or more seat(s) do not belong to the room of the showtime.", LOG_PREFIX);
+            log.error("{} :: One or more seat(s) do not belong to the room of the showtime. showtimeId={}, seatIds={}",
+                    LOG_PREFIX, showtimeId, seatIds);
             throw new InvalidSeatRoomException("Selected seats do not belong to the correct room.");
         }
 
@@ -106,7 +108,7 @@ public class ReservationService implements IReservationService {
 
         user.getReservations().add(reservation);
 
-        return ReservationMapper.toReservationResponseDto(reservation, showtimeDto, seatDtos);
+        return ReservationMapper.fromReservationToResponseDto(reservation, showtimeDto, seatDtos);
     }
 
     @Override
@@ -173,13 +175,18 @@ public class ReservationService implements IReservationService {
     public void deleteReservation(Long reservationId) {
         String LOG_PREFIX = "deleteReservation";
 
-        log.info("{} :: Evicting cache 'reservation_user' and 'reservation' with the key of 'reservation_{}'", LOG_PREFIX, reservationId);
-        log.info("{} :: Deleting reservation with the id of {}.", LOG_PREFIX, reservationId);
+        log.info("{} :: Evicting caches: 'reservation_user' (all entries) and 'reservation' with key 'reservation_{}'.",
+                LOG_PREFIX, reservationId);
+
+        log.info("{} :: Attempting to delete reservation with ID={}.", LOG_PREFIX, reservationId);
 
         Reservation reservation = findReservationById(reservationId, LOG_PREFIX);
-        log.info("{} :: Reservation found with the id of {} and data of {}.", LOG_PREFIX, reservationId, reservation);
+
+        log.debug("{} :: Reservation found: {}.", LOG_PREFIX, reservation);
 
         reservationRepository.delete(reservation);
+
+        log.info("{} :: Successfully deleted reservation with ID={}.", LOG_PREFIX, reservationId);
     }
 
     @Override
@@ -210,12 +217,12 @@ public class ReservationService implements IReservationService {
                     Page<Reservation> reservations =
                             reservationRepository.findByUserId(userId, PageRequest.of(pageNum, pageSize));
                     if (reservations.isEmpty()) {
-                        log.info("{} :: No reservation found.", LOG_PREFIX);
+                        log.warn("{} :: No reservations found for userId={}.", LOG_PREFIX, userId);
                         throw new ReservationNotFoundException("There's no reservation found.");
                     }
 
-                    log.info("{} :: Found {} reservation. Caching data for key '{}'.",
-                            LOG_PREFIX, reservations.getTotalElements(), cacheKey);
+                    log.info("{} :: Found {} reservation(s) for userId={}. Caching data for key '{}'.",
+                            LOG_PREFIX, reservations.getTotalElements(), userId, cacheKey);
 
                     return reservations.map(ReservationMapper::fromReservationToDetailsDtoV2);
                 });

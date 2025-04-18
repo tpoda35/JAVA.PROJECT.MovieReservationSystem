@@ -112,7 +112,7 @@ public class SeatService implements ISeatService {
                     // Maybe I should check the room first for more accurate error message.
                     List<Seat> seats = roomRepository.findAllSeatsByRoomId(roomId);
                     if (seats.isEmpty()) {
-                        log.info("{} :: No seat found.", LOG_PREFIX);
+                        log.warn("{} :: No seats found for room with ID={}.", LOG_PREFIX, roomId);
                         throw new SeatNotFoundException("No seat found.");
                     }
 
@@ -147,15 +147,19 @@ public class SeatService implements ISeatService {
         String LOG_PREFIX = "addSeat";
 
         log.info("{} :: Evicting 'cinema_seats' cache. Saving new seat: {}", LOG_PREFIX, seatCreateDto);
+
         final Long roomId = seatCreateDto.getRoomId();
+        log.info("{} :: Room ID from seat creation data: {}", LOG_PREFIX, roomId);
 
         Room room = findRoomById(roomId, LOG_PREFIX);
+        log.info("{} :: Room found with ID={}. Room details: {}", LOG_PREFIX, roomId, room);
 
         Seat seat = SeatMapper.fromCreateDtoToSeat(seatCreateDto, room);
         Seat savedSeat = seatRepository.save(seat);
         room.getSeat().add(savedSeat);
 
-        log.info("{} :: Saved seat: {} added to room with the id of: {}.", LOG_PREFIX, savedSeat, roomId);
+        log.info("{} :: Successfully added new seat with ID={} to room with ID={}.",
+                LOG_PREFIX, savedSeat.getId(), roomId);
 
         return SeatMapper.fromSeatToDetailsDtoV1(savedSeat);
     }
@@ -178,21 +182,22 @@ public class SeatService implements ISeatService {
         String LOG_PREFIX = "editSeat";
 
         log.info("{} :: Evicting cache 'seat' and 'cinema_seats' with the key of 'seat_{}'", LOG_PREFIX, seatId);
-        log.info("{} :: Editing seat with the id of {} and data of {}", LOG_PREFIX, seatId, seatEditDto);
+        log.info("{} :: Editing seat with ID={} and data: {}", LOG_PREFIX, seatId, seatEditDto);
 
         Seat seat = findSeatById(seatId, LOG_PREFIX);
-        log.info("{} :: Seat found with the id of {}.", LOG_PREFIX, seatId);
+        log.info("{} :: Seat found with ID={}. Seat details: {}", LOG_PREFIX, seatId, seat);
 
         seat.setSeatRow(seatEditDto.getSeatRow());
         seat.setSeatNumber(seatEditDto.getSeatNumber());
 
         Seat savedSeat = seatRepository.save(seat);
-        log.info("{} :: Saved seat: {}", LOG_PREFIX, seat);
+        log.info("{} :: Seat successfully updated. Saved seat details: {}", LOG_PREFIX, savedSeat);
 
         return SeatMapper.fromSeatToDetailsDtoV1(savedSeat);
     }
 
     @Override
+    @Transactional
     @Caching(
             evict = {
                     @CacheEvict(
@@ -208,13 +213,14 @@ public class SeatService implements ISeatService {
     public void deleteSeat(Long seatId) {
         String LOG_PREFIX = "deleteSeat";
 
-        log.info("{} :: Evicting cache 'seat' and 'cinema_seats' with the key of 'seat_{}'", LOG_PREFIX, seatId);
-        log.info("{} :: Deleting seat with the id of {}.", LOG_PREFIX, seatId);
+        log.info("{} :: Evicting cache 'seat' and 'cinema_seats' for seat with ID={}", LOG_PREFIX, seatId);
+        log.info("{} :: Deleting seat with ID={}.", LOG_PREFIX, seatId);
 
         Seat seat = findSeatById(seatId, LOG_PREFIX);
-        log.info("{} :: Seat found with the id of {} and data of {}.", LOG_PREFIX, seatId, seat);
+        log.info("{} :: Seat found. Deleting seat: {}", LOG_PREFIX, seat);
 
         seatRepository.delete(seat);
+        log.info("{} :: Seat with ID={} deleted successfully.", LOG_PREFIX, seatId);
     }
 
     private void failedAcquireLock(String LOG_PREFIX, String cacheKey) {

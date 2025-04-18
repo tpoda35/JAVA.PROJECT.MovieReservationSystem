@@ -66,7 +66,7 @@ public class MovieService implements IMovieService {
                     throw new MovieNotFoundException("There's no movie found.");
                 }
 
-                log.info("{} :: Found {} movies. Caching data for key '{}'.", LOG_PREFIX, movies.getTotalElements(), cacheKey);
+                log.info("{} :: Found {} movie(s). Caching data for key '{}'.", LOG_PREFIX, movies.getTotalElements(), cacheKey);
                 movieDtos = movies.map(MovieMapper::fromMovieToDto);
 
                 cacheService.saveInCache(cache, cacheKey, movieDtos, LOG_PREFIX);
@@ -109,7 +109,7 @@ public class MovieService implements IMovieService {
                 }
 
                 Movie movie = findMovieById(movieId, LOG_PREFIX);
-                log.info("{} :: Movie found with the id of {}. Caching data for key '{}'", LOG_PREFIX, movieId, cacheKey);
+                log.info("{} :: Movie found with the id of {}. Caching data for key '{}'.", LOG_PREFIX, movieId, cacheKey);
 
                 movieDto = MovieMapper.fromMovieToDto(movie);
 
@@ -139,12 +139,12 @@ public class MovieService implements IMovieService {
     public MovieDto addMovie(@Valid MovieManageDto movieManageDto) {
         String LOG_PREFIX = "addMovie";
 
-        log.info("{} :: Evicting 'movies' cache. Saving new movie: {}", LOG_PREFIX, movieManageDto);
+        log.info("{} :: Evicting 'movies' cache before saving new movie: {}", LOG_PREFIX, movieManageDto);
 
         Movie movie = MovieMapper.fromManageDtoToMovie(movieManageDto);
         Movie savedMovie = movieRepository.save(movie);
 
-        log.info("{} :: Saved Movie: {}.", LOG_PREFIX, movie);
+        log.info("{} :: Successfully saved movie with id {}: {}", LOG_PREFIX, savedMovie.getId(), savedMovie);
 
         return MovieMapper.fromMovieToDto(savedMovie);
     }
@@ -166,11 +166,11 @@ public class MovieService implements IMovieService {
     public MovieDto editMovie(Long movieId, @Valid MovieManageDto movieManageDto) {
         String LOG_PREFIX = "editMovie";
 
-        log.info("{} :: Evicting cache 'movies' and 'movie' with the key of 'movie_{}'", LOG_PREFIX, movieId);
-        log.info("{} :: Editing movie with the id of {} and data of {}", LOG_PREFIX, movieId, movieManageDto);
+        log.info("{} :: Evicting 'movies' and 'movie' cache for movieId {}.", LOG_PREFIX, movieId);
+        log.info("{} :: Editing movie with id {} using data: {}", LOG_PREFIX, movieId, movieManageDto);
 
         Movie movie = findMovieById(movieId, LOG_PREFIX);
-        log.info("{} :: Movie found with the id of {}.", LOG_PREFIX, movieId);
+        log.info("{} :: Found movie with id {}: {}", LOG_PREFIX, movieId, movie);
 
         movie.setTitle(movieManageDto.getTitle());
         movie.setDuration(movieManageDto.getLength());
@@ -178,7 +178,7 @@ public class MovieService implements IMovieService {
         movie.setMovieGenre(movieManageDto.getMovieGenre());
 
         Movie savedMovie = movieRepository.save(movie);
-        log.info("{} :: Saved movie: {}", LOG_PREFIX, movie);
+        log.info("{} :: Successfully saved updated movie with id {}: {}", LOG_PREFIX, savedMovie.getId(), savedMovie);
 
         return MovieMapper.fromMovieToDto(savedMovie);
     }
@@ -200,13 +200,15 @@ public class MovieService implements IMovieService {
     public void deleteMovie(Long movieId) {
         String LOG_PREFIX = "deleteMovie";
 
-        log.info("{} :: Evicting cache 'movies' and 'movie' with the key of 'movie_{}'", LOG_PREFIX, movieId);
-        log.info("{} :: Deleting movie with the id of {}.", LOG_PREFIX, movieId);
+        log.info("{} :: Evicting 'movies' and 'movie' cache for movieId {}.", LOG_PREFIX, movieId);
+        log.info("{} :: Attempting to delete movie with id {}.", LOG_PREFIX, movieId);
 
         Movie movie = findMovieById(movieId, LOG_PREFIX);
-        log.info("{} :: Movie found with the id of {} and data of {}.", LOG_PREFIX, movieId, movie);
+        log.info("{} :: Movie found with id {}: {}", LOG_PREFIX, movieId, movie);
 
         movieRepository.delete(movie);
+
+        log.info("{} :: Movie with id {} deleted successfully.", LOG_PREFIX, movieId);
     }
 
     private void failedAcquireLock(String LOG_PREFIX, String cacheKey) {
