@@ -7,11 +7,49 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(LockAcquisitionException.class)
+    public ResponseEntity<CustomExceptionDto> handleLockAcquisitionException(
+            LockAcquisitionException ex
+    ) {
+        return ResponseEntity.status(LOCKED).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        LOCKED.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(LockInterruptedException.class)
+    public ResponseEntity<CustomExceptionDto> handleLockInterruptedException(
+            LockInterruptedException ex
+    ) {
+        return ResponseEntity.status(SERVICE_UNAVAILABLE).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        SERVICE_UNAVAILABLE.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(ShowtimeOverlapException.class)
+    public ResponseEntity<CustomExceptionDto> handleShowtimeOverlapException(
+            ShowtimeOverlapException ex
+    ) {
+        return ResponseEntity.status(CONFLICT).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        CONFLICT.value()
+                )
+        );
+    }
 
     @ExceptionHandler(RoomNotFoundException.class)
     public ResponseEntity<CustomExceptionDto> handleRoomNotFoundException(
