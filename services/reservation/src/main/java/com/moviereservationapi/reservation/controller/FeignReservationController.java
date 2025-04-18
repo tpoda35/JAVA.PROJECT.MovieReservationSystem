@@ -1,5 +1,6 @@
 package com.moviereservationapi.reservation.controller;
 
+import com.moviereservationapi.reservation.dto.reservation.ReservationPayment;
 import com.moviereservationapi.reservation.service.IReservationFeignService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +48,16 @@ public class FeignReservationController {
         log.info("(Feign call) Changing reservation status to UNDER_PAYMENT with the id of {}.", reservationId);
 
         reservationFeignService.changeStatusToUnder_Payment(reservationId);
+    }
+
+    // Post mapping, because of data safety.
+    @PostMapping("/getPaymentDataByReservationId/{reservationId}")
+    public ReservationPayment getPaymentDataByReservationId(
+            @PathVariable("reservationId") Long reservationId
+    ) {
+        log.info("(Feign call) Getting payment data with reservationId of {}.", reservationId);
+
+        return reservationFeignService.getPaymentDataByReservationId(reservationId);
     }
 
 }
