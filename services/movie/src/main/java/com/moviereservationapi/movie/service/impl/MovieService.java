@@ -10,6 +10,7 @@ import com.moviereservationapi.movie.model.Movie;
 import com.moviereservationapi.movie.repository.MovieRepository;
 import com.moviereservationapi.movie.service.ICacheService;
 import com.moviereservationapi.movie.service.IMovieService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -134,6 +135,7 @@ public class MovieService implements IMovieService {
             value = "movies",
             allEntries = true
     )
+    @Transactional
     public MovieDto addMovie(@Valid MovieManageDto movieManageDto) {
         String LOG_PREFIX = "addMovie";
 
@@ -160,6 +162,7 @@ public class MovieService implements IMovieService {
                     )
             }
     )
+    @Transactional
     public MovieDto editMovie(Long movieId, @Valid MovieManageDto movieManageDto) {
         String LOG_PREFIX = "editMovie";
 
@@ -193,6 +196,7 @@ public class MovieService implements IMovieService {
                     )
             }
     )
+    @Transactional
     public void deleteMovie(Long movieId) {
         String LOG_PREFIX = "deleteMovie";
 
