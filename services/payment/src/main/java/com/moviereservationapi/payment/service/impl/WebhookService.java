@@ -10,6 +10,7 @@ import com.stripe.model.Event;
 import com.stripe.model.StripeObject;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +30,7 @@ public class WebhookService implements IWebhookService {
     private final ReservationClient reservationClient;
 
     @Override
+    @Transactional
     public void handleStripeEvent(String payload, String sigHeader) {
         Event event;
 
@@ -43,40 +45,48 @@ public class WebhookService implements IWebhookService {
         StripeObject stripeObject = event.getDataObjectDeserializer().getObject().orElse(null);
 
         if (stripeObject == null) {
-            throw new PaymentException("Invalid stripe object.");
+            throw new PaymentException("Invalid Stripe object.");
         }
 
         switch (eventType) {
             case "checkout.session.completed":
             case "checkout.session.expired":
                 if (!(stripeObject instanceof Session session)) {
-                    log.error("Expected Session but got {}", stripeObject.getClass().getName());
+                    log.error("(Stripe Webhook) Invalid Stripe event: expected Session for type '{}', but got {}",
+                            eventType, stripeObject.getClass().getName());
                     throw new PaymentException("Expected Session object for event type " + eventType);
                 }
 
                 String reservationIdStr = session.getMetadata().get("reservationId");
                 String seatIdsStr = session.getMetadata().get("seatIds");
-                if (reservationIdStr == null) {
-                    throw new PaymentException("Missing ReservationId in session metadata.");
+                String showtimeIdStr = session.getMetadata().get("showtimeId");
+
+                if (reservationIdStr == null || seatIdsStr == null || showtimeIdStr == null) {
+                    throw new PaymentException("Missing required metadata in Stripe session.");
                 }
 
                 Long reservationId;
                 List<Long> seatIds;
+                long showtimeId;
                 try {
                     reservationId = Long.valueOf(reservationIdStr);
                     seatIds = parseSeatIdList(seatIdsStr);
+                    showtimeId = Long.parseLong(showtimeIdStr);
                 } catch (NumberFormatException e) {
-                    throw new PaymentException("Invalid reservationId format.");
+                    throw new PaymentException("Invalid metadata format in Stripe session.");
                 }
 
-                log.info("Event type: {}", eventType);
+                log.info("(Stripe Webhook) Stripe event '{}' received for reservationId={}", eventType, reservationId);
 
                 if ("checkout.session.completed".equals(eventType)) {
                     reservationClient.changeStatusToPaid(reservationId);
 
                     Payment payment = Payment.builder()
                             .seatIds(seatIds)
+                            .showtimeId(showtimeId)
                             .build();
+
+                    paymentRepository.save(payment);
                 } else {
                     reservationClient.changeStatusToFailed(reservationId);
                 }
@@ -84,7 +94,7 @@ public class WebhookService implements IWebhookService {
 
             default:
                 log.info("(Stripe Webhook) Unhandled event type: {}", eventType);
-                log.debug("Received unexpected object type: {}", stripeObject.getClass().getSimpleName());
+                log.debug("(Stripe Webhook) Received unexpected object type: {}", stripeObject.getClass().getSimpleName());
         }
     }
 
@@ -94,4 +104,5 @@ public class WebhookService implements IWebhookService {
                 .map(Long::valueOf)
                 .toList();
     }
+
 }
