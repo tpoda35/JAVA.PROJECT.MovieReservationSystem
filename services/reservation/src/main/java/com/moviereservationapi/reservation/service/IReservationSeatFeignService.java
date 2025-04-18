@@ -1,8 +1,10 @@
 package com.moviereservationapi.reservation.service;
 
+import com.moviereservationapi.reservation.dto.reservation.ReservationDetailsDtoV3;
+
 import java.util.List;
 
 public interface IReservationSeatFeignService {
     List<Long> findReservedSeatIdsByShowtimeId(Long showtimeId);
-    List<Long> findSeatIdsByReservationId(Long reservationId);
+    ReservationDetailsDtoV3 findSeatIdsAndShowtimeIdByReservationId(Long reservationId);
 }
