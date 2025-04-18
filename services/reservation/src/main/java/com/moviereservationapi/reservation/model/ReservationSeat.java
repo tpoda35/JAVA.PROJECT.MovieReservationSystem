@@ -1,10 +1,7 @@
 package com.moviereservationapi.reservation.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Builder
 @Data
@@ -29,5 +26,9 @@ public class ReservationSeat {
 
     // Feign
     private Long seatId;
+
+    @Version
+    @ToString.Exclude
+    private Long version;
 
 }
