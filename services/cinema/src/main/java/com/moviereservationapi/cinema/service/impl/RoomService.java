@@ -68,12 +68,12 @@ public class RoomService implements IRoomService {
 
                 Page<Room> rooms = cinemaRepository.findAllRoomsByCinemaId(cinemaId, PageRequest.of(pageNum, pageSize));
                 if (rooms.isEmpty()) {
-                    log.info("{} :: No room found.", LOG_PREFIX);
+                    log.warn("{} :: No rooms found. pageNum={}, pageSize={}.", LOG_PREFIX, pageNum, pageSize);
                     throw new RoomNotFoundException("No room found.");
                 }
 
-                log.info("{} :: Found {} rooms. Caching data for key '{}'.",
-                        LOG_PREFIX, rooms.getTotalElements(), cacheKey);
+                log.info("{} :: Found {} room(s). Caching data for key '{}'. pageNum={}, pageSize={}.",
+                        LOG_PREFIX, rooms.getTotalElements(), cacheKey, pageNum, pageSize);
 
                 roomDetailsDtoV1s = rooms.map(RoomMapper::fromRoomToDetailsDtoV1);
                 cacheService.saveInCache(cache, cacheKey, roomDetailsDtoV1s, LOG_PREFIX);
@@ -159,14 +159,15 @@ public class RoomService implements IRoomService {
         String LOG_PREFIX = "addRoom";
         Long cinemaId = roomManageDtoV1.getCinemaId();
 
-        log.info("{} :: Evicting 'cinema_rooms' cache. Saving new room: {}", LOG_PREFIX, roomManageDtoV1);
+        log.info("{} :: Evicting cache 'cinema_rooms' (all entries) and 'cinemas' (all entries). Saving new room: {}",
+                LOG_PREFIX, roomManageDtoV1);
 
         Cinema cinema = findCinemaById(cinemaId, LOG_PREFIX);
 
         Room room = RoomMapper.fromManageDtoV1ToRoom(roomManageDtoV1, cinema);
         Room savedRoom = roomRepository.save(room);
 
-        log.info("{} :: Saved room: {}.", LOG_PREFIX, savedRoom);
+        log.info("{} :: Successfully saved room with ID={}. Room details: {}", LOG_PREFIX, savedRoom.getId(), savedRoom);
 
         return RoomMapper.fromRoomToDetailsDtoV1(savedRoom);
     }
@@ -188,17 +189,19 @@ public class RoomService implements IRoomService {
     public RoomDetailsDtoV1 editRoom(@Valid RoomManageDtoV2 roomManageDtoV2, Long roomId) {
         String LOG_PREFIX = "editRoom";
 
-        log.info("{} :: Evicting cache 'cinema_rooms' and 'room' with the key of 'room_{}'", LOG_PREFIX,  roomId);
-        log.info("{} :: Editing room with the id of {} and data of {}.", LOG_PREFIX, roomId, roomManageDtoV2);
+        log.info("{} :: Evicting cache 'cinema_rooms' (all entries) and 'room' with key 'room_{}'.",
+                LOG_PREFIX, roomId);
+        log.info("{} :: Editing room with ID={} and data: {}", LOG_PREFIX, roomId, roomManageDtoV2);
 
         Room room = findRoomById(roomId, LOG_PREFIX);
-        log.info("{} :: Room found with the id of {}.", LOG_PREFIX, roomId);
+        log.info("{} :: Room found with ID={}. Room details: {}", LOG_PREFIX, roomId, room);
 
         room.setName(roomManageDtoV2.getName());
         room.setTotalSeat(roomManageDtoV2.getTotalSeat());
 
         Room savedRoom = roomRepository.save(room);
-        log.info("{} :: Saved room: {}", LOG_PREFIX, savedRoom);
+        log.info("{} :: Successfully updated room with ID={}. Updated room details: {}",
+                LOG_PREFIX, savedRoom.getId(), savedRoom);
 
         return RoomMapper.fromRoomToDetailsDtoV1(room);
     }
@@ -220,13 +223,15 @@ public class RoomService implements IRoomService {
     public void deleteRoom(Long roomId) {
         String LOG_PREFIX = "deleteRoom";
 
-        log.info("{} :: Evicting cache 'cinema_rooms' and 'room' with the key of 'room_{}'", LOG_PREFIX, roomId);
-        log.info("{} :: Deleting room with the id of {}.", LOG_PREFIX, roomId);
+        log.info("{} :: Evicting cache 'cinema_rooms' (all entries) and 'room' with key 'room_{}'.",
+                LOG_PREFIX, roomId);
+        log.info("{} :: Deleting room with ID={}.", LOG_PREFIX, roomId);
 
         Room room = findRoomById(roomId, LOG_PREFIX);
-        log.info("{} :: Room found with the id of {} and data of {}.", LOG_PREFIX, roomId, room);
+        log.info("{} :: Room found with ID={}. Room details: {}", LOG_PREFIX, roomId, room);
 
         roomRepository.delete(room);
+        log.info("{} :: Room with ID={} has been successfully deleted.", LOG_PREFIX, roomId);
     }
 
     private void failedAcquireLock(String LOG_PREFIX, String cacheKey) {
