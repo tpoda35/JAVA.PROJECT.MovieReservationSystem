@@ -1,5 +1,6 @@
 package com.moviereservationapi.reservation.controller;
 
+import com.moviereservationapi.reservation.dto.reservation.ReservationDetailsDtoV3;
 import com.moviereservationapi.reservation.service.IReservationSeatFeignService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +26,11 @@ public class FeignReservationSeatController {
         return reservationSeatFeignService.findReservedSeatIdsByShowtimeId(showtimeId);
     }
 
-    @GetMapping("/findSeatIdsByReservationId/{reservationId}")
-    public List<Long> findSeatIdsByReservationId(
+    @GetMapping("/findSeatIdsAndShowtimeIdByReservationId/{reservationId}")
+    public ReservationDetailsDtoV3 findSeatIdsAndShowtimeIdByReservationId(
             @PathVariable("reservationId") Long reservationId
     ) {
-        return reservationSeatFeignService.findSeatIdsByReservationId(reservationId);
+        return reservationSeatFeignService.findSeatIdsAndShowtimeIdByReservationId(reservationId);
     }
 
 }
