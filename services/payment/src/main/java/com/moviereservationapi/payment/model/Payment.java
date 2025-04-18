@@ -34,6 +34,8 @@ public class Payment {
     @ToString.Exclude
     private List<Long> seatIds = new ArrayList<>();
 
+    private Long userId;
+
     private LocalDateTime createdAt;
 
     @PrePersist
