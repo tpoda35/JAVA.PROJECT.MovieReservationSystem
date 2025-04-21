@@ -15,12 +15,22 @@ spring:
       hibernate:
         format_sql: true
     database: postgresql
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+    template:
+      default-topic: payment-notification-topic
 
 server:
   port: 8095
 
 apiKey:
   stripeKey: yourStripeApiKey
+  testSecret: yourStripeCliKey
 
 payment:
   unit_amount: 1000
