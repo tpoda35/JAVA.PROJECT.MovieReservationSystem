@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .email-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333333;
+        }
+        .email-body {
+            font-size: 16px;
+            color: #555555;
+        }
+        .email-footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999999;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <div class="email-header">Hello, {{name}}!</div>
+    <div class="email-body">
+        <p>Thanks for using our service. We're excited to have you with us!</p>
+        <p>If you have any questions, feel free to reply to this email.</p>
+    </div>
+    <div class="email-footer">
+        &copy; 2025 Your Company. All rights reserved.
+    </div>
+</div>
+</body>
+</html>
