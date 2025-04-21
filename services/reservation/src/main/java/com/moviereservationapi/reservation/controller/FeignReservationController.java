@@ -60,4 +60,13 @@ public class FeignReservationController {
         return reservationFeignService.getPaymentDataByReservationId(reservationId);
     }
 
+    @PostMapping("/getUserEmailByUserId/{userId}")
+    public String getUserEmailByUserId(
+            @PathVariable("userId") Long userId
+    ) {
+        log.info("(Feign call) Getting user email with the userId of {}.", userId);
+
+        return reservationFeignService.getUserEmailByUserId(userId);
+    }
+
 }
