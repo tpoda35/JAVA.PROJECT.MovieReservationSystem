@@ -1,4 +1,17 @@
+#The mail part must be here, because Spring Boot won't autoconfig the JavaMailSender.
+
 spring:
+  mail:
+    host: smtp.ethereal.email
+    port: 587
+    username: arch.ratke@ethereal.email
+    password: 8ZymGaXkzqPxrcRdke
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   application:
     name: notification-service
   config:
