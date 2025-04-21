@@ -1,7 +1,7 @@
 package com.moviereservationapi.notification.service;
 
+import com.moviereservationapi.notification.dto.payment.PaymentEvent;
+
 public interface INotificationDetailsService {
-
-    void sendEmail(String email);
-
+    void handlePaymentNotification(PaymentEvent paymentEvent);
 }
