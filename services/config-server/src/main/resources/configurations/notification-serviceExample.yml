@@ -1,4 +1,5 @@
 # Rename this to "notification-service.yml"!
+# Fill your own data where you see "your...".
 
 spring:
     data:
@@ -7,6 +8,18 @@ spring:
         port: 27017
         database: notification
         authentication-database: admin
+    kafka:
+      bootstrap-servers: localhost:9092
+      consumer:
+        group-id: notification-group
+        auto-offset-reset: earliest
+        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+        properties:
+          spring.json.use.type.headers: false
+          spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+          spring.json.trusted.packages: 'com.moviereservationapi.notification.dto.payment'
+          spring.json.value.default.type: 'com.moviereservationapi.notification.dto.payment.PaymentEvent'
 
 server:
   port: 8094
