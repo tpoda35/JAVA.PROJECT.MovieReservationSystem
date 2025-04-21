@@ -1,9 +1,11 @@
 package com.moviereservationapi.payment.service.impl;
 
+import com.moviereservationapi.payment.dto.payment.PaymentEvent;
 import com.moviereservationapi.payment.exception.PaymentException;
 import com.moviereservationapi.payment.feign.ReservationClient;
 import com.moviereservationapi.payment.model.Payment;
 import com.moviereservationapi.payment.repository.PaymentRepository;
+import com.moviereservationapi.payment.service.IPaymentPublisher;
 import com.moviereservationapi.payment.service.IWebhookService;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
@@ -24,10 +26,12 @@ import java.util.List;
 @Slf4j
 public class WebhookService implements IWebhookService {
 
-    @Value("${apiKey.testSecret}")
-    private String endpointSecret;
     private final PaymentRepository paymentRepository;
     private final ReservationClient reservationClient;
+    private final IPaymentPublisher paymentPublisher;
+
+    @Value("${apiKey.testSecret}")
+    private String endpointSecret;
 
     @Override
     @Transactional
@@ -97,6 +101,16 @@ public class WebhookService implements IWebhookService {
                     paymentRepository.save(payment);
 
                     log.info("(Stripe Webhook) Saved new payment: {}.", payment);
+
+                    paymentPublisher.publishPaymentSuccess(
+                            PaymentEvent.builder()
+                                    .showtimeId(showtimeId)
+                                    .seatIds(seatIds)
+                                    .userId(userId)
+                                    .build()
+                    );
+
+                    log.info("(Stripe Webhook) Published PaymentEvent.");
                 } else {
                     log.warn("(Stripe Webhook) Failed payment.");
                     reservationClient.changeStatusToFailed(reservationId);
