@@ -1,6 +1,8 @@
 package com.moviereservationapi.reservation.exception;
 
 import com.moviereservationapi.reservation.dto.exception.CustomExceptionDto;
+import feign.FeignException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -12,6 +14,32 @@ import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<CustomExceptionDto> handleFeignStatusException(FeignException ex) {
+        HttpStatus status = HttpStatus.valueOf(ex.status());
+
+        return ResponseEntity.status(status).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        status.value()
+                )
+        );
+    }
+
+    @ExceptionHandler(AlreadyPaidException.class)
+    public ResponseEntity<CustomExceptionDto> handleAlreadyPaidException(
+            AlreadyPaidException ex
+    ) {
+        return ResponseEntity.status(BAD_REQUEST).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        BAD_REQUEST.value()
+                )
+        );
+    }
 
     @ExceptionHandler(LockAcquisitionException.class)
     public ResponseEntity<CustomExceptionDto> handleLockAcquisitionException(
