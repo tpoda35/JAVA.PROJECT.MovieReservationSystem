@@ -1,0 +1,1 @@
+- ReservationCreateDto -> List validation problems, seatIds can be null.
