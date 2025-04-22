@@ -55,7 +55,7 @@ public class PaymentService implements IPaymentService {
     public StripeResponse checkout(Long reservationId, String currency) {
         String LOG_PREFIX = "checkout";
 
-        ReservationPayment reservationData = reservationClient.getPaymentDataByReservationId(reservationId);
+        ReservationPayment reservationData = reservationClient.checkPaidAndGetPaymentDataByReservationId(reservationId);
         Long showtimeId = reservationData.getShowtimeId();
         List<Long> seatIds = reservationData.getSeatIds();
         Long userId = reservationData.getUserId();
