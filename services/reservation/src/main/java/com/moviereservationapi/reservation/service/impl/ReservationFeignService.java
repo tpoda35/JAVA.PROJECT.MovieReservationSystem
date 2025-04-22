@@ -1,6 +1,7 @@
 package com.moviereservationapi.reservation.service.impl;
 
 import com.moviereservationapi.reservation.dto.reservation.ReservationPayment;
+import com.moviereservationapi.reservation.exception.AlreadyPaidException;
 import com.moviereservationapi.reservation.exception.ReservationNotFoundException;
 import com.moviereservationapi.reservation.exception.UserNotFoundException;
 import com.moviereservationapi.reservation.model.Reservation;
@@ -57,8 +58,13 @@ public class ReservationFeignService implements IReservationFeignService {
     // Mapper can be used, but problems came up with the lazy loaded data.
     @Override
     @Transactional
-    public ReservationPayment getPaymentDataByReservationId(Long reservationId) {
+    public ReservationPayment checkPaidAndGetPaymentDataByReservationId(Long reservationId) {
         Reservation reservation = findReservationById(reservationId);
+
+        if (reservation.getPaymentStatus() == PAID) {
+            log.info("(Feign call) Reservation with the id of {} is already paid.", reservationId);
+            throw new AlreadyPaidException("Reservation already paid.");
+        }
 
         return ReservationPayment.builder()
                 .seatIds(reservation.getReservationSeats().stream().map(ReservationSeat::getSeatId).toList())
