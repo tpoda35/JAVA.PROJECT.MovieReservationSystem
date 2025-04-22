@@ -1,0 +1,5 @@
+- Added check to payment, when it is already paid it throws an exception. (ReservationService)
+- Added feign exception handling to all the GlobalExceptionHandlers.
+- Configured gateway.
+
+
