@@ -51,13 +51,13 @@ public class FeignReservationController {
     }
 
     // Post mapping, because of data safety.
-    @PostMapping("/getPaymentDataByReservationId/{reservationId}")
-    public ReservationPayment getPaymentDataByReservationId(
+    @PostMapping("/checkPaidAndGetPaymentDataByReservationId/{reservationId}")
+    public ReservationPayment checkPaidAndGetPaymentDataByReservationId(
             @PathVariable("reservationId") Long reservationId
     ) {
         log.info("(Feign call) Getting payment data with reservationId of {}.", reservationId);
 
-        return reservationFeignService.getPaymentDataByReservationId(reservationId);
+        return reservationFeignService.checkPaidAndGetPaymentDataByReservationId(reservationId);
     }
 
     @PostMapping("/getUserEmailByUserId/{userId}")
