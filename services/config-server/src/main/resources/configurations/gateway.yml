@@ -1,0 +1,35 @@
+server:
+  port: 8765
+
+Spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: movie-service
+          uri: lb://movie-service
+          predicates:
+            - Path=/api/movies/**
+
+        - id: cinema-service
+          uri: lb://cinema-service
+          predicates:
+            - Path=/api/cinemas/**, /api/rooms/**, /api/seats/**
+
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+
+        - id: reservation-service
+          uri: lb://reservation-service
+          predicates:
+            - Path=/api/reservations/**
+
+        - id: showtime-service
+          uri: lb://showtime-service
+          predicates:
+            - Path=/api/showtimes/**
