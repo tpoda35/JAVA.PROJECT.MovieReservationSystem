@@ -7,6 +7,6 @@ public interface IReservationFeignService {
     void changeStatusToPaid(Long reservationId);
     void changeStatusToFailed(Long reservationId);
     void changeStatusToUnder_Payment(Long reservationId);
-    ReservationPayment getPaymentDataByReservationId(Long reservationId);
+    ReservationPayment checkPaidAndGetPaymentDataByReservationId(Long reservationId);
     String getUserEmailByUserId(Long userId);
 }
