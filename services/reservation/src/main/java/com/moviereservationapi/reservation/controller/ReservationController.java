@@ -36,25 +36,6 @@ public class ReservationController {
         return ResponseEntity.created(location).body(savedReservation);
     }
 
-    @GetMapping("/{reservationId}")
-    public CompletableFuture<ReservationDetailsDtoV1> getReservation(
-            @PathVariable("reservationId") Long reservationId
-    ) {
-        log.info("getReservation :: Called endpoint. (reservationId: {})", reservationId);
-
-        return reservationService.getReservation(reservationId);
-    }
-
-    @DeleteMapping("/{reservationId}")
-    public ResponseEntity<Void> deleteReservation(
-            @PathVariable("reservationId") Long reservationId
-    ) {
-        log.info("deleteReservation :: Called endpoint. (reservationId: {})", reservationId);
-
-        reservationService.deleteReservation(reservationId);
-        return ResponseEntity.status(NO_CONTENT).build();
-    }
-
     @GetMapping("/user/{userId}")
     public CompletableFuture<Page<ReservationDetailsDtoV2>> getUserReservations(
             @PathVariable("userId") Long userId,

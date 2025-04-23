@@ -40,42 +40,4 @@ public class MovieController {
 
         return movieService.getMovie(movieId);
     }
-
-    // Role required endpoint
-    @PostMapping
-    public ResponseEntity<MovieDto> addMovie(
-            @RequestBody @Valid MovieManageDto movieManageDto
-    ) {
-        log.info("addMovie :: Called endpoint. (movieManageDto:{})", movieManageDto);
-
-        MovieDto savedMovie = movieService.addMovie(movieManageDto);
-        URI location = URI.create("/movies/" + savedMovie.getId());
-
-        return ResponseEntity.created(location).body(savedMovie);
-    }
-
-    // Role required endpoint
-    @PutMapping("/{movieId}")
-    public MovieDto editMovie(
-            @PathVariable("movieId") Long movieId,
-            @RequestBody @Valid MovieManageDto movieManageDto
-    ) {
-        log.info("editMovie :: Called endpoint. (movieManageDto:{}, movieId:{})",
-                movieManageDto, movieId
-        );
-
-        return movieService.editMovie(movieId, movieManageDto);
-    }
-
-    // Role required endpoint
-    @DeleteMapping("/{movieId}")
-    public ResponseEntity<Void> deleteMovie(
-            @PathVariable("movieId") Long movieId
-    ) {
-        log.info("deleteMovie :: Called endpoint. (movieId:{})", movieId);
-        movieService.deleteMovie(movieId);
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
 }

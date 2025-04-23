@@ -42,18 +42,6 @@ public class ShowtimeController {
         return showtimeService.getShowtime(showtimeId);
     }
 
-    @PostMapping
-    public ResponseEntity<ShowtimeDetailsDtoV1> addShowtime(
-            @RequestBody @Valid ShowtimeCreateDto showtimeCreateDto
-    ) {
-        log.info("addShowtime :: Called endpoint. (showtimeManageDto:{})", showtimeCreateDto);
-
-        ShowtimeDetailsDtoV1 savedShowtime = showtimeService.addShowtime(showtimeCreateDto);
-        URI location = URI.create("/showtimes/" + savedShowtime.getId());
-
-        return ResponseEntity.created(location).body(savedShowtime);
-    }
-
     @GetMapping("/movie/{movieId}")
     public CompletableFuture<Page<ShowtimeDetailsDtoV1>> getShowtimesByMovie(
             @RequestParam(defaultValue = "0") Integer pageNum,
@@ -72,16 +60,6 @@ public class ShowtimeController {
         log.info("getSeatsByShowtime :: Called endpoint. (showtimeId:{})", showtimeId);
 
         return showtimeService.getSeatsByShowtime(showtimeId);
-    }
-
-    @DeleteMapping("/{showtimeId}")
-    public ResponseEntity<Void> deleteShowtime(
-        @PathVariable("showtimeId") Long showtimeId
-    ) {
-        log.info("deleteShowtime :: Called endpoint. (showtimeId:{})", showtimeId);
-        showtimeService.deleteShowtime(showtimeId);
-
-        return ResponseEntity.noContent().build();
     }
 
 }
