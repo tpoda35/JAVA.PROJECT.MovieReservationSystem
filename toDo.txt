@@ -1,1 +1,3 @@
 - ReservationCreateDto -> List validation problems, seatIds can be null.
+- deleteReservation endpoint -> Check if user has that reservation and put it to "user" controller.
+- Remove the userIds from the json objects and get the user from the auth obj (From a standalone user service).
