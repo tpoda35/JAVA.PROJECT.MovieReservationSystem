@@ -1,0 +1,43 @@
+server:
+  port: 8765
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/movie-app
+          jwk-set-uri: http://localhost:8080/realms/movie-app/protocol/openid-connect/certs
+#http://localhost:8080/realms/movie-app/protocol/openid-connect/auth?client_id=movie-api&response_type=code
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: movie-service
+          uri: lb://movie-service
+          predicates:
+            - Path=/api/movies/**
+
+        - id: cinema-service
+          uri: lb://cinema-service
+          predicates:
+            - Path=/api/cinemas/**, /api/rooms/**, /api/seats/**
+
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+
+        - id: reservation-service
+          uri: lb://reservation-service
+          predicates:
+            - Path=/api/reservations/**
+
+        - id: showtime-service
+          uri: lb://showtime-service
+          predicates:
+            - Path=/api/showtimes/**
