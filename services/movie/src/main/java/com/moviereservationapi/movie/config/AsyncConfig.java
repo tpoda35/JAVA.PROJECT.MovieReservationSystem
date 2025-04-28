@@ -3,12 +3,15 @@ package com.moviereservationapi.movie.config;
 import com.moviereservationapi.movie.exception.GlobalExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 
 import java.util.concurrent.Executor;
 
 @RequiredArgsConstructor
+@Configuration
 public class AsyncConfig implements AsyncConfigurer {
 
     private final GlobalExceptionHandler exceptionHandler;
@@ -21,7 +24,8 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.setMaxPoolSize(4);
         executor.setThreadNamePrefix("AsyncThread-");
         executor.initialize();
-        return executor;
+
+        return new DelegatingSecurityContextAsyncTaskExecutor(executor);
     }
 
     @Override
