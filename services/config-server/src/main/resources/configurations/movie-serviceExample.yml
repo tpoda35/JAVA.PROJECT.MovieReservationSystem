@@ -2,6 +2,12 @@
 # Fill your own data where you see "your...".
 
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/movie-app
+
   datasource:
     url: jdbc:postgresql://localhost:5432/yourdb
     username: yourusername
@@ -15,12 +21,6 @@ spring:
       hibernate:
         format_sql: true
     database: postgresql
-  #  data:
-  #    mongodb:
-  #      host: localhost
-  #      port: 27017
-  #      database: movie
-  #      authentication-database: admin
 
 server:
   port: 8090
