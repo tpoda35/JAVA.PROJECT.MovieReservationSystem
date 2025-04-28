@@ -7,7 +7,6 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/realms/movie-app
-          jwk-set-uri: http://localhost:8080/realms/movie-app/protocol/openid-connect/certs
 #http://localhost:8080/realms/movie-app/protocol/openid-connect/auth?client_id=movie-api&response_type=code
 
   cloud:
@@ -20,7 +19,7 @@ spring:
         - id: movie-service
           uri: lb://movie-service
           predicates:
-            - Path=/api/movies/**
+            - Path=/api/movies/**, /api/admin/movies/**
 
         - id: cinema-service
           uri: lb://cinema-service
