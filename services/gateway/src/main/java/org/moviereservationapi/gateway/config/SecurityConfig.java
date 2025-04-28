@@ -1,4 +1,4 @@
-package org.moviereservationapi.gateway.security;
+package org.moviereservationapi.gateway.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,7 @@ import java.util.Map;
 
 @Configuration
 @EnableWebFluxSecurity
-public class GatewaySecurityConfig {
+public class SecurityConfig {
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
