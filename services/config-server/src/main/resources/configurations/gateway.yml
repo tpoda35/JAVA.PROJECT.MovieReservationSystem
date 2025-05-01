@@ -24,7 +24,7 @@ spring:
         - id: cinema-service
           uri: lb://cinema-service
           predicates:
-            - Path=/api/cinemas/**, /api/rooms/**, /api/seats/**
+            - Path=/api/cinemas/**, /api/admin/cinemas/**, /api/rooms/**, /api/admin/rooms/**, /api/seats/**, /api/admin/seats/**
 
         - id: payment-service
           uri: lb://payment-service
@@ -34,9 +34,9 @@ spring:
         - id: reservation-service
           uri: lb://reservation-service
           predicates:
-            - Path=/api/reservations/**
+            - Path=/api/reservations/**, /api/admin/reservations/**
 
         - id: showtime-service
           uri: lb://showtime-service
           predicates:
-            - Path=/api/showtimes/**
+            - Path=/api/showtimes/**, /api/admin/showtimes/**
