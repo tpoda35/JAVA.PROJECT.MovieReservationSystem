@@ -36,7 +36,7 @@ public class EmailService implements IEmailService {
             log.info("{} :: Email sent to email: {}, with the subject of: {}.", LOG_PREFIX, toEmail, subject);
         } catch (MessagingException e) {
             log.info("{} :: Email failed to email: {}, with the subject of: {}.", LOG_PREFIX, toEmail, subject);
-            throw new RuntimeException("Failed to send email", e);
+            throw new RuntimeException("Failed to send email", e); // Add custom exc.
         }
     }
 }
