@@ -20,7 +20,6 @@
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/services/discovery-service/pom.xml" />
-        <option value="$PROJECT_DIR$/services/user/pom.xml" />
       </set>
     </option>
   </component>
