@@ -92,7 +92,7 @@ public class ReservationService implements IReservationService {
         }
 
         Reservation reservation = new Reservation();
-        reservation.setUser(user);
+        reservation.setUser(user); // change
         reservation.setShowtimeId(showtimeId);
         reservation.setPaymentStatus(PENDING);
 
