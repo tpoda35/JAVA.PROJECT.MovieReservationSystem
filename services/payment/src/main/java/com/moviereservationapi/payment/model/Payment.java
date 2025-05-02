@@ -34,7 +34,9 @@ public class Payment {
     @ToString.Exclude
     private List<Long> seatIds = new ArrayList<>();
 
-    private Long userId;
+    private String userId;
+
+    private String userMail;
 
     private LocalDateTime createdAt;
 
