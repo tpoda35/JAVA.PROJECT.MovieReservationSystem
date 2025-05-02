@@ -65,23 +65,28 @@ public class WebhookService implements IWebhookService {
                 String reservationIdStr = session.getMetadata().get("reservationId");
                 String seatIdsStr = session.getMetadata().get("seatIds");
                 String showtimeIdStr = session.getMetadata().get("showtimeId");
-                String userIdStr = session.getMetadata().get("userId");
+                String userId = session.getMetadata().get("userId");
+                String email = session.getMetadata().get("email");
 
-                if (reservationIdStr == null || seatIdsStr == null || showtimeIdStr == null) {
-                    log.error("(Stripe Webhook) Missing metadata. reservationIdStr: {}, seatIdsStr: {}, showtimeIdStr: {}.",
-                            reservationIdStr, seatIdsStr, showtimeIdStr);
+                if (
+                        reservationIdStr == null ||
+                                seatIdsStr == null ||
+                                showtimeIdStr == null ||
+                                userId == null ||
+                                email == null
+                ) {
+                    log.error("(Stripe Webhook) Missing metadata. reservationIdStr: {}, seatIdsStr: {}, showtimeIdStr: {}, userId: {}, email: {}.",
+                            reservationIdStr, seatIdsStr, showtimeIdStr, userId, email);
                     throw new PaymentException("Missing required metadata in Stripe session.");
                 }
 
                 Long reservationId;
                 List<Long> seatIds;
                 long showtimeId;
-                long userId;
                 try {
                     reservationId = Long.valueOf(reservationIdStr);
                     seatIds = parseSeatIdList(seatIdsStr);
                     showtimeId = Long.parseLong(showtimeIdStr);
-                    userId = Long.parseLong(userIdStr);
                 } catch (NumberFormatException e) {
                     log.error("(Stripe Webhook) Invalid metadata format.");
                     throw new PaymentException("Invalid metadata format in Stripe session.");
@@ -96,6 +101,7 @@ public class WebhookService implements IWebhookService {
                             .showtimeId(showtimeId)
                             .seatIds(seatIds)
                             .userId(userId)
+                            .userMail(email)
                             .build();
 
                     paymentRepository.save(payment);
@@ -107,6 +113,7 @@ public class WebhookService implements IWebhookService {
                                     .showtimeId(showtimeId)
                                     .seatIds(seatIds)
                                     .userId(userId)
+                                    .email(email)
                                     .build()
                     );
 
