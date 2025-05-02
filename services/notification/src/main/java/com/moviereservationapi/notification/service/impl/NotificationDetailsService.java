@@ -3,7 +3,6 @@ package com.moviereservationapi.notification.service.impl;
 import com.moviereservationapi.notification.dto.payment.PaymentEvent;
 import com.moviereservationapi.notification.email.HtmlEmailTemplates;
 import com.moviereservationapi.notification.exception.EmailSendingException;
-import com.moviereservationapi.notification.feign.ReservationClient;
 import com.moviereservationapi.notification.service.IEmailService;
 import com.moviereservationapi.notification.service.INotificationDetailsService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class NotificationDetailsService implements INotificationDetailsService {
 
-    private final ReservationClient reservationClient;
     private final IEmailService emailService;
 
     @Override
@@ -25,10 +23,9 @@ public class NotificationDetailsService implements INotificationDetailsService {
         String LOG_PREFIX = "handlePaymentNotification";
 
         String subject = "Payment Notification";
-        String toEmail;
+        String toEmail = paymentEvent.getEmail();
 
         try {
-            toEmail = reservationClient.getUserEmailByUserId(paymentEvent.getUserId());
             String htmlContent = HtmlEmailTemplates.getPaymentNotificationEmailTemplate(toEmail);
 
             emailService.sendEmail(toEmail, subject, htmlContent);
