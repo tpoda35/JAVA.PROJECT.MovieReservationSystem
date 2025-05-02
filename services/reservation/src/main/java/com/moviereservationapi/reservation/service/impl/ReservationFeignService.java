@@ -3,12 +3,10 @@ package com.moviereservationapi.reservation.service.impl;
 import com.moviereservationapi.reservation.dto.reservation.ReservationPayment;
 import com.moviereservationapi.reservation.exception.AlreadyPaidException;
 import com.moviereservationapi.reservation.exception.ReservationNotFoundException;
-import com.moviereservationapi.reservation.exception.UserNotFoundException;
+import com.moviereservationapi.reservation.feign.UserClient;
 import com.moviereservationapi.reservation.model.Reservation;
 import com.moviereservationapi.reservation.model.ReservationSeat;
-import com.moviereservationapi.reservation.model.User;
 import com.moviereservationapi.reservation.repository.ReservationRepository;
-import com.moviereservationapi.reservation.repository.UserRepository;
 import com.moviereservationapi.reservation.service.IReservationFeignService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +21,7 @@ import static com.moviereservationapi.reservation.Enum.PaymentStatus.*;
 public class ReservationFeignService implements IReservationFeignService {
 
     private final ReservationRepository reservationRepository;
-    private final UserRepository userRepository;
+    private final UserClient userClient;
 
     @Override
     @Transactional
@@ -55,7 +53,6 @@ public class ReservationFeignService implements IReservationFeignService {
         reservationRepository.save(reservation);
     }
 
-    // Mapper can be used, but problems came up with the lazy loaded data.
     @Override
     @Transactional
     public ReservationPayment checkPaidAndGetPaymentDataByReservationId(Long reservationId) {
@@ -69,13 +66,8 @@ public class ReservationFeignService implements IReservationFeignService {
         return ReservationPayment.builder()
                 .seatIds(reservation.getReservationSeats().stream().map(ReservationSeat::getSeatId).toList())
                 .showtimeId(reservation.getShowtimeId())
-                .userId(reservation.getUser().getId())
+                .userId(reservation.getUserId())
                 .build();
-    }
-
-    @Override
-    public String getUserEmailByUserId(Long userId) {
-        return findUserById(userId).getEmail();
     }
 
     private Reservation findReservationById(Long reservationId) {
@@ -83,14 +75,6 @@ public class ReservationFeignService implements IReservationFeignService {
                 .orElseThrow(() -> {
                     log.info("(Feign call) Reservation with the id of {} not found.", reservationId);
                     return new ReservationNotFoundException("Reservation not found.");
-                });
-    }
-
-    private User findUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.info("(Feign call) User with the id of {} not found.", userId);
-                    return new UserNotFoundException("User not found.");
                 });
     }
 
