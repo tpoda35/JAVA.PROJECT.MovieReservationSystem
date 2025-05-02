@@ -4,6 +4,7 @@ import com.moviereservationapi.payment.dto.payment.StripeResponse;
 import com.moviereservationapi.payment.dto.reservation.ReservationPayment;
 import com.moviereservationapi.payment.exception.PaymentException;
 import com.moviereservationapi.payment.feign.ReservationClient;
+import com.moviereservationapi.payment.feign.UserClient;
 import com.moviereservationapi.payment.service.IPaymentService;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -28,9 +29,11 @@ public class PaymentService implements IPaymentService {
     private final String cancelUrl;
 
     private final ReservationClient reservationClient;
+    private final UserClient userClient;
 
     public PaymentService(
             ReservationClient reservationClient,
+            UserClient userClient,
             @Value("${apiKey.stripeKey}") String stripeKey,
             @Value("${payment.default_currency}") String defaultCurrency,
             @Value("${payment.unit_amount}") long unitAmount,
@@ -38,6 +41,7 @@ public class PaymentService implements IPaymentService {
             @Value("${payment.cancel_url}") String cancelUrl
     ) {
         this.reservationClient = reservationClient;
+        this.userClient = userClient;
         this.stripeKey = stripeKey;
         this.defaultCurrency = defaultCurrency;
         this.unitAmount = unitAmount;
@@ -58,7 +62,8 @@ public class PaymentService implements IPaymentService {
         ReservationPayment reservationData = reservationClient.checkPaidAndGetPaymentDataByReservationId(reservationId);
         Long showtimeId = reservationData.getShowtimeId();
         List<Long> seatIds = reservationData.getSeatIds();
-        Long userId = reservationData.getUserId();
+        String userId = reservationData.getUserId();
+        String email = userClient.getLoggedInUser().getEmail();
         long seatCount = seatIds.size();
 
         String usedCurrency = (currency != null) ? currency : defaultCurrency;
@@ -90,6 +95,7 @@ public class PaymentService implements IPaymentService {
                 .putMetadata("seatIds", String.valueOf(seatIds))
                 .putMetadata("showtimeId", String.valueOf(showtimeId))
                 .putMetadata("userId", String.valueOf(userId))
+                .putMetadata("email", email)
                 .build();
 
         Session session;
