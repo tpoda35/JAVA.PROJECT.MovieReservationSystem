@@ -27,6 +27,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/api/payments/webhooks").permitAll()
                         .anyRequest().authenticated()
                 )
                 .securityContext(context -> context

@@ -27,6 +27,8 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
+                        // this is because of webhooks
+                        .requestMatchers("/api/reservations/feign/**").permitAll() // solve the protection later
                         .anyRequest().authenticated()
                 )
                 .securityContext(context -> context
