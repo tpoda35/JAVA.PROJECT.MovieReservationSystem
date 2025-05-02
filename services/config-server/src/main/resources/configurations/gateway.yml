@@ -40,3 +40,8 @@ spring:
           uri: lb://showtime-service
           predicates:
             - Path=/api/showtimes/**, /api/admin/showtimes/**
+
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
