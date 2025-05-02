@@ -17,9 +17,6 @@ public class ReservationCreateDto {
     @NotNull(message = "ShowtimeId field cannot be empty.")
     private Long showtimeId;
 
-    @NotNull(message = "UserId field cannot be empty.")
-    private Long userId;
-
     @NotNull(message = "SeatIds field is required.")
     private List<Long> seatIds;
 
