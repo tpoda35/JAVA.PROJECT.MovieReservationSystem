@@ -17,7 +17,7 @@ public class PaymentController {
     @PostMapping("/{reservationId}")
     public StripeResponse checkout(
         @PathVariable("reservationId") Long reservationId,
-        @RequestParam String currency
+        @RequestParam(defaultValue = "EUR") String currency
     ) {
         return paymentService.checkout(reservationId, currency);
     }
