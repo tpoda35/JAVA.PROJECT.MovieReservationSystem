@@ -9,13 +9,12 @@ import com.moviereservationapi.reservation.dto.reservation.ReservationResponseDt
 import com.moviereservationapi.reservation.exception.*;
 import com.moviereservationapi.reservation.feign.CinemaClient;
 import com.moviereservationapi.reservation.feign.ShowtimeClient;
+import com.moviereservationapi.reservation.feign.UserClient;
 import com.moviereservationapi.reservation.mapper.ReservationMapper;
 import com.moviereservationapi.reservation.model.Reservation;
 import com.moviereservationapi.reservation.model.ReservationSeat;
-import com.moviereservationapi.reservation.model.User;
 import com.moviereservationapi.reservation.repository.ReservationRepository;
 import com.moviereservationapi.reservation.repository.ReservationSeatRepository;
-import com.moviereservationapi.reservation.repository.UserRepository;
 import com.moviereservationapi.reservation.service.ICacheService;
 import com.moviereservationapi.reservation.service.IReservationService;
 import jakarta.transaction.Transactional;
@@ -48,9 +47,9 @@ public class ReservationService implements IReservationService {
 
     private final ReservationRepository reservationRepository;
     private final ReservationSeatRepository reservationSeatRepository;
-    private final UserRepository userRepository;
     private final ShowtimeClient showtimeClient;
     private final CinemaClient cinemaClient;
+    private final UserClient userClient;
     private final RedissonClient redissonClient;
     private final CacheManager cacheManager;
     private final ICacheService cacheService;
@@ -61,7 +60,7 @@ public class ReservationService implements IReservationService {
     public ReservationResponseDto addReservation(@Valid ReservationCreateDto reservationCreateDto) {
         String LOG_PREFIX = "addReservation";
 
-        Long userId = reservationCreateDto.getUserId();
+        String userId = userClient.getLoggedInUser().getId();
         Long showtimeId = reservationCreateDto.getShowtimeId();
         List<Long> seatIds = reservationCreateDto.getSeatIds();
         if (seatIds.isEmpty()) {
@@ -77,8 +76,6 @@ public class ReservationService implements IReservationService {
             throw new SeatAlreadyReservedException("Some seats are already taken.");
         }
 
-        User user = findUserById(userId, LOG_PREFIX);
-
         ShowtimeDto showtimeDto = showtimeClient.getShowtime(showtimeId);
         List<SeatDto> seatDtos = cinemaClient.getSeats(seatIds);
 
@@ -92,7 +89,7 @@ public class ReservationService implements IReservationService {
         }
 
         Reservation reservation = new Reservation();
-        reservation.setUser(user); // change
+        reservation.setUserId(userId);
         reservation.setShowtimeId(showtimeId);
         reservation.setPaymentStatus(PENDING);
 
@@ -106,7 +103,7 @@ public class ReservationService implements IReservationService {
 
         reservationRepository.save(reservation);
 
-        user.getReservations().add(reservation);
+        userClient.addReservationToUser(reservation.getId());
 
         return ReservationMapper.fromReservationToResponseDto(reservation, showtimeDto, seatDtos);
     }
@@ -253,14 +250,6 @@ public class ReservationService implements IReservationService {
                 .orElseThrow(() -> {
                     log.error("{} :: Reservation not found with id: {}", LOG_PREFIX, reservationId);
                     return new ReservationNotFoundException("Reservation not found with ID: " + reservationId);
-                });
-    }
-
-    private User findUserById(Long userId, String LOG_PREFIX) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.error("{} :: User not found with id: {}", LOG_PREFIX, userId);
-                    return new UserNotFoundException("User not found with ID: " + userId);
                 });
     }
 }
