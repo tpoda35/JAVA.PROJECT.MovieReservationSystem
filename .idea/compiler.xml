@@ -11,20 +11,6 @@
         <module name="discovery" />
         <module name="gateway" />
       </profile>
-      <profile name="Annotation profile for showtime" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
-        </processorPath>
-        <module name="reservation" />
-        <module name="notification" />
-        <module name="payment" />
-        <module name="cinema" />
-        <module name="movie" />
-        <module name="showtime" />
-      </profile>
       <profile name="Annotation profile for user" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -33,6 +19,20 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
         <module name="user" />
+      </profile>
+      <profile name="Annotation profile for notification" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+        </processorPath>
+        <module name="notification" />
+        <module name="reservation" />
+        <module name="payment" />
+        <module name="cinema" />
+        <module name="movie" />
+        <module name="showtime" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
