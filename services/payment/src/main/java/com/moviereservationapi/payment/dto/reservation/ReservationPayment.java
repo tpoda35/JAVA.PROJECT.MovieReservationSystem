@@ -16,6 +16,6 @@ public class ReservationPayment {
 
     private List<Long> seatIds = new ArrayList<>();
     private Long showtimeId;
-    private Long userId;
+    private String userId;
 
 }
