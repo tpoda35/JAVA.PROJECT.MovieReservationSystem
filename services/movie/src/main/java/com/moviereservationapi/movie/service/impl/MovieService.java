@@ -1,5 +1,6 @@
 package com.moviereservationapi.movie.service.impl;
 
+import com.moviereservationapi.movie.Enum.MovieGenre;
 import com.moviereservationapi.movie.dto.MovieDto;
 import com.moviereservationapi.movie.dto.MovieManageDto;
 import com.moviereservationapi.movie.exception.LockAcquisitionException;
@@ -21,12 +22,16 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,10 +45,25 @@ public class MovieService implements IMovieService {
 
     @Override
     @Async
-    public CompletableFuture<Page<MovieDto>> getMovies(int pageNum, int pageSize) {
+    public CompletableFuture<Page<MovieDto>> getMovies(
+            int pageNum,
+            int pageSize,
+            String title,
+            LocalDateTime releaseAfter,
+            Double durationGreaterThan,
+            MovieGenre movieGenre
+    ) {
         String LOG_PREFIX = "getMovies";
 
-        String cacheKey = String.format("movies_page_%d_size_%d", pageNum, pageSize);
+        String cacheKey = String.format(
+                "movies_page_%d_size_%d_name_%s_after_%s_longer_%s_genre_%s",
+                pageNum,
+                pageSize,
+                title != null ? title.toLowerCase().trim() : "any",
+                releaseAfter != null ? releaseAfter.toString() : "any",
+                durationGreaterThan != null ? durationGreaterThan : "any",
+                movieGenre != null ? movieGenre.name() : "any"
+        );
         Cache cache = cacheManager.getCache("movies");
 
         Page<MovieDto> movieDtos = cacheService.getCachedMoviePage(cache, cacheKey, LOG_PREFIX);
@@ -66,8 +86,21 @@ public class MovieService implements IMovieService {
                     throw new MovieNotFoundException("There's no movie found.");
                 }
 
+                List<Movie> filteredList = movies.stream()
+                        .filter(m -> title == null || m.getTitle().toLowerCase().contains(title.toLowerCase()))
+                        .filter(m -> releaseAfter == null || m.getReleaseDate().isAfter(releaseAfter))
+                        .filter(m -> durationGreaterThan == null || m.getDuration() > durationGreaterThan)
+                        .filter(m -> movieGenre == null || m.getMovieGenre() == movieGenre)
+                        .toList();
+
+                Page<Movie> filteredPage = new PageImpl<>(
+                        filteredList,
+                        PageRequest.of(pageNum, pageSize),
+                        filteredList.size()
+                );
+
                 log.info("{} :: Found {} movie(s). Caching data for key '{}'.", LOG_PREFIX, movies.getTotalElements(), cacheKey);
-                movieDtos = movies.map(MovieMapper::fromMovieToDto);
+                movieDtos = filteredPage.map(MovieMapper::fromMovieToDto);
 
                 cacheService.saveInCache(cache, cacheKey, movieDtos, LOG_PREFIX);
 

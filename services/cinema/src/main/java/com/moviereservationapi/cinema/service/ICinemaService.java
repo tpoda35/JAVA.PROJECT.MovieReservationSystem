@@ -8,7 +8,12 @@ import org.springframework.data.domain.Page;
 import java.util.concurrent.CompletableFuture;
 
 public interface ICinemaService {
-    CompletableFuture<Page<CinemaDetailsDtoV1>> getCinemas(int pageNum, int pageSize);
+    CompletableFuture<Page<CinemaDetailsDtoV1>> getCinemas(
+            int pageNum,
+            int pageSize,
+            String name,
+            String location
+    );
     CompletableFuture<CinemaDetailsDtoV1> getCinema(Long cinemaId);
     CinemaDetailsDtoV1 addCinema(CinemaManageDto cinemaManageDto);
     CinemaDetailsDtoV2 editCinema(CinemaManageDto cinemaManageDto, Long cinemaId);

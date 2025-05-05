@@ -20,11 +20,13 @@ public class CinemaController {
     @GetMapping
     public CompletableFuture<Page<CinemaDetailsDtoV1>> getCinemas(
             @RequestParam(defaultValue = "0") Integer pageNum,
-            @RequestParam(defaultValue = "10") Integer pageSize
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String location
     ) {
         log.info("getCinemas :: Called endpoint. (pageNum:{}, pageSize:{})", pageNum, pageSize);
 
-        return cinemaService.getCinemas(pageNum, pageSize);
+        return cinemaService.getCinemas(pageNum, pageSize, name, location);
     }
 
     @GetMapping("/{cinemaId}")

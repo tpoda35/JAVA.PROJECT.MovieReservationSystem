@@ -24,10 +24,12 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -47,9 +49,19 @@ public class ShowtimeService implements IShowtimeService {
 
     @Override
     @Async
-    public CompletableFuture<Page<ShowtimeDetailsDtoV1>> getShowtimes(int pageNum, int pageSize) {
+    public CompletableFuture<Page<ShowtimeDetailsDtoV1>> getShowtimes(
+            int pageNum,
+            int pageSize,
+            LocalDateTime startTime
+    ) {
         String LOG_PREFIX = "getShowtimes";
-        String cacheKey = String.format("showtimes_page_%d_size_%d", pageNum, pageSize);
+
+        String cacheKey = String.format(
+                "showtimes_page_%d_size_%d_start_%s",
+                pageNum,
+                pageSize,
+                startTime != null ? startTime.toString() : "any"
+        );
         Cache cache = cacheManager.getCache("showtimes");
 
         Page<ShowtimeDetailsDtoV1> showtimeDtos = cacheService.getCachedShowtimePage(cache, cacheKey, LOG_PREFIX);
@@ -69,7 +81,17 @@ public class ShowtimeService implements IShowtimeService {
                 Page<Showtime> showtimes = showtimeRepository.findAll(PageRequest.of(pageNum, pageSize));
                 checkIfIsEmpty(showtimes, LOG_PREFIX, cacheKey);
 
-                showtimeDtos = showtimes.map(ShowtimeMapper::fromShowtimeToDetailsDtoV1);
+                List<Showtime> filteredList = showtimes.stream()
+                        .filter(s -> startTime == null || s.getStartTime().isAfter(startTime))
+                        .toList();
+
+                Page<Showtime> filteredPage = new PageImpl<>(
+                        filteredList,
+                        PageRequest.of(pageNum, pageSize),
+                        filteredList.size()
+                );
+
+                showtimeDtos = filteredPage.map(ShowtimeMapper::fromShowtimeToDetailsDtoV1);
                 cacheService.saveInCache(cache, cacheKey , showtimeDtos, LOG_PREFIX);
 
                 return CompletableFuture.completedFuture(showtimeDtos);

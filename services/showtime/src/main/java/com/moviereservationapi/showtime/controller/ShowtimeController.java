@@ -2,16 +2,13 @@ package com.moviereservationapi.showtime.controller;
 
 import com.moviereservationapi.showtime.dto.seat.SeatAvailabilityDto;
 import com.moviereservationapi.showtime.dto.showtime.ShowtimeDetailsDtoV1;
-import com.moviereservationapi.showtime.dto.showtime.ShowtimeCreateDto;
 import com.moviereservationapi.showtime.service.IShowtimeService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -26,11 +23,12 @@ public class ShowtimeController {
     @GetMapping
     public CompletableFuture<Page<ShowtimeDetailsDtoV1>> getShowtimes(
             @RequestParam(defaultValue = "0") Integer pageNum,
-            @RequestParam(defaultValue = "10") Integer pageSize
-    ) {
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false) LocalDateTime startTime
+            ) {
         log.info("getShowtimes :: Called endpoint. (pageNum:{}, pageSize:{})", pageNum, pageSize);
 
-        return showtimeService.getShowtimes(pageNum, pageSize);
+        return showtimeService.getShowtimes(pageNum, pageSize, startTime);
     }
 
     @GetMapping("/{showtimeId}")

@@ -20,11 +20,13 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -41,8 +43,19 @@ public class CinemaService implements ICinemaService {
 
     @Override
     @Async
-    public CompletableFuture<Page<CinemaDetailsDtoV1>> getCinemas(int pageNum, int pageSize) {
-        String cacheKey = String.format("cinemas_page_%d_size_%d", pageNum, pageSize);
+    public CompletableFuture<Page<CinemaDetailsDtoV1>> getCinemas(
+            int pageNum,
+            int pageSize,
+            String name,
+            String location
+    ) {
+        String cacheKey = String.format(
+                "cinemas_page_%d_size_%d_name_%s_location_%s",
+                pageNum,
+                pageSize,
+                name != null ? name.toLowerCase().trim() : "any",
+                location != null ? location.toLowerCase().trim() : "any"
+        );
         Cache cache = cacheManager.getCache("cinemas");
         String LOG_PREFIX = "getCinemas";
 
@@ -67,10 +80,21 @@ public class CinemaService implements ICinemaService {
                         throw new CinemaNotFoundException("There's no cinema found.");
                     }
 
+                    List<Cinema> filteredList = cinemas.stream()
+                            .filter(c -> name == null || c.getName().toLowerCase().contains(name.toLowerCase().trim()))
+                            .filter(c -> location == null || c.getLocation().toLowerCase().contains(location.toLowerCase().trim()))
+                            .toList();
+
+                    Page<Cinema> filteredPage = new PageImpl<>(
+                            filteredList,
+                            PageRequest.of(pageNum, pageSize),
+                            filteredList.size()
+                    );
+
                     log.info("{} :: Found {} cinema(s). Caching data for key '{}'. pageNum={}, pageSize={}.",
                             LOG_PREFIX, cinemas.getTotalElements(), cacheKey, pageNum, pageSize);
 
-                    return cinemas.map(CinemaMapper::fromCinemaToDetailsDtoV1);
+                    return filteredPage.map(CinemaMapper::fromCinemaToDetailsDtoV1);
                 });
 
                 cacheService.saveInCache(cache, cacheKey, cinemaDetailsDtos, LOG_PREFIX);

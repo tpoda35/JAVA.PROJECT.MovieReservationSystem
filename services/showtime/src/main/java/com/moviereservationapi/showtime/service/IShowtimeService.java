@@ -5,11 +5,12 @@ import com.moviereservationapi.showtime.dto.showtime.ShowtimeCreateDto;
 import com.moviereservationapi.showtime.dto.showtime.ShowtimeDetailsDtoV1;
 import org.springframework.data.domain.Page;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface IShowtimeService {
-    CompletableFuture<Page<ShowtimeDetailsDtoV1>> getShowtimes(int pageNum, int pageSize);
+    CompletableFuture<Page<ShowtimeDetailsDtoV1>> getShowtimes(int pageNum, int pageSize, LocalDateTime startTime);
     CompletableFuture<ShowtimeDetailsDtoV1> getShowtime(Long showtimeId);
     ShowtimeDetailsDtoV1 addShowtime(ShowtimeCreateDto showtimeCreateDto);
     CompletableFuture<Page<ShowtimeDetailsDtoV1>> getShowtimesByMovie(Long movieId, int pageNum, int pageSize);
