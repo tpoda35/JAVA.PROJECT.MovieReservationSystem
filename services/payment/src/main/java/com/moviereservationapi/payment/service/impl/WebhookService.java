@@ -104,12 +104,13 @@ public class WebhookService implements IWebhookService {
                             .userMail(email)
                             .build();
 
-                    paymentRepository.save(payment);
+                    Payment savedPayment = paymentRepository.save(payment);
 
                     log.info("(Stripe Webhook) Saved new payment: {}.", payment);
 
                     paymentPublisher.publishPaymentSuccess(
                             PaymentEvent.builder()
+                                    .id(savedPayment.getId())
                                     .showtimeId(showtimeId)
                                     .seatIds(seatIds)
                                     .userId(userId)
