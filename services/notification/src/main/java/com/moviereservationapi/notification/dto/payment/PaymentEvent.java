@@ -18,7 +18,7 @@ public class PaymentEvent {
     private Long id;
     private Long showtimeId;
     private List<Long> seatIds = new ArrayList<>();
-    private Long userId;
+    private String userId;
     private String email;
     private LocalDateTime createdAt;
 
