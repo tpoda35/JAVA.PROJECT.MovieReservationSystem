@@ -22,14 +22,14 @@ public class Movie {
     @GeneratedValue
     private Long id;
 
-    @NotNull(message = "Movie title cannot be null.")
+    @NotNull(message = "Movie title cannot be empty.")
     @Length(min = 1, max = 100, message = "Movie name must be between 1 and 100 characters.")
     private String title;
 
-    @NotNull(message = "Movie duration cannot be null.")
+    @NotNull(message = "Movie duration cannot be empty.")
     private Double duration;
 
-    @NotNull(message = "Movie release cannot be null.")
+    @NotNull(message = "Movie release cannot be empty.")
     private LocalDateTime releaseDate;
 
     @Enumerated(EnumType.STRING)
