@@ -90,6 +90,7 @@ public class PaymentService implements IPaymentService {
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl(successUrl)
                 .setCancelUrl(cancelUrl)
+                .setExpiresAt((System.currentTimeMillis() / 1000L) + 15 * 60)
                 .addLineItem(lineItem)
                 .putMetadata("reservationId", String.valueOf(reservationId))
                 .putMetadata("seatIds", String.valueOf(seatIds))
