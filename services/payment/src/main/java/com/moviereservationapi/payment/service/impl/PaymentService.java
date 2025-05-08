@@ -4,7 +4,7 @@ import com.moviereservationapi.payment.dto.payment.StripeResponse;
 import com.moviereservationapi.payment.dto.reservation.ReservationPayment;
 import com.moviereservationapi.payment.exception.PaymentException;
 import com.moviereservationapi.payment.feign.ReservationClient;
-import com.moviereservationapi.payment.feign.UserClient;
+import com.moviereservationapi.payment.service.IJwtService;
 import com.moviereservationapi.payment.service.IPaymentService;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -29,11 +29,11 @@ public class PaymentService implements IPaymentService {
     private final String cancelUrl;
 
     private final ReservationClient reservationClient;
-    private final UserClient userClient;
+    private final IJwtService jwtService;
 
     public PaymentService(
             ReservationClient reservationClient,
-            UserClient userClient,
+            IJwtService jwtService,
             @Value("${apiKey.stripeKey}") String stripeKey,
             @Value("${payment.default_currency}") String defaultCurrency,
             @Value("${payment.unit_amount}") long unitAmount,
@@ -41,7 +41,7 @@ public class PaymentService implements IPaymentService {
             @Value("${payment.cancel_url}") String cancelUrl
     ) {
         this.reservationClient = reservationClient;
-        this.userClient = userClient;
+        this.jwtService = jwtService;
         this.stripeKey = stripeKey;
         this.defaultCurrency = defaultCurrency;
         this.unitAmount = unitAmount;
@@ -63,7 +63,7 @@ public class PaymentService implements IPaymentService {
         Long showtimeId = reservationData.getShowtimeId();
         List<Long> seatIds = reservationData.getSeatIds();
         String userId = reservationData.getUserId();
-        String email = userClient.getLoggedInUser().getEmail();
+        String email = jwtService.getLoggedInUserEmailFromJwt();
         long seatCount = seatIds.size();
 
         String usedCurrency = (currency != null) ? currency : defaultCurrency;
@@ -90,7 +90,7 @@ public class PaymentService implements IPaymentService {
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl(successUrl)
                 .setCancelUrl(cancelUrl)
-                .setExpiresAt((System.currentTimeMillis() / 1000L) + 15 * 60)
+                .setExpiresAt((System.currentTimeMillis() / 1000L) + 30 * 60)
                 .addLineItem(lineItem)
                 .putMetadata("reservationId", String.valueOf(reservationId))
                 .putMetadata("seatIds", String.valueOf(seatIds))
