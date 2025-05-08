@@ -49,6 +49,7 @@ public class ReservationFeignService implements IReservationFeignService {
     @Transactional
     public void changeStatusToUnder_Payment(Long reservationId) {
         Reservation reservation = findReservationById(reservationId);
+        reservation.setExpiresAt(reservation.getExpiresAt().plusMinutes(15));
         reservation.setPaymentStatus(UNDER_PAYMENT);
         reservationRepository.save(reservation);
     }
