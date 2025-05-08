@@ -38,6 +38,8 @@ public class Reservation {
     // Feign
     private Long showtimeId;
 
+    private LocalDateTime expiresAt;
+
     @Version
     @ToString.Exclude
     private Long version;
@@ -45,5 +47,6 @@ public class Reservation {
     @PrePersist
     protected void onCreate() {
         reservationTime = LocalDateTime.now();
+        expiresAt = reservationTime.plusMinutes(10);
     }
 }
