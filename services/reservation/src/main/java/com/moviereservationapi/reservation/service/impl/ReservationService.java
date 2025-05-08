@@ -16,6 +16,7 @@ import com.moviereservationapi.reservation.model.ReservationSeat;
 import com.moviereservationapi.reservation.repository.ReservationRepository;
 import com.moviereservationapi.reservation.repository.ReservationSeatRepository;
 import com.moviereservationapi.reservation.service.ICacheService;
+import com.moviereservationapi.reservation.service.IJwtService;
 import com.moviereservationapi.reservation.service.IReservationService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -54,13 +55,14 @@ public class ReservationService implements IReservationService {
     private final CacheManager cacheManager;
     private final ICacheService cacheService;
     private final TransactionTemplate transactionTemplate;
+    private final IJwtService jwtService;
 
     @Override
     @Transactional
     public ReservationResponseDto addReservation(@Valid ReservationCreateDto reservationCreateDto) {
         String LOG_PREFIX = "addReservation";
 
-        String userId = userClient.getLoggedInUser().getId();
+        String userId = jwtService.getLoggedInUserIdFromJwt();
         Long showtimeId = reservationCreateDto.getShowtimeId();
         List<Long> seatIds = reservationCreateDto.getSeatIds();
         if (seatIds.isEmpty()) {
@@ -189,7 +191,7 @@ public class ReservationService implements IReservationService {
     @Override
     @Async
     public CompletableFuture<Page<ReservationDetailsDtoV2>> getUserReservations(int pageNum, int pageSize) {
-        String userId = userClient.getLoggedInUser().getId();
+        String userId = jwtService.getLoggedInUserIdFromJwt();
 
         String cacheKey = String.format("reservation_user_%s_page_%d_size_%d", userId, pageNum, pageSize);
         Cache cache = cacheManager.getCache("reservation_user");
