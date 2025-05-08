@@ -3,6 +3,7 @@ package org.moviereservationapi.user.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.moviereservationapi.user.feign.KeycloakClient;
 import org.moviereservationapi.user.model.AppUser;
 import org.moviereservationapi.user.repository.AppUserRepository;
 import org.moviereservationapi.user.service.IUserFeignService;
@@ -20,27 +21,7 @@ import java.util.Map;
 public class UserFeignService implements IUserFeignService {
 
     private final AppUserRepository appUserRepository;
-
-    @Override
-    @Transactional
-    public AppUser getLoggedInUserOrCreateIfNotExists() {
-        String LOG_PREFIX = "getLoggedInUser";
-
-        Map<String, Object> claims = getClaimsFromJwt();
-        String userId = (String) claims.get("sub");
-        String userMail = (String) claims.get("email");
-
-        // maybe add user validation check with the keycloak admin rest api.
-        return appUserRepository.findById(userId)
-                        .orElseGet(() -> {
-                            log.warn("{} :: User with the id {}, not found.", LOG_PREFIX, userId);
-                            return appUserRepository.save(
-                                    AppUser.builder()
-                                            .id(userId)
-                                            .email(userMail)
-                                            .build());
-                        });
-    }
+    private final KeycloakClient keycloakClient;
 
     @Override
     @Transactional
@@ -54,6 +35,32 @@ public class UserFeignService implements IUserFeignService {
 
         appUser.getReservationIds().add(reservationId);
         appUserRepository.save(appUser);
+    }
+
+    @Transactional
+    protected AppUser getLoggedInUserOrCreateIfNotExists() {
+        String LOG_PREFIX = "getLoggedInUser";
+
+        Map<String, Object> claims = getClaimsFromJwt();
+        String userId = (String) claims.get("sub");
+        String userMail = (String) claims.get("email");
+
+        return appUserRepository.findById(userId)
+                .orElseGet(() -> {
+//                    log.warn("{} :: User with the id {}, not found in DB. Verifying with Keycloak...", LOG_PREFIX, userId);
+//
+//                    KeycloakUserDto userDto = keycloakClient.getUserById("movie-app", userId);
+//                    if (userDto == null) {
+//                        log.error("{} :: User with ID {} does not exist in Keycloak. Rejecting creation.", LOG_PREFIX, userId);
+//                        throw new UserNotFoundInKeycloakDbException("Authenticated user does not exist in identity provider");
+//                    }
+
+                    return appUserRepository.save(
+                            AppUser.builder()
+                                    .id(userId)
+                                    .email(userMail)
+                                    .build());
+                });
     }
 
     private Map<String, Object> getClaimsFromJwt() {
