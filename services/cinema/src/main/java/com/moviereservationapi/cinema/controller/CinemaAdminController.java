@@ -28,7 +28,7 @@ public class CinemaAdminController {
         log.info("addCinema :: Called endpoint. (cinemaManageDto: {})", cinemaManageDto);
 
         CinemaDetailsDtoV1 savedCinema = cinemaService.addCinema(cinemaManageDto);
-        URI location = URI.create("/seats/" + savedCinema.getId());
+        URI location = URI.create("/cinemas/" + savedCinema.getId());
 
         return ResponseEntity.created(location).body(savedCinema);
     }
