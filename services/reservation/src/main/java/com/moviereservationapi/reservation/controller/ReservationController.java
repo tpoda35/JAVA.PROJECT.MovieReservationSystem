@@ -36,16 +36,16 @@ public class ReservationController {
         return ResponseEntity.created(location).body(savedReservation);
     }
 
-    @GetMapping("/user/{userId}")
+    // Modify to logged in user
+    @GetMapping("/user")
     public CompletableFuture<Page<ReservationDetailsDtoV2>> getUserReservations(
-            @PathVariable("userId") Long userId,
             @RequestParam(defaultValue = "0") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize
     ) {
-        log.info("getUserReservations :: Called endpoint. (userId: {}, pageNum: {}, pageSize: {})",
-                userId, pageNum, pageSize);
+        log.info("getUserReservations :: Called endpoint. (pageNum: {}, pageSize: {})",
+                pageNum, pageSize);
 
-        return reservationService.getUserReservations(pageNum, pageSize, userId);
+        return reservationService.getUserReservations(pageNum, pageSize);
     }
 
 }
