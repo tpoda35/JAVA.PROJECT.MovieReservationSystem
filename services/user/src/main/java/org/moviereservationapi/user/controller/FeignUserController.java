@@ -18,10 +18,10 @@ public class FeignUserController {
     private final IUserFeignService userService;
 
     @PostMapping
-    public AppUser getLoggedInUser() {
-        log.info("getLoggedInUser :: Endpoint called");
+    public AppUser getLoggedInUserOrCreateIfNotExists() {
+        log.info("getLoggedInUserOrCreateIfNotExists :: Endpoint called");
 
-        return userService.getLoggedInUser();
+        return userService.getLoggedInUserOrCreateIfNotExists();
     }
 
     @PostMapping("/{reservationId}")

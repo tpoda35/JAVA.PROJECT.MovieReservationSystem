@@ -23,7 +23,7 @@ public class UserFeignService implements IUserFeignService {
 
     @Override
     @Transactional
-    public AppUser getLoggedInUser() {
+    public AppUser getLoggedInUserOrCreateIfNotExists() {
         String LOG_PREFIX = "getLoggedInUser";
 
         Map<String, Object> claims = getClaimsFromJwt();
@@ -47,7 +47,7 @@ public class UserFeignService implements IUserFeignService {
     public void addReservationToUser(Long reservationId) {
         String LOG_PREFIX = "addReservationToUser";
 
-        AppUser appUser = getLoggedInUser();
+        AppUser appUser = getLoggedInUserOrCreateIfNotExists();
         log.info("{} :: Adding reservation with the id {} to the user with the id {}.",
                 LOG_PREFIX, reservationId, appUser.getId()
         );
