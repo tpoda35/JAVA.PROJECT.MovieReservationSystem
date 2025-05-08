@@ -2,7 +2,6 @@ package org.moviereservationapi.user.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.moviereservationapi.user.model.AppUser;
 import org.moviereservationapi.user.service.IUserFeignService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,13 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class FeignUserController {
 
     private final IUserFeignService userService;
-
-    @PostMapping
-    public AppUser getLoggedInUserOrCreateIfNotExists() {
-        log.info("getLoggedInUserOrCreateIfNotExists :: Endpoint called");
-
-        return userService.getLoggedInUserOrCreateIfNotExists();
-    }
 
     @PostMapping("/{reservationId}")
     public void addReservationToUser(
