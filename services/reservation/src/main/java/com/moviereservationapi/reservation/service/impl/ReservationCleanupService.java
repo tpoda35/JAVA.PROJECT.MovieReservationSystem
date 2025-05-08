@@ -20,18 +20,19 @@ public class ReservationCleanupService implements IReservationCleanupService {
     private final ReservationRepository reservationRepository;
 
     @Override
-    @Scheduled(fixedRate = 1 * 60 * 1000)
+    @Scheduled(fixedRate = 60 * 1000)
     public void deleteExpiredReservations() {
+        String LOG_PREFIX = "deleteExpiredReservations";
         LocalDateTime now = LocalDateTime.now();
 
         List<Reservation> expired = reservationRepository.findByExpiresAtBeforeAndPaymentStatusNot(
                 now, PaymentStatus.PAID
         );
 
+        log.info("{} :: Deleting {} expired reservation.", LOG_PREFIX, expired.size());
         expired.forEach(reservation -> {
-            log.info("(Cleanup Service) Deleted a reservation with the data of: {},", reservation);
+            log.info("(Cleanup Service) Deleted a reservation with the data of: {}.", reservation);
             reservationRepository.delete(reservation);
         });
-
     }
 }
