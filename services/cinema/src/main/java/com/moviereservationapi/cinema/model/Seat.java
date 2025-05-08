@@ -39,7 +39,7 @@ public class Seat {
     )
     @Column(name = "reservationSeat_id")
     @ToString.Exclude
-    private List<Long> reservationSeatids = new ArrayList<>();
+    private List<Long> reservationSeatIds = new ArrayList<>();
 
     @Version
     @ToString.Exclude
