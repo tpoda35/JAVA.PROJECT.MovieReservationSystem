@@ -188,8 +188,10 @@ public class ReservationService implements IReservationService {
 
     @Override
     @Async
-    public CompletableFuture<Page<ReservationDetailsDtoV2>> getUserReservations(int pageNum, int pageSize, Long userId) {
-        String cacheKey = String.format("reservation_user_%d_page_%d_size_%d", userId, pageNum, pageSize);
+    public CompletableFuture<Page<ReservationDetailsDtoV2>> getUserReservations(int pageNum, int pageSize) {
+        String userId = userClient.getLoggedInUser().getId();
+
+        String cacheKey = String.format("reservation_user_%s_page_%d_size_%d", userId, pageNum, pageSize);
         Cache cache = cacheManager.getCache("reservation_user");
         String LOG_PREFIX = "getUserReservations";
 
