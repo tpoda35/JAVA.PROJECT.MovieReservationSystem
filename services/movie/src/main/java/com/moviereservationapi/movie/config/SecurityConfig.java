@@ -39,13 +39,10 @@ public class SecurityConfig {
 
     private Converter<Jwt, AbstractAuthenticationToken> keycloakJwtConverter() {
         return jwt -> {
-            // Extract email from the JWT claims
             String email = jwt.getClaimAsString("email");
 
-            // Extract roles/authorities from the JWT
             Collection<GrantedAuthority> authorities = extractAuthorities(jwt);
 
-            // Create a JwtAuthenticationToken with the email as the principal name
             return new JwtAuthenticationToken(jwt, authorities, email);
         };
     }
@@ -53,14 +50,12 @@ public class SecurityConfig {
     private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
         List<GrantedAuthority> authorities = new ArrayList<>();
 
-        // Extract realm roles
         Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
         if (realmAccess != null && realmAccess.containsKey("roles")) {
             List<String> roles = (List<String>) realmAccess.get("roles");
             roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
         }
 
-        // Extract resource roles for "movie-api"
         Map<String, Object> resourceAccess = jwt.getClaimAsMap("resource_access");
         if (resourceAccess != null && resourceAccess.containsKey("movie-api")) {
             Map<String, Object> clientResource = (Map<String, Object>) resourceAccess.get("movie-api");
