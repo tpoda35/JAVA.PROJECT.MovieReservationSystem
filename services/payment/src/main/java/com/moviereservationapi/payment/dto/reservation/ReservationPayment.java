@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ReservationPayment {
 
+    private Long reservationId;
     private List<Long> seatIds = new ArrayList<>();
     private Long showtimeId;
     private String userId;
