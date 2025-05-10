@@ -1,13 +1,12 @@
 package com.moviereservationapi.reservation.mapper;
 
-import com.moviereservationapi.reservation.dto.reservation.ReservationDetailsDtoV1;
-import com.moviereservationapi.reservation.dto.reservation.ReservationDetailsDtoV2;
-import com.moviereservationapi.reservation.dto.reservation.ReservationPayment;
-import com.moviereservationapi.reservation.dto.reservation.ReservationResponseDto;
 import com.moviereservationapi.reservation.dto.feign.SeatDto;
 import com.moviereservationapi.reservation.dto.feign.ShowtimeDto;
+import com.moviereservationapi.reservation.dto.feign.StripeResponse;
+import com.moviereservationapi.reservation.dto.reservation.ReservationDetailsDtoV1;
+import com.moviereservationapi.reservation.dto.reservation.ReservationDetailsDtoV2;
+import com.moviereservationapi.reservation.dto.reservation.ReservationResponseDto;
 import com.moviereservationapi.reservation.model.Reservation;
-import com.moviereservationapi.reservation.model.ReservationSeat;
 
 import java.util.List;
 
@@ -16,7 +15,8 @@ public class ReservationMapper {
     public static ReservationResponseDto fromReservationToResponseDto(
             Reservation reservation,
             ShowtimeDto showtimeDto,
-            List<SeatDto> seatDtos
+            List<SeatDto> seatDtos,
+            StripeResponse stripeResponse
     ) {
         return ReservationResponseDto.builder()
                 .id(reservation.getId())
@@ -24,6 +24,7 @@ public class ReservationMapper {
                 .paymentStatus(reservation.getPaymentStatus())
                 .seatDtos(seatDtos)
                 .showtimeDto(showtimeDto)
+                .stripeResponse(stripeResponse)
                 .build();
     }
 
