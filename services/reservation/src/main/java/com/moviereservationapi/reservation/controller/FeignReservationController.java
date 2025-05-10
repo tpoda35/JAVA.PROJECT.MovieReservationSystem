@@ -1,6 +1,5 @@
 package com.moviereservationapi.reservation.controller;
 
-import com.moviereservationapi.reservation.dto.reservation.ReservationPayment;
 import com.moviereservationapi.reservation.service.IReservationFeignService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,23 +40,13 @@ public class FeignReservationController {
         reservationFeignService.changeStatusToFailed(reservationId);
     }
 
-    @PostMapping("/changeStatusToUnder_Payment/{reservationId}")
-    public void changeStatusToUnder_Payment(
+    @PostMapping("/deleteExpiredReservationById/{reservationId}")
+    public void deleteExpiredReservationById(
             @PathVariable("reservationId") Long reservationId
     ) {
-        log.info("(Feign call) Changing reservation status to UNDER_PAYMENT with the id of {}.", reservationId);
+        log.info("(Feign call) Deleting expired reservation with the id of {}.", reservationId);
 
-        reservationFeignService.changeStatusToUnder_Payment(reservationId);
-    }
-
-    // Post mapping, because of data safety.
-    @PostMapping("/checkPaidAndGetPaymentDataByReservationId/{reservationId}")
-    public ReservationPayment checkPaidAndGetPaymentDataByReservationId(
-            @PathVariable("reservationId") Long reservationId
-    ) {
-        log.info("(Feign call) Getting payment data with reservationId of {}.", reservationId);
-
-        return reservationFeignService.checkPaidAndGetPaymentDataByReservationId(reservationId);
+        reservationFeignService.deleteExpiredReservationById(reservationId);
     }
 
 }
