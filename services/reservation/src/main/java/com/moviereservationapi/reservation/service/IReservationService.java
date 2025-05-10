@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 import java.util.concurrent.CompletableFuture;
 
 public interface IReservationService {
-    ReservationResponseDto addReservation(ReservationCreateDto reservationCreateDto);
+    ReservationResponseDto addReservationAndCreateCheckoutUrl(ReservationCreateDto reservationCreateDto);
     CompletableFuture<ReservationDetailsDtoV1> getReservation(Long reservationId);
     void deleteReservation(Long reservationId);
     CompletableFuture<Page<ReservationDetailsDtoV2>> getUserReservations(int pageNum, int pageSize);
