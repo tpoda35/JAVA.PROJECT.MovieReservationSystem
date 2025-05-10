@@ -15,5 +15,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     void removeAllByShowtimeId(Long showtimeId);
     Page<Reservation> findByUserId(String userId, Pageable pageable);
-    List<Reservation> findByExpiresAtBeforeAndPaymentStatusNot(LocalDateTime expiresAt, PaymentStatus paymentStatus);
+    List<Reservation> findByExpiresAtBeforeAndPaymentStatus(LocalDateTime expiresAt, PaymentStatus paymentStatus);
 }
