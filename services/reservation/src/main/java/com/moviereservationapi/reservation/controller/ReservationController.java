@@ -25,12 +25,12 @@ public class ReservationController {
     private final IReservationService reservationService;
 
     @PostMapping
-    public ResponseEntity<ReservationResponseDto> addReservation(
+    public ResponseEntity<ReservationResponseDto> addReservationAndCreateCheckoutUrl(
             @RequestBody ReservationCreateDto reservationCreateDto
     ) {
-        log.info("addReservation :: Called endpoint. (ReservationCreateDto: {})", reservationCreateDto);
+        log.info("addReservationAndCreateCheckoutUrl :: Called endpoint. (ReservationCreateDto: {})", reservationCreateDto);
 
-        ReservationResponseDto savedReservation = reservationService.addReservation(reservationCreateDto);
+        ReservationResponseDto savedReservation = reservationService.addReservationAndCreateCheckoutUrl(reservationCreateDto);
         URI location = URI.create("/seats/" + savedReservation.getId());
 
         return ResponseEntity.created(location).body(savedReservation);
