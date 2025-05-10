@@ -20,4 +20,6 @@ public class ReservationCreateDto {
     @NotNull(message = "SeatIds field is required.")
     private List<Long> seatIds;
 
+    private String currency;
+
 }
