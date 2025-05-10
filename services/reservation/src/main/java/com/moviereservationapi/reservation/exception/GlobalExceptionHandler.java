@@ -15,6 +15,17 @@ import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(SeatLimitExceededException.class)
+    public ResponseEntity<CustomExceptionDto> handleSeatLimitExceededException(SeatLimitExceededException ex) {
+        return ResponseEntity.status(BAD_REQUEST).body(
+                new CustomExceptionDto(
+                        ex.getMessage(),
+                        LocalDateTime.now(),
+                        BAD_REQUEST.value()
+                )
+        );
+    }
+
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<CustomExceptionDto> handleFeignStatusException(FeignException ex) {
         HttpStatus status = HttpStatus.valueOf(ex.status());
