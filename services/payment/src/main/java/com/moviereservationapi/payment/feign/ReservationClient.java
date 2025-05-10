@@ -1,6 +1,5 @@
 package com.moviereservationapi.payment.feign;
 
-import com.moviereservationapi.payment.dto.reservation.ReservationPayment;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,18 +12,8 @@ public interface ReservationClient {
             @PathVariable("reservationId") Long reservationId
     );
 
-    @PostMapping("/api/reservations/feign/changeStatusToFailed/{reservationId}")
-    void changeStatusToFailed(
-            @PathVariable("reservationId") Long reservationId
-    );
-
-    @PostMapping("/api/reservations/feign/changeStatusToUnder_Payment/{reservationId}")
-    void changeStatusToUnder_Payment(
-            @PathVariable("reservationId") Long reservationId
-    );
-
-    @PostMapping("/api/reservations/feign/checkPaidAndGetPaymentDataByReservationId/{reservationId}")
-    ReservationPayment checkPaidAndGetPaymentDataByReservationId(
+    @PostMapping("/api/reservations/feign/deleteExpiredReservationById/{reservationId}")
+    void deleteExpiredReservationById(
             @PathVariable("reservationId") Long reservationId
     );
 }
