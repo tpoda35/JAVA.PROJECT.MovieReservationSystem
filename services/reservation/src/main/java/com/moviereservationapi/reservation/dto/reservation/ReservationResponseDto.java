@@ -3,6 +3,7 @@ package com.moviereservationapi.reservation.dto.reservation;
 import com.moviereservationapi.reservation.Enum.PaymentStatus;
 import com.moviereservationapi.reservation.dto.feign.SeatDto;
 import com.moviereservationapi.reservation.dto.feign.ShowtimeDto;
+import com.moviereservationapi.reservation.dto.feign.StripeResponse;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
@@ -26,5 +27,7 @@ public class ReservationResponseDto {
     private PaymentStatus paymentStatus;
     private List<SeatDto> seatDtos;
     private ShowtimeDto showtimeDto;
+
+    private StripeResponse stripeResponse;
 
 }
