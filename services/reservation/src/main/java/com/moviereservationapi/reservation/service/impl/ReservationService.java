@@ -2,12 +2,11 @@ package com.moviereservationapi.reservation.service.impl;
 
 import com.moviereservationapi.reservation.dto.feign.SeatDto;
 import com.moviereservationapi.reservation.dto.feign.ShowtimeDto;
-import com.moviereservationapi.reservation.dto.reservation.ReservationCreateDto;
-import com.moviereservationapi.reservation.dto.reservation.ReservationDetailsDtoV1;
-import com.moviereservationapi.reservation.dto.reservation.ReservationDetailsDtoV2;
-import com.moviereservationapi.reservation.dto.reservation.ReservationResponseDto;
+import com.moviereservationapi.reservation.dto.feign.StripeResponse;
+import com.moviereservationapi.reservation.dto.reservation.*;
 import com.moviereservationapi.reservation.exception.*;
 import com.moviereservationapi.reservation.feign.CinemaClient;
+import com.moviereservationapi.reservation.feign.PaymentClient;
 import com.moviereservationapi.reservation.feign.ShowtimeClient;
 import com.moviereservationapi.reservation.feign.UserClient;
 import com.moviereservationapi.reservation.mapper.ReservationMapper;
@@ -51,6 +50,7 @@ public class ReservationService implements IReservationService {
     private final ShowtimeClient showtimeClient;
     private final CinemaClient cinemaClient;
     private final UserClient userClient;
+    private final PaymentClient paymentClient;
     private final RedissonClient redissonClient;
     private final CacheManager cacheManager;
     private final ICacheService cacheService;
@@ -59,7 +59,7 @@ public class ReservationService implements IReservationService {
 
     @Override
     @Transactional
-    public ReservationResponseDto addReservation(@Valid ReservationCreateDto reservationCreateDto) {
+    public ReservationResponseDto addReservationAndCreateCheckoutUrl(@Valid ReservationCreateDto reservationCreateDto) {
         String LOG_PREFIX = "addReservation";
 
         String userId = jwtService.getLoggedInUserIdFromJwt();
@@ -68,6 +68,11 @@ public class ReservationService implements IReservationService {
         if (seatIds.isEmpty()) {
             log.error("{} :: Seat list is empty. userId={}, showtimeId={}", LOG_PREFIX, userId, showtimeId);
             throw new SeatListEmptyException("You must reserve at least one seat.");
+        }
+
+        if (seatIds.size() > 6) {
+            log.error("{} :: Seat list size > 6. userId={}, showtimeId={}", LOG_PREFIX, userId, showtimeId);
+            throw new SeatLimitExceededException("Max seat limit exceeded (6).");
         }
 
         boolean alreadyReserved = reservationSeatRepository
@@ -103,11 +108,21 @@ public class ReservationService implements IReservationService {
                 .collect(Collectors.toList());
         reservation.setReservationSeats(reservationSeats);
 
-        reservationRepository.save(reservation);
-
+        Reservation newReservation = reservationRepository.save(reservation);
         userClient.addReservationToUser(reservation.getId());
 
-        return ReservationMapper.fromReservationToResponseDto(reservation, showtimeDto, seatDtos);
+        StripeResponse stripeResponse = paymentClient.checkout(
+                reservationCreateDto.getCurrency(),
+                ReservationPayment.builder()
+                        .reservationId(newReservation.getId())
+                        .seatIds(seatIds)
+                        .showtimeId(showtimeId)
+                        .userId(userId)
+                        .build()
+
+                );
+
+        return ReservationMapper.fromReservationToResponseDto(reservation, showtimeDto, seatDtos, stripeResponse);
     }
 
     @Override
