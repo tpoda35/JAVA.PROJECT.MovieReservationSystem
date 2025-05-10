@@ -1,6 +1,5 @@
 package com.moviereservationapi.reservation.service.impl;
 
-import com.moviereservationapi.reservation.Enum.PaymentStatus;
 import com.moviereservationapi.reservation.model.Reservation;
 import com.moviereservationapi.reservation.repository.ReservationRepository;
 import com.moviereservationapi.reservation.service.IReservationCleanupService;
@@ -12,6 +11,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.moviereservationapi.reservation.Enum.PaymentStatus.PENDING;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -20,13 +21,13 @@ public class ReservationCleanupService implements IReservationCleanupService {
     private final ReservationRepository reservationRepository;
 
     @Override
-    @Scheduled(fixedRate = 60 * 1000)
+    @Scheduled(cron = "0 0 0 * * *")
     public void deleteExpiredReservations() {
         String LOG_PREFIX = "deleteExpiredReservations";
         LocalDateTime now = LocalDateTime.now();
 
-        List<Reservation> expired = reservationRepository.findByExpiresAtBeforeAndPaymentStatusNot(
-                now, PaymentStatus.PAID
+        List<Reservation> expired = reservationRepository.findByExpiresAtBeforeAndPaymentStatus(
+                now, PENDING
         );
 
         log.info("{} :: Deleting {} expired reservation.", LOG_PREFIX, expired.size());
