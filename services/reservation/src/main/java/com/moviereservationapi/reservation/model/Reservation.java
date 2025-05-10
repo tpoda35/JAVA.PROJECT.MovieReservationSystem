@@ -14,7 +14,8 @@ import java.util.List;
 @Entity
 @Table(
         indexes = {
-                @Index(name = "idx_reservation_showtime_id", columnList = "showtimeId")
+                @Index(name = "idx_reservation_showtime_id", columnList = "showtimeId"),
+                @Index(name = "idx_reservation_expires_at", columnList = "expiresAt")
         }
 )
 public class Reservation {
@@ -47,6 +48,6 @@ public class Reservation {
     @PrePersist
     protected void onCreate() {
         reservationTime = LocalDateTime.now();
-        expiresAt = reservationTime.plusMinutes(10);
+        expiresAt = reservationTime.plusMinutes(30);
     }
 }
