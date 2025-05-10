@@ -56,10 +56,10 @@ public class PaymentService implements IPaymentService {
 
     @Override
     @Transactional
-    public StripeResponse checkout(Long reservationId, String currency) {
+    public StripeResponse checkout(ReservationPayment reservationData, String currency) {
         String LOG_PREFIX = "checkout";
 
-        ReservationPayment reservationData = reservationClient.checkPaidAndGetPaymentDataByReservationId(reservationId);
+        Long reservationId = reservationData.getReservationId();
         Long showtimeId = reservationData.getShowtimeId();
         List<Long> seatIds = reservationData.getSeatIds();
         String userId = reservationData.getUserId();
@@ -82,9 +82,6 @@ public class PaymentService implements IPaymentService {
                 )
                 .setQuantity(seatCount)
                 .build();
-
-
-        reservationClient.changeStatusToUnder_Payment(reservationId);
 
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
