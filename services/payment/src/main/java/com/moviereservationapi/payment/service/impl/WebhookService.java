@@ -120,8 +120,8 @@ public class WebhookService implements IWebhookService {
 
                     log.info("(Stripe Webhook) Published PaymentEvent.");
                 } else {
-                    log.warn("(Stripe Webhook) Failed payment.");
-                    reservationClient.changeStatusToFailed(reservationId);
+                    log.warn("(Stripe Webhook) Failed or expired payment.");
+                    reservationClient.deleteExpiredReservationById(reservationId);
                 }
                 break;
 
