@@ -12,5 +12,5 @@ public interface IReservationService {
     ReservationResponseDto addReservationAndCreateCheckoutUrl(ReservationCreateDto reservationCreateDto);
     CompletableFuture<ReservationDetailsDtoV1> getReservation(Long reservationId);
     void deleteReservation(Long reservationId);
-    CompletableFuture<Page<ReservationDetailsDtoV2>> getUserReservations(int pageNum, int pageSize);
+    CompletableFuture<Page<ReservationDetailsDtoV2>> getLoggedInUserReservations(int pageNum, int pageSize);
 }

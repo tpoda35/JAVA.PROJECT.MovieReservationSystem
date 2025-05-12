@@ -2,6 +2,7 @@ package com.moviereservationapi.notification.model;
 
 import com.moviereservationapi.notification.Enum.Channel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 
 @Document("notificationDetails")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class NotificationDetails {
