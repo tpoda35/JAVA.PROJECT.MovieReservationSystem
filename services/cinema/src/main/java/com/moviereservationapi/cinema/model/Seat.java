@@ -3,9 +3,6 @@ package com.moviereservationapi.cinema.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -31,15 +28,6 @@ public class Seat {
             nullable = false)
     @ToString.Exclude
     private Room room;
-
-    @ElementCollection
-    @CollectionTable(
-            name = "reservationSeat_seat",
-            joinColumns = @JoinColumn(name = "seat_id")
-    )
-    @Column(name = "reservationSeat_id")
-    @ToString.Exclude
-    private List<Long> reservationSeatIds = new ArrayList<>();
 
     @Version
     @ToString.Exclude

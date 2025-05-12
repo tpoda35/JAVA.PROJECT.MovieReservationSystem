@@ -205,7 +205,7 @@ public class ReservationService implements IReservationService {
 
     @Override
     @Async
-    public CompletableFuture<Page<ReservationDetailsDtoV2>> getUserReservations(int pageNum, int pageSize) {
+    public CompletableFuture<Page<ReservationDetailsDtoV2>> getLoggedInUserReservations(int pageNum, int pageSize) {
         String userId = jwtService.getLoggedInUserIdFromJwt();
 
         String cacheKey = String.format("reservation_user_%s_page_%d_size_%d", userId, pageNum, pageSize);

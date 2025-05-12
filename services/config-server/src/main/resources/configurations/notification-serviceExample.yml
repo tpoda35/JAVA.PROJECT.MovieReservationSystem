@@ -1,5 +1,5 @@
 # Rename this to "notification-service.yml"!
-# Fill your own data where you see "your...".
+# You can let everything be like this.
 
 spring:
   security:
