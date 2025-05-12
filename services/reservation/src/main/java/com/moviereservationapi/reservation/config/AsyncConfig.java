@@ -6,6 +6,7 @@ import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 
 import java.util.concurrent.Executor;
 
@@ -23,7 +24,7 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.setMaxPoolSize(4);
         executor.setThreadNamePrefix("AsyncThread-");
         executor.initialize();
-        return executor;
+        return new DelegatingSecurityContextAsyncTaskExecutor(executor);
     }
 
     @Override
