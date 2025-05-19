@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'spring-boot-services'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets:
+          # host.docker.internal is enabled the access for docker to reach services outside the container.
+          - host.docker.internal:8090
+          - host.docker.internal:8091
+          - host.docker.internal:8092
+          - host.docker.internal:8093
+          - host.docker.internal:8094
+          - host.docker.internal:8095
+          - host.docker.internal:8096
+
