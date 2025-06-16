@@ -1,6 +1,7 @@
 - ReservationCreateDto -> List validation problems, seatIds can be null.
 - deleteReservation endpoint -> Check if user has that reservation and put it to "user" controller.
 - If payment fails the code should put back the reservation to the "pending" state.
+- Add security config to user service.
 
 - Add more data (movie, seats, room) to the getUserReservations.
 - Add picture saving for movies.
