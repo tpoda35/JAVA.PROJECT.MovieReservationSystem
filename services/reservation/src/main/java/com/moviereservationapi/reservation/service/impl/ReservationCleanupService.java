@@ -21,7 +21,7 @@ public class ReservationCleanupService implements IReservationCleanupService {
     private final ReservationRepository reservationRepository;
 
     @Override
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0/15 * * * *")
     public void deleteExpiredReservations() {
         String LOG_PREFIX = "deleteExpiredReservations";
         LocalDateTime now = LocalDateTime.now();

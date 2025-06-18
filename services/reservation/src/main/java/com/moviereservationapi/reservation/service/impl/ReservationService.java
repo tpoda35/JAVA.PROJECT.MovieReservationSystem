@@ -33,6 +33,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -99,6 +100,7 @@ public class ReservationService implements IReservationService {
         reservation.setUserId(userId);
         reservation.setShowtimeId(showtimeId);
         reservation.setPaymentStatus(PENDING);
+        reservation.setExpiresAt(LocalDateTime.now().plusMinutes(15));
 
         List<ReservationSeat> reservationSeats = seatIds.stream()
                 .map(seatId -> ReservationSeat.builder()

@@ -3,7 +3,6 @@ package com.moviereservationapi.payment.service.impl;
 import com.moviereservationapi.payment.dto.payment.StripeResponse;
 import com.moviereservationapi.payment.dto.reservation.ReservationPayment;
 import com.moviereservationapi.payment.exception.PaymentException;
-import com.moviereservationapi.payment.feign.ReservationClient;
 import com.moviereservationapi.payment.service.IJwtService;
 import com.moviereservationapi.payment.service.IPaymentService;
 import com.stripe.Stripe;
@@ -28,11 +27,9 @@ public class PaymentService implements IPaymentService {
     private final String successUrl;
     private final String cancelUrl;
 
-    private final ReservationClient reservationClient;
     private final IJwtService jwtService;
 
     public PaymentService(
-            ReservationClient reservationClient,
             IJwtService jwtService,
             @Value("${apiKey.stripeKey}") String stripeKey,
             @Value("${payment.default_currency}") String defaultCurrency,
@@ -40,7 +37,6 @@ public class PaymentService implements IPaymentService {
             @Value("${payment.success_url}") String successUrl,
             @Value("${payment.cancel_url}") String cancelUrl
     ) {
-        this.reservationClient = reservationClient;
         this.jwtService = jwtService;
         this.stripeKey = stripeKey;
         this.defaultCurrency = defaultCurrency;
